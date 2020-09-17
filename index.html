@@ -17,7 +17,7 @@ title: Home
 
         {% if post.featured == true %}
 
-            {% include featuredbox.html %}
+            {% include featured-card.html %}
 
         {% endif %}
 
@@ -34,7 +34,7 @@ title: Home
 
     <div class="section-title">
 
-        <h2><span>All Stories</span></h2>
+        <h2><span>All Posts</span></h2>
 
     </div>
 
@@ -42,7 +42,7 @@ title: Home
 
         {% for post in paginator.posts %}
 
-        {% include postbox.html %}
+        {% include post-card.html %}
 
         {% endfor %}
 

@@ -6,6 +6,8 @@ categories: [ Jekyll, tutorial ]
 image: assets/images/12.jpg
 featured: true
 hidden: true
+beforetoc: "Markdown editor is a very powerful thing. In this article I'm going to show you what you can actually do with it, some tricks and tips while editing your post."
+toc: true
 ---
 
 Director Roland Suso Richter's enigmatic psychological thriller (direct to video/DVD) was based upon screenwriter Michael Cooney's own play "Point of Death" - a title that gave away the film's entire plot twist premise.
