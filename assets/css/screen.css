@@ -183,26 +183,26 @@ section.recent-posts {
     border-radius: 100%;
 }
 
-.post-top-meta {
+.post-bottom-meta {
     margin-bottom: 2rem;
 }
 
-.post-top-meta .author-thumb {
-    width: 72px;
-    height: 72px;
+.post-bottom-meta .author-thumb {
+    width: 90px;
+    height: 90px;
 }
 
-.post-top-meta.authorpage .author-thumb {
+.post-bottom-meta.authorpage .author-thumb {
     margin-top: 40px;
 }
 
-.post-top-meta span {
+.post-bottom-meta span {
     font-size: 0.9rem;
     color: rgba(0, 0, 0, .44);
     display: inline-block;
 }
 
-.post-top-meta .author-description {
+.post-bottom-meta .author-description {
     margin-bottom: 5px;
     margin-top: 5px;
     font-size: 0.95rem;
@@ -461,13 +461,13 @@ blockquote {
 }
 
 @media (max-width:1024px) {
-    .post-top-meta .col-md-10 {
+    .post-bottom-meta .col-md-10 {
         text-align: center;
     }
 }
 
 @media (max-width:767px) {
-    .post-top-meta.authorpage {
+    .post-bottom-meta.authorpage {
         text-align: center;
     }
 }
@@ -546,7 +546,7 @@ ul.tags li a:hover {
     text-transform: uppercase;
 }
 
-.post-top-meta .btn.follow {
+.post-bottom-meta .btn.follow {
     margin-left: 5px;
     margin-top: -4px;
 }
@@ -621,7 +621,7 @@ ul.tags li a:hover {
     font-size: 30px;
 }
 
-.post-top-meta.authorpage .author-thumb {
+.post-bottom-meta.authorpage .author-thumb {
     float: none;
 }
 
@@ -630,7 +630,7 @@ ul.tags li a:hover {
     color: rgba(0, 0, 0, .6);
 }
 
-.post-top-meta.authorpage .btn.follow {
+.post-bottom-meta.authorpage .btn.follow {
     padding: 7px 20px;
     margin-top: 10px;
     margin-left: 0;

@@ -6,17 +6,17 @@ logo: 'assets/images/logo.png'
 favicon: 'assets/images/logo.png'
 baseurl: ""
 google_analytics: 
-disqus: 'demowebsite'
+disqus: 'prateek-codes-blog'
 mailchimp-list: 
 include: ["_pages"]
 permalink: /:title/
 
 # Authors
 authors:
-  sal:
+  prateek:
     name: Prateek Choudhary
     display_name: Prateek Choudhary
-    gravatar: 
+    avatar: 'assets/images/prateek-avatar.jpg'
     email: prateekkish@gmail.com
     web: prateekcodes.dev
     twitter: https://twitter.com/prateekkish
