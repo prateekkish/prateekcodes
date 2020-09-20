@@ -5,7 +5,7 @@ description: ""
 logo: 'assets/images/logo.png'
 favicon: 'assets/images/logo.png'
 baseurl: ""
-google_analytics: 
+google_analytics: UA-158773406-2
 disqus: 'prateek-codes-blog'
 mailchimp-list: 
 include: ["_pages"]
@@ -20,6 +20,8 @@ authors:
     email: prateekkish@gmail.com
     web: prateekcodes.dev
     twitter: https://twitter.com/prateekkish
+    linkedin: https://www.linkedin.com/in/choudharyprateek/
+    github: https://github.com/prateekkish
     description: "Software Developer at Saeloun, a Ruby on Rails Consulting & Development Company."
 
 # Plugins
