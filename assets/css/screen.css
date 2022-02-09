@@ -1,7 +1,7 @@
-/* 
-Template Name: Mediumish 
-Copyright: Sal, WowThemes.net, https://www.wowthemes.net 
-License: https://www.wowthemes.net/freebies-license/ 
+/*
+Template Name: Mediumish
+Copyright: Sal, WowThemes.net, https://www.wowthemes.net
+License: https://www.wowthemes.net/freebies-license/
 */
 @media screen and (min-width:1500px) {
     html { font-size:18px; } /* Increase the font size on higher resolutions */
@@ -11,12 +11,16 @@ License: https://www.wowthemes.net/freebies-license/
     padding: 1rem 0rem;
 }
 
-a {
+a, .navbar-collapse .navbar-nav .nav-item .nav-link {
     color: #00ab6b;
     transition: all 0.2s;
 }
 
-a:hover {
+.nav-item.active {
+    text-decoration: underline;
+}
+
+a:hover, a, .navbar-collapse .navbar-nav .nav-item .nav-link:hover {
     color: #038252;
     text-decoration: none;
 }
@@ -316,6 +320,7 @@ span.post-read-more a:hover {
 .sitetitle {
     font-family: Righteous;
     display: inline-block;
+    font-display: swap;
 }
 
 .mainheading h1.posttitle {
@@ -344,6 +349,7 @@ span.post-read-more a:hover {
     font-size: 1.1rem;
     line-height: 1.84;
     color: rgba(0, 0, 0, .8);
+    font-display: swap;
 }
 
 blockquote {
