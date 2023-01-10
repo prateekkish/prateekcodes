@@ -3,6 +3,9 @@ frontend:
   phases:
     preBuild:
       commands:
+        - eval "$(/root/.rbenv/bin/rbenv init - bash)"
+        - rbenv global 3.1.2
+        - gem install bundler
         - bundle install
     build:
       commands:
