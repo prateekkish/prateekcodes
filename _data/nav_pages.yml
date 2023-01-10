@@ -3,3 +3,5 @@ pages:
     url: /
   - title: Categories
     url: /categories
+  - title: Projects
+    url: /projects
