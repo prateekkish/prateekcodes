@@ -1,7 +1,7 @@
 # Site
 name: "Prateek Codes Blog"
 title: "Prateek Choudhary's Blog"
-description: ""
+description: "Tech blog with learnings from Ruby on Rails, React, among other things."
 logo: 'assets/images/logo.avif'
 favicon: 'assets/images/logo.avif'
 baseurl: ""
@@ -22,7 +22,7 @@ authors:
     twitter: https://twitter.com/prateekkish
     linkedin: https://www.linkedin.com/in/choudharyprateek/
     github: https://github.com/prateekkish
-    description: "Software Developer at Saeloun, a Ruby on Rails Consulting & Development Company."
+    description: "Senior Software Developer"
 
 # Plugins
 plugins:
