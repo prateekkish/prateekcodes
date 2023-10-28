@@ -6,7 +6,6 @@ logo: 'assets/images/logo.avif'
 favicon: 'assets/images/logo.avif'
 baseurl: ""
 google_analytics: UA-158773406-2
-disqus: 'prateek-codes-blog'
 mailchimp-list:
 include: ["_pages"]
 permalink: /:title/
