@@ -31,6 +31,8 @@ GEM
       jekyll (>= 3.6, < 5.0)
     jekyll-compose (0.12.0)
       jekyll (>= 3.7, < 5.0)
+    jekyll-environment-variables (1.0.1)
+      jekyll (>= 3.0, < 5.x)
     jekyll-feed (0.15.1)
       jekyll (>= 3.7, < 5.0)
     jekyll-paginate (1.1.0)
@@ -73,6 +75,7 @@ PLATFORMS
 DEPENDENCIES
   jekyll-archives
   jekyll-compose
+  jekyll-environment-variables
   jekyll-feed
   jekyll-paginate
   jekyll-seo-tag
