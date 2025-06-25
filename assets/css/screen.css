@@ -14,8 +14,10 @@ a, .navbar-collapse .navbar-nav .nav-item .nav-link {
     transition: all 0.2s;
 }
 
-.nav-item.active {
-    text-decoration: underline;
+.nav-item.active .nav-link {
+    text-decoration: none;
+    color: #038252;
+    font-weight: 600;
 }
 
 a:hover, a, .navbar-collapse .navbar-nav .nav-item .nav-link:hover {
@@ -328,7 +330,7 @@ span.post-read-more a:hover {
 
 .footer {
     border-top: 1px solid rgba(0, 0, 0, .05) !important;
-    padding-top: 15px;
+    padding-top: 40px;
     padding-bottom: 12px;
     font-size: 0.8rem;
     color: rgba(0, 0, 0, .44);
@@ -336,6 +338,85 @@ span.post-read-more a:hover {
     margin-bottom: 62px;
     position: relative;
     background: #fff;
+}
+
+/* Contact Section in Footer */
+.contact-section {
+    margin-bottom: 2rem;
+}
+
+.contact-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, .8);
+    margin-bottom: 0.5rem;
+}
+
+.contact-subtitle {
+    font-size: 1rem;
+    color: rgba(0, 0, 0, .6);
+    margin-bottom: 1.5rem;
+}
+
+.contact-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.contact-link {
+    color: #00ab6b;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    padding: 0.5rem 0;
+}
+
+.contact-link:hover {
+    color: #038252;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.contact-link i {
+    margin-right: 0.3rem;
+}
+
+.email-link {
+    font-weight: 600;
+}
+
+.contact-divider {
+    color: rgba(0, 0, 0, .2);
+    margin: 0 0.5rem;
+}
+
+.footer-divider {
+    border: 0;
+    border-top: 1px solid rgba(0, 0, 0, .08);
+    margin: 2rem 0 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .contact-links {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    
+    .contact-divider {
+        display: none;
+    }
+    
+    .contact-title {
+        font-size: 1.3rem;
+    }
+    
+    .contact-subtitle {
+        font-size: 0.9rem;
+    }
 }
 
 .link-dark {
