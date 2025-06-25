@@ -48,8 +48,9 @@ jobs:
         htmlproofer ./_site \
           --disable-external \
           --allow-hash-href \
-          --ignore-urls "/^#/" \
-          --ignore-files "/assets/js/"
+          --ignore-urls "/^#/,/prateekcodes\.dev/" \
+          --ignore-files "/assets/js/" \
+          --assume-extension ".html"
     
     - name: Upload build artifacts
       if: always()
