@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build-and-validate:
     runs-on: ubuntu-latest
     
     steps:
@@ -20,21 +20,39 @@ jobs:
         bundler-cache: true
     
     - name: Install dependencies
-      run: bundle install
+      run: |
+        gem install bundler:2.6.7
+        bundle config set --local deployment 'true'
+        bundle install
     
     - name: Build Jekyll site
-      run: bundle exec jekyll build
+      run: JEKYLL_ENV=production bundle exec jekyll build
+    
+    - name: Validate build
+      run: |
+        if [ ! -d "_site" ]; then
+          echo "Build failed: _site directory not found"
+          exit 1
+        fi
+        
+        if [ ! -f "_site/index.html" ]; then
+          echo "Build failed: index.html not found"
+          exit 1
+        fi
+        
+        echo "Build validation passed!"
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: jekyll-site
         path: _site/
+        retention-days: 7
 
-  deploy-preview:
-    needs: build-and-test
+  deploy:
+    needs: build-and-validate
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: success()
     
     permissions:
       pull-requests: write
@@ -43,6 +61,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: jekyll-site
+        path: _site/
+    
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
@@ -50,68 +74,124 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
     
-    - name: Deploy to Amplify Preview
-      id: deploy
+    # Deploy to production for main branch
+    - name: Deploy to Production
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: |
-        # Get Amplify app ID
+        echo "Deploying to production Amplify app..."
         APP_ID="${{ secrets.AMPLIFY_APP_ID }}"
         
-        # Create deployment for PR
-        DEPLOYMENT_ID=$(aws amplify create-deployment \
+        # Trigger deployment on main branch
+        aws amplify start-job \
           --app-id $APP_ID \
-          --branch-name "pr-${{ github.event.pull_request.number }}" \
+          --branch-name main \
+          --job-type RELEASE
+        
+        echo "Production deployment triggered!"
+    
+    # Create preview for PRs
+    - name: Deploy PR Preview
+      if: github.event_name == 'pull_request'
+      id: deploy-preview
+      run: |
+        echo "Creating preview deployment for PR #${{ github.event.pull_request.number }}..."
+        APP_ID="${{ secrets.AMPLIFY_APP_ID }}"
+        BRANCH_NAME="pr-${{ github.event.pull_request.number }}"
+        
+        # Check if branch exists
+        BRANCH_EXISTS=$(aws amplify get-branch \
+          --app-id $APP_ID \
+          --branch-name $BRANCH_NAME \
+          2>&1 || echo "not found")
+        
+        if [[ "$BRANCH_EXISTS" == *"not found"* ]] || [[ "$BRANCH_EXISTS" == *"NotFoundException"* ]]; then
+          echo "Creating new branch for PR preview..."
+          
+          # Create branch without connecting to repository
+          aws amplify create-branch \
+            --app-id $APP_ID \
+            --branch-name $BRANCH_NAME \
+            --description "Preview for PR #${{ github.event.pull_request.number }}" \
+            --stage DEVELOPMENT \
+            --enable-auto-build false || {
+              echo "Branch creation failed, it might already exist"
+            }
+          
+          # Wait for branch to be ready
+          sleep 5
+        fi
+        
+        # Create deployment
+        echo "Creating deployment..."
+        DEPLOYMENT_URL=$(aws amplify create-deployment \
+          --app-id $APP_ID \
+          --branch-name $BRANCH_NAME \
+          --query 'zipUploadUrl' \
+          --output text)
+        
+        # Create zip of the site
+        cd _site
+        zip -r ../site.zip .
+        cd ..
+        
+        # Upload the zip file
+        echo "Uploading site..."
+        curl -X PUT "$DEPLOYMENT_URL" \
+          -H "Content-Type: application/zip" \
+          --data-binary @site.zip
+        
+        # Start the deployment
+        echo "Starting deployment..."
+        JOB_ID=$(aws amplify start-deployment \
+          --app-id $APP_ID \
+          --branch-name $BRANCH_NAME \
           --query 'jobSummary.jobId' \
           --output text)
         
-        echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+        echo "job_id=$JOB_ID" >> $GITHUB_OUTPUT
         
-        # Start deployment
-        aws amplify start-deployment \
-          --app-id $APP_ID \
-          --branch-name "pr-${{ github.event.pull_request.number }}" \
-          --job-id $DEPLOYMENT_ID
+        # Wait for deployment
+        echo "Waiting for deployment to complete..."
+        MAX_ATTEMPTS=60
+        ATTEMPT=0
         
-        # Wait for deployment to complete
-        while true; do
+        while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
           STATUS=$(aws amplify get-job \
             --app-id $APP_ID \
-            --branch-name "pr-${{ github.event.pull_request.number }}" \
-            --job-id $DEPLOYMENT_ID \
+            --branch-name $BRANCH_NAME \
+            --job-id $JOB_ID \
             --query 'job.summary.status' \
             --output text)
           
           if [ "$STATUS" = "SUCCEED" ]; then
-            echo "Deployment succeeded!"
+            echo "Preview deployment succeeded!"
             break
           elif [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "CANCELLED" ]; then
-            echo "Deployment failed with status: $STATUS"
+            echo "Preview deployment failed with status: $STATUS"
             exit 1
           fi
           
-          echo "Current status: $STATUS. Waiting..."
+          echo "Status: $STATUS. Waiting..."
           sleep 10
+          ATTEMPT=$((ATTEMPT + 1))
         done
         
         # Get preview URL
-        PREVIEW_URL=$(aws amplify get-branch \
-          --app-id $APP_ID \
-          --branch-name "pr-${{ github.event.pull_request.number }}" \
-          --query 'branch.displayName' \
-          --output text)
-        
-        echo "preview_url=https://pr-${{ github.event.pull_request.number }}.$APP_ID.amplifyapp.com" >> $GITHUB_OUTPUT
+        PREVIEW_URL="https://${BRANCH_NAME}.${APP_ID}.amplifyapp.com"
+        echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
     
     - name: Comment PR with preview URL
+      if: github.event_name == 'pull_request'
       uses: actions/github-script@v7
       with:
         script: |
-          const preview_url = '${{ steps.deploy.outputs.preview_url }}';
+          const preview_url = '${{ steps.deploy-preview.outputs.preview_url }}';
           const body = `## 🚀 Preview Deployment
           
           Your preview is ready at: ${preview_url}
           
           **Build Status:** ✅ Success
-          **Deployment ID:** ${{ steps.deploy.outputs.deployment_id }}
+          **Job ID:** ${{ steps.deploy-preview.outputs.job_id }}
           
           This preview will be automatically updated when you push new commits.`;
           
@@ -157,8 +237,11 @@ jobs:
     - name: Delete preview branch
       run: |
         APP_ID="${{ secrets.AMPLIFY_APP_ID }}"
+        BRANCH_NAME="pr-${{ github.event.pull_request.number }}"
         
-        # Delete the preview branch
+        echo "Deleting preview branch $BRANCH_NAME..."
         aws amplify delete-branch \
           --app-id $APP_ID \
-          --branch-name "pr-${{ github.event.pull_request.number }}" || true
+          --branch-name $BRANCH_NAME || true
+        
+        echo "Preview branch deleted."
