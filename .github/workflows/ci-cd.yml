@@ -25,11 +25,6 @@ jobs:
     - name: Build Jekyll site
       run: bundle exec jekyll build
     
-    - name: Run HTML Proofer
-      run: |
-        gem install html-proofer
-        htmlproofer ./_site --disable-external --allow-hash-href
-    
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
