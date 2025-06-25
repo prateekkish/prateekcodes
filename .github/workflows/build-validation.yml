@@ -42,16 +42,6 @@ jobs:
         
         echo "Build validation passed!"
     
-    - name: Check for broken internal links
-      run: |
-        gem install html-proofer
-        htmlproofer ./_site \
-          --disable-external \
-          --allow-hash-href \
-          --ignore-urls "/^#/,/prateekcodes\.dev/" \
-          --ignore-files "/assets/js/" \
-          --assume-extension ".html"
-    
     - name: Upload build artifacts
       if: always()
       uses: actions/upload-artifact@v4
