@@ -3,7 +3,10 @@ layout: post
 title:  "Scaling Rails with PostgreSQL Read Replicas: Part 1 - Understanding the Basics"
 author: prateek
 categories: [ Rails, PostgreSQL, Database, Scaling ]
+tags: [ rails-read-replicas, postgresql-replication, database-scaling, rails-7, performance-optimization, read-write-splitting ]
 excerpt: "Learn when and why to use read replicas in Rails applications, understand the architecture, and implement basic read/write splitting with real-world examples."
+description: "Master PostgreSQL read replicas in Rails: understand when to use them, implement read/write splitting, and avoid common pitfalls. Complete guide with production-ready examples."
+keywords: "Rails PostgreSQL read replicas, Rails database scaling, read write splitting Rails, PostgreSQL replication Rails, Rails 7 multiple databases, database performance optimization"
 ---
 
 In this three-part series, we'll explore how to effectively use PostgreSQL read replicas with Rails applications. While the [official Rails guide](https://guides.rubyonrails.org/active_record_multiple_databases.html) covers the configuration basics, implementing read replicas in production requires understanding the nuances that can make or break your application's performance.

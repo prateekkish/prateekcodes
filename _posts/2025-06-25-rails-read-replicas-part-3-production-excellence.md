@@ -3,7 +3,10 @@ layout: post
 title:  "Scaling Rails with PostgreSQL Read Replicas: Part 3 - Production Excellence"
 author: prateek
 categories: [ Rails, PostgreSQL, Database, Scaling ]
+tags: [ rails-production, read-replicas-monitoring, zero-downtime-deployment, disaster-recovery, rails-7, postgresql, production-optimization ]
 excerpt: "Master production deployment strategies, monitoring, performance optimization, and failure handling for Rails applications using PostgreSQL read replicas."
+description: "Production-ready Rails read replicas: zero-downtime deployment, comprehensive monitoring, performance optimization, disaster recovery, and battle-tested operational patterns."
+keywords: "Rails read replicas production, zero downtime deployment Rails, PostgreSQL monitoring, Rails disaster recovery, production Rails scaling, read replica performance optimization"
 ---
 
 In [Part 1](/rails-read-replicas-part-1-understanding-the-basics) and [Part 2](/rails-read-replicas-part-2-advanced-patterns), we covered setup and advanced patterns. Now let's focus on what happens when you actually deploy read replicas to production.

@@ -1,14 +1,26 @@
 # Site
-name: "Prateek Codes Blog"
-title: "Prateek Choudhary's Blog"
-description: "Tech blog with learnings from Ruby on Rails, React, among other things."
+name: "Prateek Codes - Learn Building Scalable Backend Systems"
+title: "Prateek Codes - Building Scalable Backend Systems"
+description: "Learn how to build scalable backend systems with Ruby on Rails, PostgreSQL optimization, database scaling, and practical engineering insights from real-world production experiences."
 logo: 'assets/images/logo.avif'
 favicon: 'assets/images/logo.avif'
 baseurl: ""
+url: "https://prateekcodes.dev"
 google_analytics: UA-158773406-2
 mailchimp-list:
 include: ["_pages"]
 permalink: /:title/
+
+# SEO Tags
+twitter:
+  username: prateekkish
+  card: summary_large_image
+social:
+  name: Prateek Choudhary
+  links:
+    - https://twitter.com/prateekkish
+    - https://www.linkedin.com/in/choudharyprateek/
+    - https://github.com/prateekkish
 
 # Authors
 authors:
