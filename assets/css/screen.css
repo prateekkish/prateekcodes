@@ -790,10 +790,122 @@ h6 {
     margin-bottom: 1.5rem;
 }
 
+/* Make headers with IDs clickable */
+.article-post h1[id],
+.article-post h2[id],
+.article-post h3[id],
+.article-post h4[id],
+.article-post h5[id],
+.article-post h6[id] {
+    cursor: pointer;
+    scroll-margin-top: 70px; /* Account for fixed header if any */
+}
+
+
+/* Tooltip for copy action */
+.copy-tooltip {
+    position: absolute;
+    left: -80px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 300;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 1000;
+}
+
+.copy-tooltip.show {
+    opacity: 1;
+}
+
+.copy-tooltip::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid rgba(0, 0, 0, 0.75);
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+}
+
+
 .article-post img.shadow {
     -webkit-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.30);
     -moz-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.30);
     box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.30);
+}
+
+/* Code block copy button styles */
+.article-post .highlighter-rouge .highlight {
+    position: relative;
+}
+
+.article-post .code-copy-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    background-color: rgba(248, 249, 250, 0.95);
+    border: 1px solid #b3b3b3;
+    border-radius: 3px;
+    color: #6c757d;
+    cursor: pointer;
+    opacity: 1;
+    transition: all 0.2s ease-in-out;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.article-post .code-copy-btn:hover {
+    background-color: rgba(248, 249, 250, 1);
+    border-color: #6c757d;
+}
+
+.article-post .code-copy-btn:focus,
+.article-post .code-copy-btn:active {
+    outline: none;
+    border-color: #03a87c;
+}
+
+.article-post .code-copy-btn.copied {
+    color: #03a87c;
+    border-color: #03a87c;
+}
+
+.article-post .code-copy-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    stroke: currentColor;
+    stroke-width: 0.5;
+}
+
+/* For inline code */
+.article-post code.highlighter-rouge {
+    position: relative;
+}
+
+/* Ensure proper spacing for code blocks with copy button */
+.article-post .rouge-table {
+    width: 100%;
+}
+
+.article-post .rouge-code {
+    position: relative;
 }
 
 .layout-page .article-post {

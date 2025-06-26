@@ -111,6 +111,144 @@ jQuery(document).ready(function($){
         $(this).removeClass('spoiler');
      });
     
+    // Make headers clickable
+    function makeHeadersClickable() {
+        $('.article-post h1[id], .article-post h2[id], .article-post h3[id], .article-post h4[id], .article-post h5[id], .article-post h6[id]').each(function() {
+            var $header = $(this);
+            var headerId = $header.attr('id');
+            
+            $header.on('click', function() {
+                window.location.hash = headerId;
+                smoothScrollTo($header);
+            });
+        });
+    }
+    
+    // Initialize clickable headers
+    makeHeadersClickable();
+    
+    // Show copy tooltip
+    function showCopyTooltip($element, message) {
+        // Remove existing tooltip if any
+        $('.copy-tooltip').remove();
+        
+        // Create and show new tooltip
+        var $tooltip = $('<div>')
+            .addClass('copy-tooltip')
+            .text(message);
+        
+        // Position relative to the element
+        $element.append($tooltip);
+        
+        // Trigger reflow to ensure transition works
+        $tooltip[0].offsetHeight;
+        
+        $tooltip.addClass('show');
+        
+        // Hide after 1.5 seconds
+        setTimeout(function() {
+            $tooltip.removeClass('show');
+            setTimeout(function() {
+                $tooltip.remove();
+            }, 200);
+        }, 1500);
+    }
+    
+    // Code copy functionality
+    function addCodeCopyButtons() {
+        // Find all code blocks in article posts
+        $('.article-post .highlighter-rouge').each(function() {
+            var $codeBlock = $(this);
+            
+            // Skip inline code
+            if ($codeBlock.is('code')) {
+                return;
+            }
+            
+            // Create copy button with icon
+            var copyIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
+            var checkIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" stroke-width="2"/></svg>';
+            
+            var $copyButton = $('<button>')
+                .addClass('code-copy-btn')
+                .html(copyIcon)
+                .attr('aria-label', 'Copy code to clipboard');
+            
+            // Add click handler
+            $copyButton.on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Get the code text
+                var codeText = '';
+                
+                // Check for Rouge table structure
+                var $rougeCode = $codeBlock.find('.rouge-code pre');
+                if ($rougeCode.length > 0) {
+                    // Rouge with line numbers - get text from rouge-code column
+                    codeText = $rougeCode.text();
+                } else {
+                    // Standard code block or fallback
+                    var $pre = $codeBlock.find('pre');
+                    if ($pre.length > 0) {
+                        codeText = $pre.text();
+                    }
+                }
+                
+                // Copy to clipboard
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(codeText).then(function() {
+                        showCodeCopySuccess($copyButton, checkIcon, copyIcon);
+                    }).catch(function() {
+                        fallbackCopyCode(codeText, $copyButton, checkIcon, copyIcon);
+                    });
+                } else {
+                    fallbackCopyCode(codeText, $copyButton, checkIcon, copyIcon);
+                }
+            });
+            
+            // Insert button into the highlight div
+            var $highlight = $codeBlock.find('.highlight').first();
+            if ($highlight.length > 0) {
+                $highlight.append($copyButton);
+            }
+        });
+    }
+    
+    // Fallback copy method for code
+    function fallbackCopyCode(text, $button, checkIcon, copyIcon) {
+        var $temp = $('<textarea>');
+        $('body').append($temp);
+        $temp.val(text).select();
+        
+        try {
+            document.execCommand('copy');
+            showCodeCopySuccess($button, checkIcon, copyIcon);
+        } catch (err) {
+            console.error('Failed to copy code');
+        }
+        
+        $temp.remove();
+    }
+    
+    // Show copy success feedback
+    function showCodeCopySuccess($button, checkIcon, copyIcon) {
+        // Show tooltip similar to header copy
+        showCopyTooltip($button, 'Copied!');
+        
+        // Change icon to checkmark
+        $button.html(checkIcon).addClass('copied');
+        
+        // Revert to copy icon after 1 second
+        setTimeout(function() {
+            $button.html(copyIcon).removeClass('copied');
+            $button.blur(); // Remove focus to reset border color
+        }, 1000);
+    }
+    
+    // Initialize code copy buttons
+    addCodeCopyButtons();
+    
  });   
 
 // deferred style loading
