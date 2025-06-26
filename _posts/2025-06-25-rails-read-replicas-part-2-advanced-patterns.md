@@ -8,13 +8,22 @@ excerpt: "Deep dive into handling replication lag, implementing automatic connec
 
 In [Part 1](/rails-read-replicas-part-1-understanding-the-basics), we covered the basics of setting up read replicas. Now let's tackle the challenging aspects that make the difference between a system that works in development and one that thrives in production.
 
+## What's Covered
+
+- [The Replication Lag Challenge](#the-replication-lag-challenge)
+- [Implementing Sticky Sessions](#implementing-sticky-sessions)
+- [Advanced Query Routing Patterns](#advanced-query-routing-patterns)
+- [Connection Pool Management](#connection-pool-management)
+- [Handling Edge Cases](#handling-edge-cases)
+- [Testing with Replicas](#testing-with-replicas)
+
 ## The Replication Lag Challenge
 
 The biggest challenge with read replicas is replication lag—the delay between when data is written to the primary and when it appears on replicas. Let's understand why this matters.
 
 ### The "Invisible Update" Problem
 
-Here's a scenario that frustrates users:
+Here's a scenario that can be frustrating:
 
 ```ruby
 class ProfilesController < ApplicationController
@@ -36,7 +45,7 @@ The user updates their bio and gets redirected, but they see their old bio becau
 
 ## Implementing Sticky Sessions
 
-Rails provides automatic connection switching to solve this problem. Here's how it works:
+Rails provides automatic connection switching to solve this problem through the [DatabaseSelector middleware](https://api.rubyonrails.org/classes/ActiveRecord/Middleware/DatabaseSelector.html).
 
 ### Basic Configuration
 
@@ -51,7 +60,14 @@ Rails.application.configure do
 end
 ```
 
-This configuration creates "sticky sessions"—after a write operation, that user's session reads from the primary database for 2 seconds, ensuring they see their own changes.
+This configuration creates "sticky sessions"—after a write operation, that user's session reads from the primary database for 2 seconds, ensuring they see their own changes. 
+
+You can generate this configuration automatically using:
+```bash
+rails generate active_record:multi_db
+```
+
+(See [Rails Guide on Activating Automatic Role Switching](https://guides.rubyonrails.org/active_record_multiple_databases.html#activating-automatic-role-switching))
 
 ### How Sticky Sessions Work
 
@@ -85,7 +101,12 @@ end
 
 ### Customizing Sticky Session Behavior
 
-The default 2-second delay works for many apps, but you might need different behaviors:
+The default 2-second delay works for many apps, but sometimes you need more control. For example:
+- Financial transactions need longer consistency windows
+- Critical paths like checkout flows should always use primary
+- Different operations have different consistency requirements
+
+Here's a custom resolver that addresses these needs:
 
 ```ruby
 # app/middleware/custom_database_resolver.rb
@@ -137,40 +158,7 @@ end
 
 Beyond sticky sessions, you need patterns for routing specific queries intelligently.
 
-### Pattern 1: Read-Your-Writes for Specific Models
-
-Some models always need immediate consistency:
-
-```ruby
-# app/models/concerns/immediate_consistency.rb
-module ImmediateConsistency
-  extend ActiveSupport::Concern
-  
-  included do
-    # Override connection to always use primary for this model
-    def self.connection
-      return super unless ActiveRecord::Base.current_role == :reading
-      
-      ActiveRecord::Base.connected_to(role: :writing) do
-        return super
-      end
-    end
-  end
-end
-
-# Models that need immediate consistency
-class PaymentTransaction < ApplicationRecord
-  include ImmediateConsistency
-  # All queries for this model use primary, even in a reading block
-end
-
-class UserSession < ApplicationRecord
-  include ImmediateConsistency
-  # Session data must always be current
-end
-```
-
-### Pattern 2: Smart Query Router
+### Pattern 1: Smart Query Router
 
 Build a router that intelligently decides where queries should go:
 
@@ -227,7 +215,7 @@ end
 # Automatically routed to replica because it's historical data
 ```
 
-### Pattern 3: Gradual Replica Adoption
+### Pattern 2: Gradual Replica Adoption
 
 Rolling out replicas gradually reduces risk:
 
@@ -276,26 +264,70 @@ class SearchController < ApplicationController
 end
 ```
 
+### Pattern 3: Read-Your-Writes for Specific Models
+
+The need for immediate consistency could be at the model level. Here's a way to achieve that:
+
+```ruby
+# app/models/concerns/immediate_consistency.rb
+module ImmediateConsistency
+  extend ActiveSupport::Concern
+  
+  included do
+    # Override connection to always use primary for this model
+    def self.connection
+      return super unless ActiveRecord::Base.current_role == :reading
+      
+      ActiveRecord::Base.connected_to(role: :writing) do
+        return super
+      end
+    end
+  end
+end
+
+# Models that need immediate consistency
+class PaymentTransaction < ApplicationRecord
+  include ImmediateConsistency
+  # All queries for this model use primary, even in a reading block
+end
+
+class UserSession < ApplicationRecord
+  include ImmediateConsistency
+  # Session data must always be current
+end
+```
+
+**⚠️ Warning**: I do not recommend this pattern unless you know what you're doing. It can be very easy to go wrong because:
+- The behavior is "magical" and not obvious to other developers
+- Users of this model may see unintended behavior
+- It overrides core Rails methods in non-obvious ways
+- Debugging becomes difficult when queries don't go where expected
+
+Consider explicit methods or service objects instead for better clarity.
+
 ## Connection Pool Management
 
 Read replicas require careful connection pool management to avoid exhaustion:
 
 ### Understanding the Problem
 
-```ruby
-# Each database configuration needs its own connection pool
-# With primary + 2 replicas, you have 3 pools
+When you add read replicas, your connection usage multiplies. Each database configuration maintains its own connection pool, and these pools exist per process.
 
-# Default configuration might be:
-# - Primary: 5 connections
-# - Replica1: 5 connections  
-# - Replica2: 5 connections
-# Total: 15 connections per process
+Consider a typical setup:
+- 1 primary database
+- 2 read replicas
+- 5 connections per pool (Rails default)
+- 10 Puma workers
 
-# With 10 Puma workers: 150 total connections!
-```
+This creates 150 total database connections (3 databases × 5 connections × 10 workers). Many databases have connection limits—PostgreSQL defaults to 100 connections. You'll hit the limit before your application even starts serving traffic.
+
+For a deeper understanding of connection pools, see the [Rails Connection Pool documentation](https://api.rubyonrails.org/classes/ActiveRecord/ConnectionAdapters/ConnectionPool.html) and this excellent article on [PostgreSQL connection pooling](https://www.postgresql.org/docs/current/runtime-config-connection.html).
 
 ### Optimizing Connection Pools
+
+The key is to right-size your pools based on actual usage patterns. Primary databases handle all writes and need more connections, while replicas only handle reads and can work with fewer connections. Additionally, replicas can return idle connections more aggressively since read queries are typically shorter.
+
+Here's how to configure pools efficiently:
 
 ```ruby
 # config/database.yml
@@ -417,7 +449,7 @@ ApplicationRecord.transaction do
 end
 ```
 
-### 3. Testing with Replicas
+## Testing with Replicas
 
 Testing replica behavior requires special setup:
 
@@ -470,16 +502,7 @@ end
 
 ## What's Next?
 
-In this part, we covered:
-- Handling replication lag with sticky sessions
-- Advanced query routing patterns
-- Connection pool optimization
-- Edge cases and testing strategies
-
-In [Part 3](/rails-read-replicas-part-3-production-excellence), we'll focus on production excellence:
-- Multi-region deployments
-- Automatic failover strategies
-- Performance monitoring and optimization
-- Zero-downtime migrations
+Make sure to check out:
+- [Part 3 - Production Excellence](/rails-read-replicas-part-3-production-excellence)
 
 Remember: complexity should match your needs. Start with Rails' built-in connection switching and add custom routing as specific use cases demand it.

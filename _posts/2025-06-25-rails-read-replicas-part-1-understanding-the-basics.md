@@ -14,7 +14,14 @@ Before diving into implementation, let's understand if read replicas are the rig
 
 ### Signs You Need Read Replicas
 
-Your application might benefit from read replicas when:
+Your application might benefit from read replicas when you see these key indicators:
+
+- **Read-heavy workload**: Your read:write ratio exceeds 80:20
+- **Long-running queries**: Reports and analytics slow down transactional queries
+- **Different access patterns**: OLTP (fast transactions) vs OLAP (complex analytics)
+- **Geographic distribution**: Users in different regions need low-latency reads
+
+Does this query seem familiar?
 
 ```ruby
 # Your analytics queries are blocking user-facing features
@@ -24,12 +31,6 @@ User.joins(:orders)
     .pluck('users.email, COUNT(orders.id), SUM(orders.total)')
 # This query takes 5+ seconds and runs frequently
 ```
-
-The key indicators are:
-- **Read-heavy workload**: Your read:write ratio exceeds 80:20
-- **Long-running queries**: Reports and analytics slow down transactional queries
-- **Different access patterns**: OLTP (fast transactions) vs OLAP (complex analytics)
-- **Geographic distribution**: Users in different regions need low-latency reads
 
 ### When Read Replicas Won't Help
 
@@ -246,24 +247,32 @@ class ReplicaHealthCheck
   end
 end
 
-# In a monitoring job
-Rails.application.config.after_initialize do
-  if Rails.env.production?
-    Thread.new do
-      loop do
-        lag = ReplicaHealthCheck.replication_lag
-        Rails.logger.info "Replication lag: #{lag}"
-        
-        # Alert if lag is too high
-        if lag > 10.seconds
-          AlertService.notify("High replication lag: #{lag}")
-        end
-        
-        sleep 30.seconds
-      end
+# app/jobs/replica_health_monitor_job.rb
+class ReplicaHealthMonitorJob < ApplicationJob
+  queue_as :monitoring
+  
+  def perform
+    lag = ReplicaHealthCheck.replication_lag
+    
+    # Report metric to your monitoring service
+    StatsD.gauge('database.replica.lag_seconds', lag.to_f)
+    
+    # Alert if lag exceeds threshold
+    if lag > 10.seconds
+      Rails.error.report(
+        HighReplicationLagError.new("Replication lag: #{lag}"),
+        severity: :warning,
+        context: { lag_seconds: lag.to_f }
+      )
     end
+    
+    # Schedule next check
+    self.class.set(wait: 30.seconds).perform_later
   end
 end
+
+# Start monitoring (in an initializer or deploy task)
+ReplicaHealthMonitorJob.perform_later if Rails.env.production?
 ```
 
 ## Common Pitfalls in Basic Setups
@@ -286,44 +295,40 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO replica_user;
 -- No INSERT, UPDATE, DELETE permissions
 ```
 
-### 2. Forgetting About Joins
+### 2. Lazy Loading Across Connection Boundaries
 
 ```ruby
-# This can cause issues
+# Be careful with lazy-loaded queries
 ApplicationRecord.connected_to(role: :reading) do
-  @user = User.find(params[:id])
+  @users = User.where(active: true)  # Query not executed yet
 end
 
-# Later, outside the block
-@user.posts.create!(title: "New Post")  # This might try to use replica!
-```
+# This executes the query outside the block, using primary instead of replica
+@users.each { |u| puts u.name }  # Uses primary connection!
 
-Solution: Load all associations within the connection block:
-
-```ruby
+# Solution: Force execution within the connection block
 ApplicationRecord.connected_to(role: :reading) do
-  @user = User.includes(:posts, :profile).find(params[:id])
+  @users = User.where(active: true).load  # Forces execution on replica
 end
 ```
+
+## Further Reading
+
+For more details on the concepts covered in this post:
+
+- **Rails Documentation**
+  - [Active Record Multiple Databases Guide](https://guides.rubyonrails.org/active_record_multiple_databases.html) - Official Rails guide on database configuration
+  - [Database Connection Switching](https://api.rubyonrails.org/classes/ActiveRecord/ConnectionHandling.html#method-i-connected_to) - API documentation for `connected_to`
+  
+- **PostgreSQL Documentation**
+  - [Streaming Replication](https://www.postgresql.org/docs/current/warm-standby.html#STREAMING-REPLICATION) - How PostgreSQL streaming replication works
+  - [Monitoring Replication](https://www.postgresql.org/docs/current/monitoring-stats.html#MONITORING-PG-STAT-REPLICATION-VIEW) - Using pg_stat_replication view
+  - [High Availability](https://www.postgresql.org/docs/current/high-availability.html) - PostgreSQL's approach to HA and read replicas
 
 ## What's Next?
 
-In this part, we covered the fundamentals:
-- When to use read replicas
-- Basic configuration and setup
-- Simple read/write splitting
-- Monitoring basics
-
-In [Part 2](/rails-read-replicas-part-2-advanced-patterns), we'll tackle the challenging aspects:
-- Handling replication lag with sticky sessions
-- Automatic connection switching
-- Advanced routing patterns
-- Connection pool management
-
-Then in [Part 3](/rails-read-replicas-part-3-production-excellence), we'll cover production excellence:
-- Zero-downtime deployment strategies
-- Multi-replica load balancing
-- Failure handling and circuit breakers
-- Performance optimization techniques
+Make sure to check out:
+- [Part 2 - Advanced Patterns and Gotchas](/rails-read-replicas-part-2-advanced-patterns)
+- [Part 3 - Production Excellence](/rails-read-replicas-part-3-production-excellence)
 
 Remember: start simple. Begin by moving just your analytics queries to replicas and expand from there. The goal is to improve performance without adding unnecessary complexity.
