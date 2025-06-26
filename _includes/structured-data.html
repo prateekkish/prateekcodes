@@ -1,0 +1,118 @@
+{% comment %}
+  JSON-LD Structured Data for better SEO
+{% endcomment %}
+
+{% if page.layout == 'post' %}
+{% assign author = site.authors[page.author] | default: site.authors.prateek %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "{{ page.title | escape }}",
+  "description": "{{ page.excerpt | default: page.description | strip_html | escape | truncate: 155 }}",
+  {% if page.image %}
+  "image": "{{ page.image | absolute_url }}",
+  {% elsif site.logo %}
+  "image": "{{ site.logo | absolute_url }}",
+  {% endif %}
+  "datePublished": "{{ page.date | date_to_xmlschema }}",
+  {% if page.last_modified_at %}
+  "dateModified": "{{ page.last_modified_at | date_to_xmlschema }}",
+  {% else %}
+  "dateModified": "{{ page.date | date_to_xmlschema }}",
+  {% endif %}
+  "author": {
+    "@type": "Person",
+    "name": "{{ author.display_name }}",
+    "url": "{{ author.web | prepend: 'https://' }}",
+    "sameAs": [
+      "{{ author.twitter }}",
+      "{{ author.linkedin }}",
+      "{{ author.github }}"
+    ]
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ site.name }}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ site.logo | absolute_url }}"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ page.url | absolute_url }}"
+  },
+  "keywords": "{{ page.tags | join: ', ' }}{% if page.categories %}, {{ page.categories | join: ', ' }}{% endif %}",
+  "articleSection": "{{ page.categories | first | default: 'Technology' }}",
+  "wordCount": "{{ content | strip_html | number_of_words }}"
+}
+</script>
+
+{% if page.excerpt contains 'code' or content contains '```' %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "dependencies": "{% if page.categories contains 'Rails' %}Ruby on Rails{% elsif page.categories contains 'PostgreSQL' %}PostgreSQL{% else %}Ruby{% endif %}",
+  "proficiencyLevel": "{% if page.tags contains 'beginner' %}Beginner{% elsif page.tags contains 'advanced' %}Advanced{% else %}Intermediate{% endif %}"
+}
+</script>
+{% endif %}
+
+{% elsif page.layout == 'default' or page.layout == nil %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "{{ site.name }}",
+  "description": "{{ site.description }}",
+  "url": "{{ site.url }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ site.url }}/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "{{ site.authors.prateek.display_name }}",
+    "url": "{{ site.authors.prateek.web | prepend: 'https://' }}",
+    "sameAs": [
+      "{{ site.authors.prateek.twitter }}",
+      "{{ site.authors.prateek.linkedin }}",
+      "{{ site.authors.prateek.github }}"
+    ]
+  }
+}
+</script>
+{% endif %}
+
+<!-- Breadcrumb Navigation -->
+{% if page.layout == 'post' %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{ site.url }}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "{{ page.categories | first | default: 'Blog' }}",
+      "item": "{{ site.url }}/category/{{ page.categories | first | downcase | replace: ' ', '-' }}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{ page.title | truncate: 30 }}",
+      "item": "{{ page.url | absolute_url }}"
+    }
+  ]
+}
+</script>
+{% endif %}

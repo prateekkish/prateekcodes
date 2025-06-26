@@ -3,7 +3,10 @@ layout: post
 title:  "PostgreSQL 17's MERGE with RETURNING: The Game-Changer Rails Developers Have Been Waiting For"
 author: prateek
 categories: [ Rails, PostgreSQL, Database, Performance ]
+tags: [ postgresql-17, merge-statement, upsert, rails-7, database-optimization, atomic-operations ]
 excerpt: "PostgreSQL 17 introduces RETURNING support to the MERGE statement, solving a long-standing limitation that forced developers to choose between atomic upserts and knowing what actually happened to their data."
+description: "Learn how PostgreSQL 17's MERGE with RETURNING revolutionizes Rails data syncing. Discover atomic upserts, performance optimizations, and real-world implementation patterns for Rails developers."
+keywords: "PostgreSQL 17, MERGE with RETURNING, Rails upsert, atomic operations, database performance, Rails PostgreSQL integration, bulk upsert Rails"
 ---
 
 PostgreSQL 17 introduces RETURNING support to the MERGE statement ([commit c649fa24a](https://git.postgresql.org/gitweb/?p=postgresql.git;a=commitdiff;h=c649fa24a)), solving a long-standing limitation that forced developers to choose between atomic upserts and knowing what actually happened to their data.

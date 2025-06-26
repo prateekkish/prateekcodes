@@ -3,7 +3,10 @@ layout: post
 title:  "Scaling Rails with PostgreSQL Read Replicas: Part 2 - Advanced Patterns and Gotchas"
 author: prateek
 categories: [ Rails, PostgreSQL, Database, Scaling ]
+tags: [ rails-read-replicas, replication-lag, connection-switching, sticky-sessions, rails-7, postgresql, database-patterns ]
 excerpt: "Deep dive into handling replication lag, implementing automatic connection switching, and solving real-world challenges with read replicas in Rails applications."
+description: "Master advanced Rails read replica patterns: handle replication lag, implement sticky sessions, optimize connection pools, and solve production challenges with battle-tested solutions."
+keywords: "Rails read replica patterns, replication lag Rails, sticky sessions Rails, connection pool optimization, Rails database scaling patterns, PostgreSQL replication lag"
 ---
 
 In [Part 1](/rails-read-replicas-part-1-understanding-the-basics), we covered the basics of setting up read replicas. Now let's tackle the challenging aspects that make the difference between a system that works in development and one that thrives in production.
