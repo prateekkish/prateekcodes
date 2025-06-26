@@ -890,6 +890,187 @@ iframe {
     width: 100%;
 }
 
+/* Card Enhancements - Merged from card-enhancements.css */
+/* ================================================== */
+
+/* Make entire card clickable */
+.card-link-wrapper {
+    text-decoration: none !important;
+    color: inherit !important;
+    display: block;
+    height: 100%;
+}
+
+.card-link-wrapper:hover {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* Card styling improvements */
+.listrecent .card {
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.card-link-wrapper:hover .card {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Better card body spacing */
+.listrecent .card-body {
+    padding: 1.5rem;
+}
+
+/* Card title hover effect */
+.card-link-wrapper:hover .card-title {
+    color: #00ab6b !important;
+}
+
+/* Card text (excerpt) styling */
+.listrecent .card-text {
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+    color: #666 !important;
+    font-weight: normal !important;
+}
+
+/* Card footer improvements */
+.listrecent .card-footer {
+    background: #f8f9fa !important;
+    border-top: 1px solid #e9ecef !important;
+    padding: 1rem 1.5rem !important;
+}
+
+/* Author section enhancements */
+.listrecent .wrapfooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.listrecent .author-thumb {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    margin-right: 10px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.listrecent .author-meta {
+    font-size: 0.875rem !important;
+}
+
+.listrecent .post-name {
+    color: #333 !important;
+    font-weight: 500 !important;
+}
+
+.listrecent .post-date {
+    color: #999 !important;
+    font-size: 0.8rem !important;
+}
+
+/* Add subtle category badges */
+.listrecent .card-body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #00ab6b 0%, #00d47f 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card-link-wrapper:hover .card-body::before {
+    opacity: 1;
+}
+
+/* Section title enhancement */
+.section-title h2 {
+    font-size: 2rem !important;
+    margin-bottom: 2rem !important;
+}
+
+.section-title h2 span {
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.section-title h2 span::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: #00ab6b;
+}
+
+/* Categories page specific improvements */
+.categories-page .section-title {
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+}
+
+.categories-page .section-title h2 {
+    font-size: 1.5rem !important;
+    color: #333 !important;
+}
+
+/* Better spacing for card groups */
+.card-group {
+    margin-bottom: 2rem !important;
+}
+
+/* Add loading animation */
+.listrecent .card {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.listrecent .card:nth-child(1) { animation-delay: 0.1s; }
+.listrecent .card:nth-child(2) { animation-delay: 0.2s; }
+.listrecent .card:nth-child(3) { animation-delay: 0.3s; }
+.listrecent .card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/* Better pagination styling */
+.bottompagination {
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+
+.bottompagination .navigation a {
+    color: #00ab6b;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.bottompagination .navigation a:hover {
+    background: #00ab6b;
+    color: white;
+    border-color: #00ab6b;
+}
+
 .sticky-top-80 {
     top: 80px;
 }
