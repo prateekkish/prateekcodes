@@ -811,13 +811,13 @@ Before going live with read replicas:
 For production deployment best practices:
 
 - **PostgreSQL Documentation**
-  - [Monitoring Database Activity](https://www.postgresql.org/docs/current/monitoring-stats.html) - Understanding `pg_stat` views
-  - [High Availability, Load Balancing, and Replication](https://www.postgresql.org/docs/current/high-availability.html) - Production deployment patterns
-  - [Connection Pooling](https://www.postgresql.org/docs/current/runtime-config-connection.html) - Tuning connection parameters
+  - [Monitoring Database Activity](https://www.postgresql.org/docs/current/monitoring-stats.html){:target="_blank" rel="nofollow noopener noreferrer"} - Understanding `pg_stat` views
+  - [High Availability, Load Balancing, and Replication](https://www.postgresql.org/docs/current/high-availability.html){:target="_blank" rel="nofollow noopener noreferrer"} - Production deployment patterns
+  - [Connection Pooling](https://www.postgresql.org/docs/current/runtime-config-connection.html){:target="_blank" rel="nofollow noopener noreferrer"} - Tuning connection parameters
 
 - **AWS/Cloud Resources** 
-  - [Amazon RDS Read Replicas](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html) - If using RDS
-  - [Working with PostgreSQL Read Replicas](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PostgreSQL.Replication.ReadReplicas.html) - RDS PostgreSQL specific guide
+  - [Amazon RDS Read Replicas](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html){:target="_blank" rel="nofollow noopener noreferrer"} - If using RDS
+  - [Working with PostgreSQL Read Replicas](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PostgreSQL.Replication.ReadReplicas.html){:target="_blank" rel="nofollow noopener noreferrer"} - RDS PostgreSQL specific guide
 
 ## Key Takeaways
 

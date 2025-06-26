@@ -9,7 +9,7 @@ description: "Master PostgreSQL read replicas in Rails: understand when to use t
 keywords: "Rails PostgreSQL read replicas, Rails database scaling, read write splitting Rails, PostgreSQL replication Rails, Rails 7 multiple databases, database performance optimization"
 ---
 
-In this three-part series, we'll explore how to effectively use PostgreSQL read replicas with Rails applications. While the [official Rails guide](https://guides.rubyonrails.org/active_record_multiple_databases.html) covers the configuration basics, implementing read replicas in production requires understanding the nuances that can make or break your application's performance.
+In this three-part series, we'll explore how to effectively use PostgreSQL read replicas with Rails applications. While the [official Rails guide](https://guides.rubyonrails.org/active_record_multiple_databases.html){:target="_blank" rel="nofollow noopener noreferrer"} covers the configuration basics, implementing read replicas in production requires understanding the nuances that can make or break your application's performance.
 
 ## When Do You Actually Need Read Replicas?
 
@@ -320,13 +320,13 @@ end
 For more details on the concepts covered in this post:
 
 - **Rails Documentation**
-  - [Active Record Multiple Databases Guide](https://guides.rubyonrails.org/active_record_multiple_databases.html) - Official Rails guide on database configuration
-  - [Database Connection Switching](https://api.rubyonrails.org/classes/ActiveRecord/ConnectionHandling.html#method-i-connected_to) - API documentation for `connected_to`
+  - [Active Record Multiple Databases Guide](https://guides.rubyonrails.org/active_record_multiple_databases.html){:target="_blank" rel="nofollow noopener noreferrer"} - Official Rails guide on database configuration
+  - [Database Connection Switching](https://api.rubyonrails.org/classes/ActiveRecord/ConnectionHandling.html#method-i-connected_to){:target="_blank" rel="nofollow noopener noreferrer"} - API documentation for `connected_to`
   
 - **PostgreSQL Documentation**
-  - [Streaming Replication](https://www.postgresql.org/docs/current/warm-standby.html#STREAMING-REPLICATION) - How PostgreSQL streaming replication works
-  - [Monitoring Replication](https://www.postgresql.org/docs/current/monitoring-stats.html#MONITORING-PG-STAT-REPLICATION-VIEW) - Using pg_stat_replication view
-  - [High Availability](https://www.postgresql.org/docs/current/high-availability.html) - PostgreSQL's approach to HA and read replicas
+  - [Streaming Replication](https://www.postgresql.org/docs/current/warm-standby.html#STREAMING-REPLICATION){:target="_blank" rel="nofollow noopener noreferrer"} - How PostgreSQL streaming replication works
+  - [Monitoring Replication](https://www.postgresql.org/docs/current/monitoring-stats.html#MONITORING-PG-STAT-REPLICATION-VIEW){:target="_blank" rel="nofollow noopener noreferrer"} - Using pg_stat_replication view
+  - [High Availability](https://www.postgresql.org/docs/current/high-availability.html){:target="_blank" rel="nofollow noopener noreferrer"} - PostgreSQL's approach to HA and read replicas
 
 ## What's Next?
 

@@ -21,7 +21,7 @@ This works great, but could be better if Rails handled that auto-magically.
 
 ## Rails 7.1
 
-[This PR](https://github.com/rails/rails/pull/47753/files) added a limit of 62 bytes on the auto generated index names. This is safe for MySQL, Postgres and SQLite index name limits. 
+[This PR](https://github.com/rails/rails/pull/47753/files){:target="_blank" rel="nofollow noopener noreferrer"} added a limit of 62 bytes on the auto generated index names. This is safe for MySQL, Postgres and SQLite index name limits. 
 
 If the generated index name is over the limit, the naming would be done as per a shorter format. 
 

@@ -48,7 +48,7 @@ The user updates their bio and gets redirected, but they see their old bio becau
 
 ## Implementing Sticky Sessions
 
-Rails provides automatic connection switching to solve this problem through the [DatabaseSelector middleware](https://api.rubyonrails.org/classes/ActiveRecord/Middleware/DatabaseSelector.html).
+Rails provides automatic connection switching to solve this problem through the [DatabaseSelector middleware](https://api.rubyonrails.org/classes/ActiveRecord/Middleware/DatabaseSelector.html){:target="_blank" rel="nofollow noopener noreferrer"}.
 
 ### Basic Configuration
 
@@ -70,7 +70,7 @@ You can generate this configuration automatically using:
 rails generate active_record:multi_db
 ```
 
-(See [Rails Guide on Activating Automatic Role Switching](https://guides.rubyonrails.org/active_record_multiple_databases.html#activating-automatic-role-switching))
+(See [Rails Guide on Activating Automatic Role Switching](https://guides.rubyonrails.org/active_record_multiple_databases.html#activating-automatic-role-switching){:target="_blank" rel="nofollow noopener noreferrer"})
 
 ### How Sticky Sessions Work
 
@@ -324,7 +324,7 @@ Consider a typical setup:
 
 This creates 150 total database connections (3 databases × 5 connections × 10 workers). Many databases have connection limits—PostgreSQL defaults to 100 connections. You'll hit the limit before your application even starts serving traffic.
 
-For a deeper understanding of connection pools, see the [Rails Connection Pool documentation](https://api.rubyonrails.org/classes/ActiveRecord/ConnectionAdapters/ConnectionPool.html) and this excellent article on [PostgreSQL connection pooling](https://www.postgresql.org/docs/current/runtime-config-connection.html).
+For a deeper understanding of connection pools, see the [Rails Connection Pool documentation](https://api.rubyonrails.org/classes/ActiveRecord/ConnectionAdapters/ConnectionPool.html){:target="_blank" rel="nofollow noopener noreferrer"} and this excellent article on [PostgreSQL connection pooling](https://www.postgresql.org/docs/current/runtime-config-connection.html){:target="_blank" rel="nofollow noopener noreferrer"}.
 
 ### Optimizing Connection Pools
 
