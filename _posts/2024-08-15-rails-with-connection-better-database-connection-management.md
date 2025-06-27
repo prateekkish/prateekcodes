@@ -225,7 +225,7 @@ The new `with_connection` method solves a real problem - connection pool exhaust
 
 ## References
 
-- [Pull Request #51083](https://github.com/rails/rails/pull/51083) introducing `with_connection`
-- [Pull Request #51230](https://github.com/rails/rails/pull/51230) deprecating `connection` method
-- [Rails Connection Handling Documentation](https://api.rubyonrails.org/classes/ActiveRecord/ConnectionHandling.html)
-- [Connection Pool Management Guide](https://guides.rubyonrails.org/configuring.html#database-pooling)
+- [Pull Request #51083](https://github.com/rails/rails/pull/51083){:target="_blank" rel="nofollow noopener noreferrer"} introducing `with_connection`
+- [Pull Request #51230](https://github.com/rails/rails/pull/51230){:target="_blank" rel="nofollow noopener noreferrer"} deprecating `connection` method
+- [Rails Connection Handling Documentation](https://api.rubyonrails.org/classes/ActiveRecord/ConnectionHandling.html){:target="_blank" rel="nofollow noopener noreferrer"}
+- [Connection Pool Management Guide](https://guides.rubyonrails.org/configuring.html#database-pooling){:target="_blank" rel="nofollow noopener noreferrer"}

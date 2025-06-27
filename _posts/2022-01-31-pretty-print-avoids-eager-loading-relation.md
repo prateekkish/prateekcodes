@@ -5,7 +5,7 @@ author: prateek
 categories: [ Rails, Rails 7, Gotchas ]
 ---
 
-[ActiveRecord::Relation#pretty_print](https://api.rubyonrails.org/classes/ActiveRecord/Relation.html#method-i-pretty_print)
+[ActiveRecord::Relation#pretty_print](https://api.rubyonrails.org/classes/ActiveRecord/Relation.html#method-i-pretty_print){:target="_blank" rel="nofollow noopener noreferrer"}
 is a method that pretty prints an `ActiveRecord::Relation` object.
 
 ### Example
@@ -51,9 +51,9 @@ irb(main):004:0> pp Post.all # Loads all the records
 ## Rails 7
 
 Rails 7
-[adds](https://github.com/rails/rails/pull/43302)
+[adds](https://github.com/rails/rails/pull/43302){:target="_blank" rel="nofollow noopener noreferrer"}
 a limit of fetching upto 11 records when using pretty print much like
-[ActiveRecord::Base#inspect](https://api.rubyonrails.org/classes/ActiveRecord/Relation.html#method-i-inspect)
+[ActiveRecord::Base#inspect](https://api.rubyonrails.org/classes/ActiveRecord/Relation.html#method-i-inspect){:target="_blank" rel="nofollow noopener noreferrer"}
 if the records aren't already loaded.
 
 **Note:** The 11<sup>th</sup> record is not shown. It is only loaded to determine whether there are more records to show.
