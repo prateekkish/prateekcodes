@@ -1,0 +1,113 @@
+---
+title: "Categories"
+layout: default
+permalink: "/categories.html"
+---
+
+<div class="categories-page">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h1 class="page-title mb-5">Blog Categories</h1>
+        
+        {% comment %} Define category groups - categories can appear in multiple groups {% endcomment %}
+        {% assign rails_categories = "Rails,Rails 8,Rails 7.1,Rails 7,ActiveRecord,Migrations,PostgreSQL,Scaling" | split: "," %}
+        {% assign database_categories = "Database,PostgreSQL,Scaling" | split: "," %}
+        {% assign technical_categories = "Security,Performance,Gotchas" | split: "," %}
+        
+        {% comment %} Rails Group {% endcomment %}
+        <div class="category-group mb-5">
+          <h2 class="group-title">Rails Framework</h2>
+          <div class="row">
+            {% for cat_name in rails_categories %}
+              {% for category in site.categories %}
+                {% if category[0] == cat_name %}
+                  <div class="col-md-4 mb-3">
+                    <div class="category-card">
+                      <h3 class="category-name">
+                        <a href="{{ site.baseurl }}/category/{{ category[0] | slugify }}">{{ category[0] }}</a>
+                      </h3>
+                      <span class="post-count">{{ category[1].size }} posts</span>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+        
+        {% comment %} Database Group {% endcomment %}
+        <div class="category-group mb-5">
+          <h2 class="group-title">Database & Infrastructure</h2>
+          <div class="row">
+            {% for cat_name in database_categories %}
+              {% for category in site.categories %}
+                {% if category[0] == cat_name %}
+                  <div class="col-md-4 mb-3">
+                    <div class="category-card">
+                      <h3 class="category-name">
+                        <a href="{{ site.baseurl }}/category/{{ category[0] | slugify }}">{{ category[0] }}</a>
+                      </h3>
+                      <span class="post-count">{{ category[1].size }} posts</span>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+        
+        {% comment %} Technical Topics Group {% endcomment %}
+        <div class="category-group mb-5">
+          <h2 class="group-title">Technical Topics</h2>
+          <div class="row">
+            {% for cat_name in technical_categories %}
+              {% for category in site.categories %}
+                {% if category[0] == cat_name %}
+                  <div class="col-md-4 mb-3">
+                    <div class="category-card">
+                      <h3 class="category-name">
+                        <a href="{{ site.baseurl }}/category/{{ category[0] | slugify }}">{{ category[0] }}</a>
+                      </h3>
+                      <span class="post-count">{{ category[1].size }} posts</span>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+        
+        {% comment %} Other Categories - only show categories not in ANY group {% endcomment %}
+        {% assign all_grouped = rails_categories | concat: database_categories | concat: technical_categories | uniq %}
+        {% assign has_other = false %}
+        {% for category in site.categories %}
+          {% unless all_grouped contains category[0] %}
+            {% assign has_other = true %}
+            {% break %}
+          {% endunless %}
+        {% endfor %}
+        
+        {% if has_other %}
+          <div class="category-group mb-5">
+            <h2 class="group-title">Other</h2>
+            <div class="row">
+              {% for category in site.categories %}
+                {% unless all_grouped contains category[0] %}
+                  <div class="col-md-4 mb-3">
+                    <div class="category-card">
+                      <h3 class="category-name">
+                        <a href="{{ site.baseurl }}/category/{{ category[0] | slugify }}">{{ category[0] }}</a>
+                      </h3>
+                      <span class="post-count">{{ category[1].size }} posts</span>
+                    </div>
+                  </div>
+                {% endunless %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

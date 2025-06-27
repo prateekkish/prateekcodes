@@ -10,3 +10,71 @@
 .post-excerpt p {
 	display:inline;
 }
+
+/* Grouped Categories Page Styles */
+.categories-page {
+	.page-title {
+		font-size: 2.5rem;
+		font-weight: 700;
+		color: #333;
+		margin-bottom: 2rem;
+	}
+	
+	.category-group {
+		margin-bottom: 3rem;
+		
+		.group-title {
+			font-size: 1.8rem;
+			font-weight: 600;
+			color: #444;
+			margin-bottom: 1.5rem;
+			padding-bottom: 0.5rem;
+			border-bottom: 2px solid #e9ecef;
+		}
+	}
+	
+	.category-card {
+		background: #f8f9fa;
+		border: 1px solid #e9ecef;
+		border-radius: 8px;
+		padding: 1.25rem;
+		height: 100%;
+		transition: all 0.3s ease;
+		
+		&:hover {
+			background: #fff;
+			box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+			transform: translateY(-2px);
+		}
+		
+		.category-name {
+			font-size: 1.25rem;
+			margin-bottom: 0.5rem;
+			
+			a {
+				color: #333;
+				text-decoration: none;
+				font-weight: 600;
+				
+				&:hover {
+					color: #03a87c;
+				}
+			}
+		}
+		
+		.post-count {
+			color: #6c757d;
+			font-size: 0.95rem;
+			font-weight: 500;
+		}
+	}
+	
+	.section-title h3 {
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: #333;
+		padding-top: 1rem;
+		margin-top: 2rem;
+		border-top: 1px solid #e9ecef;
+	}
+}
