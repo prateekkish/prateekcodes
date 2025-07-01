@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link rel="icon" href="/assets/images/logo.avif">
+
+
+
+
+
+
+
+
+
+
+
+<!-- Primary Meta Tags -->
+<title>What are the new Rails 8 framework defaults? | Prateek Codes - Learn Building Scalable Backend Systems</title>
+<meta name="title" content="What are the new Rails 8 framework defaults?">
+<meta name="description" content="Rails 8 framework defaults include timezone preservation in to_time methods, strict HTTP freshness checking following RFC standards, and default regex t...">
+<meta name="keywords" content="Rails 8, framework defaults, Rails upgrade, new_framework_defaults_8_0.rb, to_time_preserves_timezone, strict_freshness, Regexp.timeout, Rails configuration, Rails 8.0 upgrade, Rails, Rails 8, Configuration, Ruby on Rails, PostgreSQL, Ruby, Rails development, Rails consulting">
+<meta name="author" content="Prateek Choudhary">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://prateekcodes.dev/rails-8-framework-defaults/">
+<meta property="og:title" content="What are the new Rails 8 framework defaults?">
+<meta property="og:description" content="Rails 8 framework defaults include timezone preservation in to_time methods, strict HTTP freshness checking following RFC standards, and default regex t...">
+<meta property="og:image" content="https://prateekcodes.dev/assets/images/logo.avif">
+<meta property="og:site_name" content="Prateek Codes - Learn Building Scalable Backend Systems">
+
+<meta property="article:author" content="Prateek Choudhary">
+<meta property="article:published_time" content="2025-06-28T00:00:00+00:00">
+
+
+<meta property="article:tag" content="rails">
+
+<meta property="article:tag" content="upgrade">
+
+<meta property="article:tag" content="configuration">
+
+<meta property="article:tag" content="rails-8">
+
+<meta property="article:tag" content="framework-defaults">
+
+
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://prateekcodes.dev/rails-8-framework-defaults/">
+<meta property="twitter:title" content="What are the new Rails 8 framework defaults?">
+<meta property="twitter:description" content="Rails 8 framework defaults include timezone preservation in to_time methods, strict HTTP freshness checking following RFC standards, and default regex t...">
+<meta property="twitter:image" content="https://prateekcodes.dev/assets/images/logo.avif">
+<meta property="twitter:creator" content="@prateekkish">
+
+<!-- Canonical URL -->
+<link rel="canonical" href="https://prateekcodes.dev/rails-8-framework-defaults/">
+
+<!-- RSS Feed -->
+<link rel="alternate" type="application/rss+xml" title="Prateek Codes - Learn Building Scalable Backend Systems RSS Feed" href="https://prateekcodes.dev/feed.xml">
+
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "What are the new Rails 8 framework defaults?",
+  "description": "Rails 8 framework defaults include timezone preservation in to_time methods, strict HTTP freshness checking following RFC standards, and default regex t...",
+  
+  "image": "https://prateekcodes.dev/assets/images/logo.avif",
+  
+  "datePublished": "2025-06-28T00:00:00+00:00",
+  
+  "dateModified": "2025-06-28T00:00:00+00:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Prateek Choudhary",
+    "url": "https://prateekcodes.dev",
+    "sameAs": [
+      "https://twitter.com/prateekkish",
+      "https://www.linkedin.com/in/choudharyprateek/",
+      "https://github.com/prateekkish"
+    ]
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Prateek Codes - Learn Building Scalable Backend Systems",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://prateekcodes.dev/assets/images/logo.avif"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://prateekcodes.dev/rails-8-framework-defaults/"
+  },
+  "keywords": "rails, upgrade, configuration, rails-8, framework-defaults, Rails, Rails 8, Configuration",
+  "articleSection": "Rails",
+  "wordCount": "1050"
+}
+</script>
+
+
+
+
+
+<!-- Breadcrumb Navigation -->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://prateekcodes.dev"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Rails",
+      "item": "https://prateekcodes.dev/category/rails"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "What are the new Rails 8 fr...",
+      "item": "https://prateekcodes.dev/rails-8-framework-defaults/"
+    }
+  ]
+}
+</script>
+
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<link href="/assets/css/screen.css" rel="stylesheet">
+
+<link href="/assets/css/main.css" rel="stylesheet">
+
+
+
+<script src="/assets/js/jquery.min.js"></script>
+
+</head>
+
+
+<!-- change your GA id in _config.yml -->
+<script type="text/javascript">
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-158773406-2', 'auto');
+    ga('send', 'pageview');
+  </script>
+
+
+
+<body class="layout-post">
+	<!-- defer loading of font and font awesome -->
+	<noscript id="deferred-styles">
+		<link href="https://fonts.googleapis.com/css?family=Righteous%7CMerriweather:300,300i,400,400i,700,700i" rel="stylesheet">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+	</noscript>
+
+
+<!-- Begin Menu Navigation
+================================================== -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top mediumnavigation nav-down">
+
+    <div class="container pr-0">
+
+    <!-- Begin Logo -->
+    <a class="navbar-brand" href="/">
+    <img class="navbar-logo" src="/assets/images/logo.avif" alt="Prateek Codes - Learn Building Scalable Backend Systems" width="50px" height="">
+    </a>
+    <!-- End Logo -->
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMediumish" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarMediumish">
+
+        <!-- Begin Menu -->
+
+            <ul class="navbar-nav ml-auto">
+
+                
+                <li class="nav-item ">
+                    <a class="nav-link" href="/">Blog</a>
+                </li>
+                
+                <li class="nav-item ">
+                    <a class="nav-link" href="/categories">Categories</a>
+                </li>
+                
+                <li class="nav-item ">
+                    <a class="nav-link" href="/projects">Projects</a>
+                </li>
+                
+
+                <script src="/assets/js/lunr.js"></script>
+
+
+<style>
+    .lunrsearchresult .title {color: #d9230f;}
+    .lunrsearchresult .url {color: silver;}
+    .lunrsearchresult a {display: block; color: #777;}
+    .lunrsearchresult a:hover, .lunrsearchresult a:focus {text-decoration: none;}
+    .lunrsearchresult a:hover .title {text-decoration: underline;}
+</style>
+
+
+<form class="bd-search" onSubmit="return lunr_search(document.getElementById('lunrsearch').value);">
+    <input type="text" class="form-control text-small launch-modal-search" id="lunrsearch" name="q" maxlength="255" value="" placeholder="Search a post..."/>
+</form>
+
+<div id="lunrsearchresults">
+    <ul></ul>
+</div>
+
+<script src="/assets/js/lunrsearchengine.js"></script>
+
+            </ul>
+
+        <!-- End Menu -->
+
+    </div>
+
+    </div>
+</nav>
+<!-- End Navigation
+================================================== -->
+
+<div class="site-content">
+
+<div class="container">
+
+<!-- Content
+================================================== -->
+<div class="main-content">
+    <!-- Begin Article
+================================================== -->
+<div class="container">
+    <div class="row">
+
+        <!-- Post Share -->
+        <div class="col-md-1 pl-0">
+            
+        </div>
+
+        <!-- Post -->
+        
+
+        <div class="col-md-10 flex-first flex-md-unordered">
+            <div class="mainheading">
+
+                <!-- Post Title -->
+                <h1 class="posttitle">What are the new Rails 8 framework defaults?</h1>
+
+            </div>            
+
+            <!-- Post Featured Image -->
+            
+            <!-- End Featured Image -->
+
+            <!-- Post Content -->
+            <div class="article-post">
+                <p>When upgrading to Rails 8, running <code class="language-plaintext highlighter-rouge">rails app:update</code> generates a file called <code class="language-plaintext highlighter-rouge">config/initializers/new_framework_defaults_8_0.rb</code>. Rails 8’s framework defaults are relatively minimal compared to previous versions, focusing on timezone handling, HTTP caching behavior, and security improvements through regex timeout settings.</p>
+
+<h2 id="activesupportto_time_preserves_timezone--zone">ActiveSupport.to_time_preserves_timezone = :zone</h2>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="c1"># Preserves the timezone when converting to `Time` with `to_time`.</span>
+<span class="c1"># `ActiveSupport.to_time_preserves_timezone = false` was the default behavior</span>
+<span class="c1"># before Rails 8.0. With Rails 8.0, the default becomes `:zone` which</span>
+<span class="c1"># preserves the timezone of the receiver when converting to `Time`.</span>
+<span class="no">Rails</span><span class="p">.</span><span class="nf">application</span><span class="p">.</span><span class="nf">config</span><span class="p">.</span><span class="nf">active_support</span><span class="p">.</span><span class="nf">to_time_preserves_timezone</span> <span class="o">=</span> <span class="ss">:zone</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="what-this-default-does">What this default does</h3>
+
+<p>This configuration changes how <code class="language-plaintext highlighter-rouge">to_time</code> methods handle timezone information. When set to <code class="language-plaintext highlighter-rouge">:zone</code>, the <code class="language-plaintext highlighter-rouge">to_time</code> method preserves the timezone of the receiver instead of converting to the system’s local timezone.</p>
+
+<p><strong>Before Rails 8:</strong></p>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="c1"># Assuming system timezone is EST</span>
+<span class="n">time_in_utc</span> <span class="o">=</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"2024-01-01 12:00:00 UTC"</span><span class="p">)</span>
+<span class="n">time_in_utc</span><span class="p">.</span><span class="nf">to_time</span>
+<span class="c1"># =&gt; 2024-01-01 07:00:00 -0500 (converted to system timezone)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Rails 8 with <code class="language-plaintext highlighter-rouge">:zone</code>:</strong></p>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="n">time_in_utc</span> <span class="o">=</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"2024-01-01 12:00:00 UTC"</span><span class="p">)</span>
+<span class="n">time_in_utc</span><span class="p">.</span><span class="nf">to_time</span>
+<span class="c1"># =&gt; 2024-01-01 12:00:00 UTC (preserves original timezone)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="when-to-uncomment">When to uncomment</h3>
+
+<p><strong>Safe to uncomment if:</strong></p>
+<ul>
+  <li>Your application expects <code class="language-plaintext highlighter-rouge">to_time</code> to preserve the original timezone</li>
+  <li>You don’t have code that relies on automatic conversion to system timezone</li>
+  <li>You want more predictable timezone behavior across different environments</li>
+</ul>
+
+<p><strong>Not safe to uncomment if:</strong></p>
+<ul>
+  <li>Your application relies on <code class="language-plaintext highlighter-rouge">to_time</code> converting to the local system timezone</li>
+  <li>You have legacy code that expects the old behavior</li>
+  <li>You process timestamps from external sources that need local timezone conversion</li>
+</ul>
+
+<h3 id="supporting-changes-needed">Supporting changes needed</h3>
+
+<p>Due to <a href="https://github.com/rails/rails/issues/54015" target="_blank" rel="noopener noreferrer">a known issue</a>, this configuration must be set in <code class="language-plaintext highlighter-rouge">config/application.rb</code> instead of the framework defaults initializer:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="c1"># config/application.rb</span>
+<span class="k">module</span> <span class="nn">YourApp</span>
+  <span class="k">class</span> <span class="nc">Application</span> <span class="o">&lt;</span> <span class="no">Rails</span><span class="o">::</span><span class="no">Application</span>
+    <span class="n">config</span><span class="p">.</span><span class="nf">load_defaults</span> <span class="mf">8.0</span>
+    
+    <span class="c1"># This needs to be here, not in new_framework_defaults_8_0.rb</span>
+    <span class="n">config</span><span class="p">.</span><span class="nf">active_support</span><span class="p">.</span><span class="nf">to_time_preserves_timezone</span> <span class="o">=</span> <span class="ss">:zone</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="actiondispatchstrict_freshness--true">ActionDispatch.strict_freshness = true</h2>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="c1"># Changes the behavior of `ActionController::ConditionalGet#fresh_when` and</span>
+<span class="c1"># `#stale?`, so that they honor the `If-None-Match` header before the</span>
+<span class="c1"># `If-Modified-Since` header, as specified by RFC 7232 section 6.</span>
+<span class="no">Rails</span><span class="p">.</span><span class="nf">application</span><span class="p">.</span><span class="nf">config</span><span class="p">.</span><span class="nf">action_dispatch</span><span class="p">.</span><span class="nf">strict_freshness</span> <span class="o">=</span> <span class="kp">true</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="what-this-default-does-1">What this default does</h3>
+
+<p>This setting aligns Rails with the HTTP specification (RFC 7232) for handling conditional GET requests. When enabled, ETag headers take precedence over Last-Modified headers when determining if a cached response is fresh.</p>
+
+<p><strong>Before Rails 8:</strong></p>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="c1"># Both ETag AND Last-Modified must match for 304 response</span>
+<span class="n">fresh_when</span><span class="p">(</span><span class="ss">etag: </span><span class="vi">@post</span><span class="p">,</span> <span class="ss">last_modified: </span><span class="vi">@post</span><span class="p">.</span><span class="nf">updated_at</span><span class="p">)</span>
+<span class="c1"># Client needs both headers to match for cache hit</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Rails 8 with strict_freshness:</strong></p>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="c1"># Only ETag needs to match for 304 response (per HTTP spec)</span>
+<span class="n">fresh_when</span><span class="p">(</span><span class="ss">etag: </span><span class="vi">@post</span><span class="p">,</span> <span class="ss">last_modified: </span><span class="vi">@post</span><span class="p">.</span><span class="nf">updated_at</span><span class="p">)</span>
+<span class="c1"># If ETag matches, returns 304 regardless of Last-Modified</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="when-to-uncomment-1">When to uncomment</h3>
+
+<p><strong>Safe to uncomment if:</strong></p>
+<ul>
+  <li>You want RFC-compliant HTTP caching behavior</li>
+  <li>Your caching strategy primarily relies on ETags</li>
+  <li>You’re building a new API or have control over client implementations</li>
+</ul>
+
+<p><strong>Not safe to uncomment if:</strong></p>
+<ul>
+  <li>Your application or clients depend on both ETag and Last-Modified matching</li>
+  <li>You have custom caching logic that expects the historical Rails behavior</li>
+  <li>Your CDN or proxy servers are configured for the old behavior</li>
+</ul>
+
+<h3 id="supporting-changes-needed-1">Supporting changes needed</h3>
+
+<p>Review your controller caching logic:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="c1"># Check uses of fresh_when and stale?</span>
+<span class="k">class</span> <span class="nc">PostsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+  <span class="k">def</span> <span class="nf">show</span>
+    <span class="vi">@post</span> <span class="o">=</span> <span class="no">Post</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="ss">:id</span><span class="p">])</span>
+    
+    <span class="c1"># This behavior changes with strict_freshness</span>
+    <span class="n">fresh_when</span><span class="p">(</span><span class="vi">@post</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="regexptimeout--1">Regexp.timeout = 1</h2>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="c1"># Sets the default maximum amount of time a `Regexp` match can take, before a</span>
+<span class="c1"># `Regexp::TimeoutError` is raised. Defaults to `nil`, which means there is no</span>
+<span class="c1"># timeout. Can be configured with `Regexp.timeout=`.</span>
+<span class="c1"># </span>
+<span class="c1"># If set, this value applies to all Regex matching operations in the Ruby</span>
+<span class="c1"># process. This is a mitigation for potential Denial of Service attacks that</span>
+<span class="c1"># exploit certain Regex patterns.</span>
+<span class="c1"># </span>
+<span class="c1"># See https://stdgems.org/regexp_parser/Regexp.html#timeout-class_method for</span>
+<span class="c1"># more information.</span>
+<span class="no">Regexp</span><span class="p">.</span><span class="nf">timeout</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="what-this-default-does-2">What this default does</h3>
+
+<p>This sets a global 1-second timeout for all regular expression operations in your application, protecting against ReDoS (Regular Expression Denial of Service) attacks.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c1"># Without timeout (potential DoS vulnerability)</span>
+<span class="s2">"a"</span> <span class="o">*</span> <span class="mi">50</span> <span class="o">+</span> <span class="s2">"b"</span> <span class="o">=~</span> <span class="sr">/a+a+b/</span>  <span class="c1"># Can take exponential time</span>
+
+<span class="c1"># With 1-second timeout</span>
+<span class="no">Regexp</span><span class="p">.</span><span class="nf">timeout</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="s2">"a"</span> <span class="o">*</span> <span class="mi">50</span> <span class="o">+</span> <span class="s2">"b"</span> <span class="o">=~</span> <span class="sr">/a+a+b/</span>  <span class="c1"># Raises Regexp::TimeoutError after 1 second</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="when-to-uncomment-2">When to uncomment</h3>
+
+<p><strong>Safe to uncomment if:</strong></p>
+<ul>
+  <li>You’re using Ruby 3.2 or later (required for this feature)</li>
+  <li>Your regexes are well-optimized and don’t require long execution times</li>
+  <li>You want protection against ReDoS attacks</li>
+</ul>
+
+<p><strong>Not safe to uncomment if:</strong></p>
+<ul>
+  <li>You have complex regexes that legitimately take more than 1 second</li>
+  <li>You’re processing large text files with regex operations</li>
+  <li>You’re using an older Ruby version or alternative Ruby implementation</li>
+</ul>
+
+<h3 id="supporting-changes-needed-2">Supporting changes needed</h3>
+
+<p>Identify and optimize slow regexes:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="c1"># Wrap potentially slow regex operations</span>
+<span class="k">begin</span>
+  <span class="n">result</span> <span class="o">=</span> <span class="n">large_text</span><span class="p">.</span><span class="nf">match</span><span class="p">(</span><span class="sr">/complex_pattern/</span><span class="p">)</span>
+<span class="k">rescue</span> <span class="no">Regexp</span><span class="o">::</span><span class="no">TimeoutError</span>
+  <span class="c1"># Handle timeout appropriately</span>
+  <span class="no">Rails</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">warn</span> <span class="s2">"Regex timeout occurred"</span>
+  <span class="c1"># Consider simplifying the regex or increasing timeout</span>
+<span class="k">end</span>
+
+<span class="c1"># Or set custom timeout for specific operations</span>
+<span class="no">Regexp</span><span class="p">.</span><span class="nf">timeout</span> <span class="o">=</span> <span class="mi">5</span> <span class="k">do</span>
+  <span class="c1"># Complex regex operation that needs more time</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Rails 8’s framework defaults are focused and minimal, addressing specific concerns around timezone handling, HTTP specification compliance, and security. Unlike previous Rails versions, these changes are relatively safe to adopt, though the timezone configuration requires special attention due to the loading order issue.</p>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://github.com/rails/rails/pull/53490" target="_blank" rel="noopener noreferrer">PR #53490 - Default Regexp.timeout to 1s</a></li>
+  <li><a href="https://github.com/rails/rails/pull/52274" target="_blank" rel="noopener noreferrer">PR #52274 - Prefer ETag over Last-Modified for fresh_when and stale?</a></li>
+  <li><a href="https://github.com/rails/rails/issues/54015" target="_blank" rel="noopener noreferrer">Issue #54015 - Setting active_support.to_time_preserves_timezone in new_frameworks_default_8_0.rb does not work</a></li>
+</ul>
+
+            </div>
+
+            <!-- Post Date -->
+            <p>
+            <small>
+                <span class="post-date"><time class="post-date" datetime="2025-06-28">28 Jun 2025</time></span>
+                
+                </small>
+            </p>
+
+            <!-- Post Categories -->
+            <div class="after-post-cats">
+                <ul class="tags mb-4">
+                    
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#Configuration">Configuration</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#Rails">Rails</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#Rails-8">Rails 8</a>
+                    </li>
+                    
+                </ul>
+            </div>
+            <!-- End Categories -->
+
+            <!-- Author Box -->
+            
+            <div class="row post-bottom-meta">
+                <div class="col-xs-12 col-md-3 col-lg-2 text-center text-md-left mb-4 mb-md-0">
+                    
+                    <img class="author-thumb" src="/assets/images/prateek-avatar.avif" alt="Prateek Choudhary">
+                    
+                </div>
+                <div class="col-xs-12 col-md-9 col-lg-10 text-center text-md-left">
+                    <a target="_blank" class="link-dark" href="prateekcodes.dev">Prateek Choudhary</a>
+                    <section class="author-socials mb-0">
+                        <a target="_blank" href="https://twitter.com/prateekkish"><i class="fab fa-twitter-square"></i></a>
+                        <a target="_blank" href="https://github.com/prateekkish" class="ml-1"><i class="fab fa-github-square"></i></a>
+                        <a target="_blank" href="https://www.linkedin.com/in/choudharyprateek/" class="ml-1"><i class="fab fa-linkedin"></i></a>
+                        <a target="_blank" href="mailto:prateekkish@gmail.com" class="ml-1"><i class="fas fa-envelope-square"></i></a>
+                    </section>
+                    <section class="author-description">Technology Leader</section>
+                </div>
+            </div>
+            
+            <!-- End Author Box -->
+
+            <!-- Post Tags -->
+            <div class="after-post-tags">
+                <ul class="tags">
+                    
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#configuration">#configuration</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#framework-defaults">#framework-defaults</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#rails">#rails</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#rails-8">#rails-8</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#upgrade">#upgrade</a>
+                    </li>
+                    
+                </ul>
+            </div>
+            <!-- End Tags -->
+
+            <!-- Related Posts -->
+            
+
+
+
+
+
+<div class="related-posts">
+  <h3>Related Articles</h3>
+  <div class="row">
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/rails-8-serialized-attributes-comparable-option/">Rails 8 adds comparable option to serialized attributes</a>
+                </h5>
+                <p class="card-text small">Rails 8 introduces a `comparable` option for serialized attributes, preventing unnecessary databa...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-07-04T00:00:00+00:00">Jul 04, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/rails-8-multiple-rate-limits-per-controller/">Rails 8 adds ability to use multiple rate limits per controller</a>
+                </h5>
+                <p class="card-text small">Rails 8 now allows defining multiple rate limits within a single controller using named configura...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-07-04T00:00:00+00:00">Jul 04, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/rails-8-introduces-params-expect-for-safer-parameter-handling/">Rails 8 introduces Parameters#expect for safer parameter handling</a>
+                </h5>
+                <p class="card-text small">Rails 8 adds `Parameters#expect` to prevent parameter manipulation attacks and provide clearer er...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-06-30T00:00:00+00:00">Jun 30, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/rails-http-caching-strategies/">HTTP Caching for Rails APIs: The Missing Performance Layer</a>
+                </h5>
+                <p class="card-text small">Most Rails APIs ignore HTTP caching entirely, missing out on massive performance gains. Learn pra...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-06-29T00:00:00+00:00">Jun 29, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+            
+    
+    
+    
+  </div>
+</div>
+            <!-- End Related Posts -->
+
+        </div>
+        <!-- End Post -->
+
+    </div>
+</div>
+<!-- End Article
+================================================== -->
+
+<!-- Begin Comments
+================================================== -->
+
+    <div class="container">
+        <div id="comments" class="row justify-content-center mb-5">
+            <div class="col-md-10">
+                <script src="https://giscus.app/client.js"
+        data-repo="prateekkish/prateekcodes"
+        data-repo-id=""
+        data-category="General"
+        data-category-id=""
+        data-mapping="title"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="light_protanopia"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+</script>
+            </div>
+        </div>
+    </div>
+
+<!--End Comments
+================================================== -->
+
+</script>
+
+</div>
+
+
+
+</div>
+
+<!-- Begin Footer
+================================================== -->
+<footer class="footer">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-12 text-center">
+                <div class="contact-section">
+                    <h5 class="contact-title">Let's Work Together</h5>
+                    <p class="contact-subtitle">Need help scaling your backend systems? I can help you build robust, high-performance solutions.</p>
+                    <div class="contact-links">
+                        <a href="mailto:prateekkish@gmail.com" class="contact-link email-link">
+                            <i class="fas fa-envelope"></i> Get in touch
+                        </a>
+                        <span class="contact-divider">•</span>
+                        <a href="https://twitter.com/prateekkish" class="contact-link" target="_blank">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                        <span class="contact-divider">•</span>
+                        <a href="https://www.linkedin.com/in/choudharyprateek/" class="contact-link" target="_blank">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+                        <span class="contact-divider">•</span>
+                        <a href="https://github.com/prateekkish" class="contact-link" target="_blank">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="footer-divider">
+        <div class="row">
+            <div class="col-md-6 col-sm-6 text-center text-lg-left">
+                Copyright © 2025 Prateek Codes - Learn Building Scalable Backend Systems
+            </div>
+            <div class="col-md-6 col-sm-6 text-center text-lg-right">
+                Built with Jekyll
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- End Footer
+================================================== -->
+
+</div> <!-- /.site-content -->
+
+<!-- Scripts
+================================================== -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+
+<script src="/assets/js/mediumish.js"></script>
+
+
+
+<script src="/assets/js/ie10-viewport-bug-workaround.js"></script>
+
+</body>
+</html>

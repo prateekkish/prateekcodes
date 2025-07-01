@@ -1,0 +1,2146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link rel="icon" href="/assets/images/logo.avif">
+
+
+
+
+
+
+
+
+
+
+
+<!-- Primary Meta Tags -->
+<title>Scaling Rails with PostgreSQL Read Replicas: Part 3 - Production Excellence | Prateek Codes - Learn Building Scalable Backend Systems</title>
+<meta name="title" content="Scaling Rails with PostgreSQL Read Replicas: Part 3 - Production Excellence">
+<meta name="description" content="Master production deployment strategies, monitoring, performance optimization, and failure handling for Rails applications using PostgreSQL read replicas.">
+<meta name="keywords" content="Rails read replicas production, zero downtime deployment Rails, PostgreSQL monitoring, Rails disaster recovery, production Rails scaling, read replica performance optimization, Rails, PostgreSQL, Database, Scaling, Ruby on Rails, PostgreSQL, Ruby, Rails development, Rails consulting">
+<meta name="author" content="Prateek Choudhary">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://prateekcodes.dev/rails-read-replicas-part-3-production-excellence/">
+<meta property="og:title" content="Scaling Rails with PostgreSQL Read Replicas: Part 3 - Production Excellence">
+<meta property="og:description" content="Master production deployment strategies, monitoring, performance optimization, and failure handling for Rails applications using PostgreSQL read replicas.">
+<meta property="og:image" content="https://prateekcodes.dev/assets/images/logo.avif">
+<meta property="og:site_name" content="Prateek Codes - Learn Building Scalable Backend Systems">
+
+<meta property="article:author" content="Prateek Choudhary">
+<meta property="article:published_time" content="2025-06-25T00:00:00+00:00">
+
+
+<meta property="article:tag" content="rails-production">
+
+<meta property="article:tag" content="read-replicas-monitoring">
+
+<meta property="article:tag" content="zero-downtime-deployment">
+
+<meta property="article:tag" content="disaster-recovery">
+
+<meta property="article:tag" content="rails-7">
+
+<meta property="article:tag" content="postgresql">
+
+<meta property="article:tag" content="production-optimization">
+
+
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://prateekcodes.dev/rails-read-replicas-part-3-production-excellence/">
+<meta property="twitter:title" content="Scaling Rails with PostgreSQL Read Replicas: Part 3 - Production Excellence">
+<meta property="twitter:description" content="Master production deployment strategies, monitoring, performance optimization, and failure handling for Rails applications using PostgreSQL read replicas.">
+<meta property="twitter:image" content="https://prateekcodes.dev/assets/images/logo.avif">
+<meta property="twitter:creator" content="@prateekkish">
+
+<!-- Canonical URL -->
+<link rel="canonical" href="https://prateekcodes.dev/rails-read-replicas-part-3-production-excellence/">
+
+<!-- RSS Feed -->
+<link rel="alternate" type="application/rss+xml" title="Prateek Codes - Learn Building Scalable Backend Systems RSS Feed" href="https://prateekcodes.dev/feed.xml">
+
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Scaling Rails with PostgreSQL Read Replicas: Part 3 - Production Excellence",
+  "description": "Master production deployment strategies, monitoring, performance optimization, and failure handling for Rails applications using PostgreSQL read replicas.",
+  
+  "image": "https://prateekcodes.dev/assets/images/logo.avif",
+  
+  "datePublished": "2025-06-25T00:00:00+00:00",
+  
+  "dateModified": "2025-06-25T00:00:00+00:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Prateek Choudhary",
+    "url": "https://prateekcodes.dev",
+    "sameAs": [
+      "https://twitter.com/prateekkish",
+      "https://www.linkedin.com/in/choudharyprateek/",
+      "https://github.com/prateekkish"
+    ]
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Prateek Codes - Learn Building Scalable Backend Systems",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://prateekcodes.dev/assets/images/logo.avif"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://prateekcodes.dev/rails-read-replicas-part-3-production-excellence/"
+  },
+  "keywords": "rails-production, read-replicas-monitoring, zero-downtime-deployment, disaster-recovery, rails-7, postgresql, production-optimization, Rails, PostgreSQL, Database, Scaling",
+  "articleSection": "Rails",
+  "wordCount": "2900"
+}
+</script>
+
+
+
+
+
+<!-- Breadcrumb Navigation -->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://prateekcodes.dev"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Rails",
+      "item": "https://prateekcodes.dev/category/rails"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Scaling Rails with PostgreS...",
+      "item": "https://prateekcodes.dev/rails-read-replicas-part-3-production-excellence/"
+    }
+  ]
+}
+</script>
+
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<link href="/assets/css/screen.css" rel="stylesheet">
+
+<link href="/assets/css/main.css" rel="stylesheet">
+
+
+
+<script src="/assets/js/jquery.min.js"></script>
+
+</head>
+
+
+<!-- change your GA id in _config.yml -->
+<script type="text/javascript">
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-158773406-2', 'auto');
+    ga('send', 'pageview');
+  </script>
+
+
+
+<body class="layout-post">
+	<!-- defer loading of font and font awesome -->
+	<noscript id="deferred-styles">
+		<link href="https://fonts.googleapis.com/css?family=Righteous%7CMerriweather:300,300i,400,400i,700,700i" rel="stylesheet">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+	</noscript>
+
+
+<!-- Begin Menu Navigation
+================================================== -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top mediumnavigation nav-down">
+
+    <div class="container pr-0">
+
+    <!-- Begin Logo -->
+    <a class="navbar-brand" href="/">
+    <img class="navbar-logo" src="/assets/images/logo.avif" alt="Prateek Codes - Learn Building Scalable Backend Systems" width="50px" height="">
+    </a>
+    <!-- End Logo -->
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMediumish" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarMediumish">
+
+        <!-- Begin Menu -->
+
+            <ul class="navbar-nav ml-auto">
+
+                
+                <li class="nav-item ">
+                    <a class="nav-link" href="/">Blog</a>
+                </li>
+                
+                <li class="nav-item ">
+                    <a class="nav-link" href="/categories">Categories</a>
+                </li>
+                
+                <li class="nav-item ">
+                    <a class="nav-link" href="/projects">Projects</a>
+                </li>
+                
+
+                <script src="/assets/js/lunr.js"></script>
+
+
+<style>
+    .lunrsearchresult .title {color: #d9230f;}
+    .lunrsearchresult .url {color: silver;}
+    .lunrsearchresult a {display: block; color: #777;}
+    .lunrsearchresult a:hover, .lunrsearchresult a:focus {text-decoration: none;}
+    .lunrsearchresult a:hover .title {text-decoration: underline;}
+</style>
+
+
+<form class="bd-search" onSubmit="return lunr_search(document.getElementById('lunrsearch').value);">
+    <input type="text" class="form-control text-small launch-modal-search" id="lunrsearch" name="q" maxlength="255" value="" placeholder="Search a post..."/>
+</form>
+
+<div id="lunrsearchresults">
+    <ul></ul>
+</div>
+
+<script src="/assets/js/lunrsearchengine.js"></script>
+
+            </ul>
+
+        <!-- End Menu -->
+
+    </div>
+
+    </div>
+</nav>
+<!-- End Navigation
+================================================== -->
+
+<div class="site-content">
+
+<div class="container">
+
+<!-- Content
+================================================== -->
+<div class="main-content">
+    <!-- Begin Article
+================================================== -->
+<div class="container">
+    <div class="row">
+
+        <!-- Post Share -->
+        <div class="col-md-1 pl-0">
+            
+        </div>
+
+        <!-- Post -->
+        
+
+        <div class="col-md-10 flex-first flex-md-unordered">
+            <div class="mainheading">
+
+                <!-- Post Title -->
+                <h1 class="posttitle">Scaling Rails with PostgreSQL Read Replicas: Part 3 - Production Excellence</h1>
+
+            </div>            
+
+            <!-- Post Featured Image -->
+            
+            <!-- End Featured Image -->
+
+            <!-- Post Content -->
+            <div class="article-post">
+                <p>In <a href="/rails-read-replicas-part-1-understanding-the-basics">Part 1</a> and <a href="/rails-read-replicas-part-2-advanced-patterns">Part 2</a>, we covered setup and advanced patterns. Now let’s focus on what happens when you actually deploy read replicas to production.</p>
+
+<p>This part covers the operational excellence required for production systems: how to deploy without downtime, monitor effectively, handle failures gracefully, and optimize performance based on real-world usage. These are the hard-won lessons from running read replicas at scale.</p>
+
+<h2 id="whats-covered">What’s Covered</h2>
+
+<ul>
+  <li><a href="#zero-downtime-deployment-strategy">Zero-Downtime Deployment Strategy</a></li>
+  <li><a href="#comprehensive-monitoring">Comprehensive Monitoring</a></li>
+  <li><a href="#performance-optimization">Performance Optimization</a></li>
+  <li><a href="#disaster-recovery">Disaster Recovery</a></li>
+  <li><a href="#production-checklist">Production Checklist</a></li>
+</ul>
+
+<h2 id="zero-downtime-deployment-strategy">Zero-Downtime Deployment Strategy</h2>
+
+<p>Adding read replicas to an existing production application requires careful planning. Here’s a battle-tested approach:</p>
+
+<h3 id="step-1-start-with-0-traffic">Step 1: Start with 0% Traffic</h3>
+
+<p>Use the gradual rollout strategy from <a href="/rails-read-replicas-part-2-advanced-patterns#pattern-2-gradual-replica-adoption">Part 2</a>, starting with 0% traffic to replicas:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="c1"># app/services/replica_rollout.rb</span>
+<span class="k">class</span> <span class="nc">ReplicaRollout</span>
+  <span class="no">ROLLOUT_PERCENTAGES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="ss">analytics_queries: </span><span class="mi">0</span><span class="p">,</span>    <span class="c1"># Start at 0%</span>
+    <span class="ss">search_queries: </span><span class="mi">0</span><span class="p">,</span>       <span class="c1"># Start at 0%</span>
+    <span class="ss">user_profiles: </span><span class="mi">0</span><span class="p">,</span>        <span class="c1"># Start at 0%</span>
+    <span class="ss">default: </span><span class="mi">0</span>               <span class="c1"># Everything uses primary</span>
+  <span class="p">}.</span><span class="nf">freeze</span>
+  
+  <span class="c1"># ... rest of implementation from Part 2</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>During this phase:</p>
+<ol>
+  <li><strong>Deploy replica infrastructure</strong> - Ensure replicas are receiving data</li>
+  <li><strong>Monitor replication lag</strong> - Verify replicas stay in sync</li>
+  <li><strong>Test with read-only users</strong> - Have internal team members manually test</li>
+  <li><strong>Collect baseline metrics</strong> - CPU, memory, query performance on replicas</li>
+</ol>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+</pre></td><td class="rouge-code"><pre><span class="c1"># app/jobs/replica_health_validator_job.rb</span>
+<span class="k">class</span> <span class="nc">ReplicaHealthValidatorJob</span> <span class="o">&lt;</span> <span class="no">ApplicationJob</span>
+  <span class="k">def</span> <span class="nf">perform</span>
+    <span class="c1"># Check all replicas are healthy before increasing traffic</span>
+    <span class="n">replicas</span> <span class="o">=</span> <span class="p">[</span><span class="ss">:primary_replica</span><span class="p">,</span> <span class="ss">:primary_replica_2</span><span class="p">]</span>
+    
+    <span class="n">health_checks</span> <span class="o">=</span> <span class="n">replicas</span><span class="p">.</span><span class="nf">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">replica</span><span class="o">|</span>
+      <span class="p">{</span>
+        <span class="ss">name: </span><span class="n">replica</span><span class="p">,</span>
+        <span class="ss">lag: </span><span class="n">check_replication_lag</span><span class="p">(</span><span class="n">replica</span><span class="p">),</span>
+        <span class="ss">connections: </span><span class="n">check_connection_count</span><span class="p">(</span><span class="n">replica</span><span class="p">),</span>
+        <span class="ss">query_success: </span><span class="n">test_query</span><span class="p">(</span><span class="n">replica</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="k">end</span>
+    
+    <span class="k">if</span> <span class="n">health_checks</span><span class="p">.</span><span class="nf">all?</span> <span class="p">{</span> <span class="o">|</span><span class="n">check</span><span class="o">|</span> <span class="n">check</span><span class="p">[</span><span class="ss">:lag</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">.</span><span class="nf">seconds</span> <span class="o">&amp;&amp;</span> <span class="n">check</span><span class="p">[</span><span class="ss">:query_success</span><span class="p">]</span> <span class="p">}</span>
+      <span class="no">Rails</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">info</span> <span class="s2">"All replicas healthy, ready for traffic"</span>
+      <span class="no">StatsD</span><span class="p">.</span><span class="nf">event</span><span class="p">(</span><span class="s2">"replicas.ready_for_traffic"</span><span class="p">,</span> <span class="s2">"All health checks passed"</span><span class="p">)</span>
+    <span class="k">else</span>
+      <span class="no">AlertService</span><span class="p">.</span><span class="nf">notify</span><span class="p">(</span><span class="s2">"Replicas not ready"</span><span class="p">,</span> <span class="n">health_checks</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+  
+  <span class="kp">private</span>
+  
+  <span class="k">def</span> <span class="nf">check_replication_lag</span><span class="p">(</span><span class="n">replica</span><span class="p">)</span>
+    <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">,</span> <span class="ss">shard: </span><span class="n">replica</span><span class="p">)</span> <span class="k">do</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connection</span><span class="p">.</span><span class="nf">execute</span><span class="p">(</span>
+        <span class="s2">"SELECT EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp())) as lag"</span>
+      <span class="p">).</span><span class="nf">first</span>
+      <span class="n">result</span><span class="p">[</span><span class="s1">'lag'</span><span class="p">].</span><span class="nf">to_f</span><span class="p">.</span><span class="nf">seconds</span>
+    <span class="k">end</span>
+  <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+    <span class="no">Float</span><span class="o">::</span><span class="no">INFINITY</span>
+  <span class="k">end</span>
+  
+  <span class="k">def</span> <span class="nf">test_query</span><span class="p">(</span><span class="n">replica</span><span class="p">)</span>
+    <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">,</span> <span class="ss">shard: </span><span class="n">replica</span><span class="p">)</span> <span class="k">do</span>
+      <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connection</span><span class="p">.</span><span class="nf">execute</span><span class="p">(</span><span class="s2">"SELECT 1"</span><span class="p">)</span>
+      <span class="kp">true</span>
+    <span class="k">end</span>
+  <span class="k">rescue</span>
+    <span class="kp">false</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="step-2-gradual-traffic-migration">Step 2: Gradual Traffic Migration</h3>
+
+<p>Once shadow mode shows replicas are healthy, gradually migrate traffic:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+</pre></td><td class="rouge-code"><pre><span class="c1"># app/services/replica_traffic_manager.rb</span>
+<span class="k">class</span> <span class="nc">ReplicaTrafficManager</span>
+  <span class="no">MIGRATION_SCHEDULE</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="ss">percentage: </span><span class="mi">0</span><span class="p">,</span> <span class="ss">duration: </span><span class="mi">1</span><span class="p">.</span><span class="nf">day</span> <span class="p">},</span>    <span class="c1"># Shadow mode</span>
+    <span class="p">{</span> <span class="ss">percentage: </span><span class="mi">5</span><span class="p">,</span> <span class="ss">duration: </span><span class="mi">1</span><span class="p">.</span><span class="nf">hour</span> <span class="p">},</span>   <span class="c1"># 5% of reads</span>
+    <span class="p">{</span> <span class="ss">percentage: </span><span class="mi">10</span><span class="p">,</span> <span class="ss">duration: </span><span class="mi">2</span><span class="p">.</span><span class="nf">hours</span> <span class="p">},</span> <span class="c1"># Monitor closely</span>
+    <span class="p">{</span> <span class="ss">percentage: </span><span class="mi">25</span><span class="p">,</span> <span class="ss">duration: </span><span class="mi">4</span><span class="p">.</span><span class="nf">hours</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="ss">percentage: </span><span class="mi">50</span><span class="p">,</span> <span class="ss">duration: </span><span class="mi">1</span><span class="p">.</span><span class="nf">day</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="ss">percentage: </span><span class="mi">75</span><span class="p">,</span> <span class="ss">duration: </span><span class="mi">1</span><span class="p">.</span><span class="nf">day</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="ss">percentage: </span><span class="mi">100</span><span class="p">,</span> <span class="ss">duration: </span><span class="kp">nil</span> <span class="p">}</span>     <span class="c1"># Full migration</span>
+  <span class="p">].</span><span class="nf">freeze</span>
+  
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">current_percentage</span>
+    <span class="n">migration_start</span> <span class="o">=</span> <span class="no">Rails</span><span class="p">.</span><span class="nf">cache</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s1">'replica_migration_start'</span><span class="p">)</span> <span class="o">||</span> <span class="no">Time</span><span class="p">.</span><span class="nf">current</span>
+    <span class="n">elapsed</span> <span class="o">=</span> <span class="no">Time</span><span class="p">.</span><span class="nf">current</span> <span class="o">-</span> <span class="n">migration_start</span>
+    
+    <span class="no">MIGRATION_SCHEDULE</span><span class="p">.</span><span class="nf">each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">phase</span><span class="p">,</span> <span class="n">index</span><span class="o">|</span>
+      <span class="n">next_phase</span> <span class="o">=</span> <span class="no">MIGRATION_SCHEDULE</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+      
+      <span class="k">if</span> <span class="n">phase</span><span class="p">[</span><span class="ss">:duration</span><span class="p">].</span><span class="nf">nil?</span> <span class="o">||</span> <span class="n">elapsed</span> <span class="o">&lt;</span> <span class="n">phase</span><span class="p">[</span><span class="ss">:duration</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">phase</span><span class="p">[</span><span class="ss">:percentage</span><span class="p">]</span>
+      <span class="k">end</span>
+      
+      <span class="n">elapsed</span> <span class="o">-=</span> <span class="n">phase</span><span class="p">[</span><span class="ss">:duration</span><span class="p">]</span>
+    <span class="k">end</span>
+    
+    <span class="mi">100</span> <span class="c1"># Full migration complete</span>
+  <span class="k">end</span>
+  
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">should_use_replica?</span><span class="p">(</span><span class="ss">feature: :default</span><span class="p">)</span>
+    <span class="n">percentage</span> <span class="o">=</span> <span class="n">current_percentage</span>
+    
+    <span class="c1"># Critical features migrate last</span>
+    <span class="n">percentage</span> <span class="o">=</span> <span class="p">[</span><span class="n">percentage</span> <span class="o">-</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">].</span><span class="nf">max</span> <span class="k">if</span> <span class="p">[</span><span class="ss">:payments</span><span class="p">,</span> <span class="ss">:auth</span><span class="p">].</span><span class="nf">include?</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+    
+    <span class="nb">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">percentage</span>
+  <span class="k">end</span>
+  
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">with_traffic_management</span><span class="p">(</span><span class="ss">feature: :default</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">should_use_replica?</span><span class="p">(</span><span class="ss">feature: </span><span class="n">feature</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="no">ReplicaHealthCheck</span><span class="p">.</span><span class="nf">healthy?</span>
+      <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+    <span class="k">else</span>
+      <span class="k">yield</span>
+    <span class="k">end</span>
+  <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+    <span class="c1"># Always fallback to primary on errors</span>
+    <span class="no">ErrorTracker</span><span class="p">.</span><span class="nf">track</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="ss">context: </span><span class="p">{</span> <span class="ss">feature: </span><span class="n">feature</span> <span class="p">})</span>
+    <span class="k">yield</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="step-3-automated-rollback">Step 3: Automated Rollback</h3>
+
+<p>Build automatic rollback when issues arise:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+</pre></td><td class="rouge-code"><pre><span class="c1"># app/services/replica_circuit_breaker.rb</span>
+<span class="k">class</span> <span class="nc">ReplicaCircuitBreaker</span>
+  <span class="no">FAILURE_THRESHOLD</span> <span class="o">=</span> <span class="mi">5</span>
+  <span class="no">TIMEOUT_THRESHOLD</span> <span class="o">=</span> <span class="mi">10</span><span class="p">.</span><span class="nf">seconds</span>
+  <span class="no">RECOVERY_TIMEOUT</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="nf">minute</span>
+  
+  <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      <span class="k">return</span> <span class="k">yield</span> <span class="k">if</span> <span class="n">circuit_open?</span>
+      
+      <span class="n">execute_with_breaker</span><span class="p">(</span><span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+    <span class="k">end</span>
+    
+    <span class="kp">private</span>
+    
+    <span class="k">def</span> <span class="nf">execute_with_breaker</span><span class="p">(</span><span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      <span class="n">start_time</span> <span class="o">=</span> <span class="no">Time</span><span class="p">.</span><span class="nf">current</span>
+      
+      <span class="n">result</span> <span class="o">=</span> <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      
+      <span class="c1"># Reset failures on success</span>
+      <span class="n">reset_failure_count</span>
+      <span class="n">result</span>
+      
+    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+      <span class="n">record_failure</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="no">Time</span><span class="p">.</span><span class="nf">current</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+      
+      <span class="c1"># Fallback to primary</span>
+      <span class="k">yield</span>
+    <span class="k">end</span>
+    
+    <span class="k">def</span> <span class="nf">circuit_open?</span>
+      <span class="k">return</span> <span class="kp">false</span> <span class="k">unless</span> <span class="n">last_failure_time</span>
+      
+      <span class="c1"># Check if we're still in recovery period</span>
+      <span class="no">Time</span><span class="p">.</span><span class="nf">current</span> <span class="o">-</span> <span class="n">last_failure_time</span> <span class="o">&lt;</span> <span class="no">RECOVERY_TIMEOUT</span>
+    <span class="k">end</span>
+    
+    <span class="k">def</span> <span class="nf">record_failure</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+      <span class="n">increment_failure_count</span>
+      
+      <span class="k">if</span> <span class="n">failure_count</span> <span class="o">&gt;=</span> <span class="no">FAILURE_THRESHOLD</span> <span class="o">||</span> <span class="n">duration</span> <span class="o">&gt;</span> <span class="no">TIMEOUT_THRESHOLD</span>
+        <span class="n">open_circuit</span>
+        <span class="no">AlertService</span><span class="p">.</span><span class="nf">critical</span><span class="p">(</span>
+          <span class="s2">"Replica circuit breaker opened"</span><span class="p">,</span>
+          <span class="ss">error: </span><span class="n">error</span><span class="p">.</span><span class="nf">message</span><span class="p">,</span>
+          <span class="ss">failure_count: </span><span class="n">failure_count</span><span class="p">,</span>
+          <span class="ss">duration: </span><span class="n">duration</span>
+        <span class="p">)</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+    
+    <span class="k">def</span> <span class="nf">open_circuit</span>
+      <span class="no">Rails</span><span class="p">.</span><span class="nf">cache</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s1">'replica:circuit:open'</span><span class="p">,</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">expires_in: </span><span class="no">RECOVERY_TIMEOUT</span><span class="p">)</span>
+      <span class="no">Rails</span><span class="p">.</span><span class="nf">cache</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s1">'replica:circuit:opened_at'</span><span class="p">,</span> <span class="no">Time</span><span class="p">.</span><span class="nf">current</span><span class="p">)</span>
+    <span class="k">end</span>
+    
+    <span class="k">def</span> <span class="nf">failure_count</span>
+      <span class="no">Rails</span><span class="p">.</span><span class="nf">cache</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s1">'replica:circuit:failures'</span><span class="p">).</span><span class="nf">to_i</span>
+    <span class="k">end</span>
+    
+    <span class="k">def</span> <span class="nf">increment_failure_count</span>
+      <span class="no">Rails</span><span class="p">.</span><span class="nf">cache</span><span class="p">.</span><span class="nf">increment</span><span class="p">(</span><span class="s1">'replica:circuit:failures'</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="ss">expires_in: </span><span class="mi">5</span><span class="p">.</span><span class="nf">minutes</span><span class="p">)</span>
+    <span class="k">end</span>
+    
+    <span class="k">def</span> <span class="nf">reset_failure_count</span>
+      <span class="no">Rails</span><span class="p">.</span><span class="nf">cache</span><span class="p">.</span><span class="nf">delete</span><span class="p">(</span><span class="s1">'replica:circuit:failures'</span><span class="p">)</span>
+    <span class="k">end</span>
+    
+    <span class="k">def</span> <span class="nf">last_failure_time</span>
+      <span class="no">Rails</span><span class="p">.</span><span class="nf">cache</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s1">'replica:circuit:opened_at'</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="comprehensive-monitoring">Comprehensive Monitoring</h2>
+
+<p>Production read replicas need monitoring at multiple levels. Most teams already use APM tools like New Relic, DataDog, or AppSignal—leverage these instead of building custom monitoring.</p>
+
+<h3 id="apm-integration">APM Integration</h3>
+
+<p>Modern APM tools automatically track database metrics, but you need to ensure they distinguish between primary and replica queries:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="c1"># config/initializers/datadog.rb (if using DataDog)</span>
+<span class="no">Datadog</span><span class="p">.</span><span class="nf">configure</span> <span class="k">do</span> <span class="o">|</span><span class="n">c</span><span class="o">|</span>
+  <span class="n">c</span><span class="p">.</span><span class="nf">tracing</span><span class="p">.</span><span class="nf">instrument</span> <span class="ss">:active_record</span><span class="p">,</span> <span class="ss">service_name: </span><span class="s1">'postgres'</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+    <span class="c1"># Tag queries by database role</span>
+    <span class="n">config</span><span class="p">.</span><span class="nf">on_query</span> <span class="k">do</span> <span class="o">|</span><span class="n">span</span><span class="p">,</span> <span class="n">event</span><span class="o">|</span>
+      <span class="n">connection</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="nf">payload</span><span class="p">[</span><span class="ss">:connection</span><span class="p">]</span>
+      <span class="n">role</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="nf">pool</span><span class="p">.</span><span class="nf">db_config</span><span class="p">.</span><span class="nf">configuration_hash</span><span class="p">[</span><span class="ss">:replica</span><span class="p">]</span> <span class="p">?</span> <span class="s1">'replica'</span> <span class="p">:</span> <span class="s1">'primary'</span>
+      
+      <span class="n">span</span><span class="p">.</span><span class="nf">set_tag</span><span class="p">(</span><span class="s1">'db.role'</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
+      <span class="n">span</span><span class="p">.</span><span class="nf">set_tag</span><span class="p">(</span><span class="s1">'db.connection_name'</span><span class="p">,</span> <span class="n">connection</span><span class="p">.</span><span class="nf">pool</span><span class="p">.</span><span class="nf">db_config</span><span class="p">.</span><span class="nf">name</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1"># For New Relic</span>
+<span class="c1"># config/newrelic.yml</span>
+<span class="c1"># Enable database query analysis to see replica vs primary distribution</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="cloud-provider-monitoring">Cloud Provider Monitoring</h3>
+
+<p>If using managed databases, leverage their built-in monitoring:</p>
+
+<p><strong>AWS RDS:</strong></p>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="c1"># CloudWatch already tracks these for RDS read replicas:</span>
+<span class="c1"># - ReplicaLag</span>
+<span class="c1"># - ReadIOPS / WriteIOPS</span>
+<span class="c1"># - DatabaseConnections</span>
+<span class="c1"># - CPUUtilization per replica</span>
+
+<span class="c1"># Just add CloudWatch alarms:</span>
+<span class="c1"># Alarm: ReplicaLag &gt; 5000 milliseconds</span>
+<span class="c1"># Alarm: DatabaseConnections &gt; 80% of max_connections</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Google Cloud SQL / Azure Database:</strong>
+Similar built-in metrics available through their monitoring services.</p>
+
+<h3 id="custom-metrics-for-business-logic">Custom Metrics for Business Logic</h3>
+
+<p>While APM tools handle infrastructure metrics, you still need application-specific monitoring:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre></td><td class="rouge-code"><pre><span class="c1"># app/controllers/application_controller.rb</span>
+<span class="k">class</span> <span class="nc">ApplicationController</span> <span class="o">&lt;</span> <span class="no">ActionController</span><span class="o">::</span><span class="no">Base</span>
+  <span class="n">around_action</span> <span class="ss">:track_replica_usage</span>
+  
+  <span class="kp">private</span>
+  
+  <span class="k">def</span> <span class="nf">track_replica_usage</span>
+    <span class="n">replica_used</span> <span class="o">=</span> <span class="kp">false</span>
+    
+    <span class="c1"># Hook into ActiveRecord to detect replica usage</span>
+    <span class="n">subscriber</span> <span class="o">=</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">Notifications</span><span class="p">.</span><span class="nf">subscribe</span><span class="p">(</span><span class="s1">'sql.active_record'</span><span class="p">)</span> <span class="k">do</span> <span class="o">|*</span><span class="n">args</span><span class="o">|</span>
+      <span class="n">event</span> <span class="o">=</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">Notifications</span><span class="o">::</span><span class="no">Event</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+      <span class="n">connection</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="nf">payload</span><span class="p">[</span><span class="ss">:connection</span><span class="p">]</span>
+      
+      <span class="k">if</span> <span class="n">connection</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">pool</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">db_config</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">configuration_hash</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">dig</span><span class="p">(</span><span class="ss">:replica</span><span class="p">)</span>
+        <span class="n">replica_used</span> <span class="o">=</span> <span class="kp">true</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+    
+    <span class="k">yield</span>
+    
+    <span class="c1"># Send to your APM</span>
+    <span class="k">if</span> <span class="k">defined?</span><span class="p">(</span><span class="no">Datadog</span><span class="p">)</span>
+      <span class="no">Datadog</span><span class="o">::</span><span class="no">Tracing</span><span class="p">.</span><span class="nf">active_trace</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">set_tag</span><span class="p">(</span><span class="s1">'replica.used'</span><span class="p">,</span> <span class="n">replica_used</span><span class="p">)</span>
+    <span class="k">elsif</span> <span class="k">defined?</span><span class="p">(</span><span class="no">NewRelic</span><span class="p">)</span>
+      <span class="no">NewRelic</span><span class="o">::</span><span class="no">Agent</span><span class="p">.</span><span class="nf">add_custom_attributes</span><span class="p">(</span><span class="ss">replica_used: </span><span class="n">replica_used</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">ensure</span>
+    <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">Notifications</span><span class="p">.</span><span class="nf">unsubscribe</span><span class="p">(</span><span class="n">subscriber</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="key-metrics-to-monitor">Key Metrics to Monitor</h3>
+
+<p>Configure your APM dashboard to track:</p>
+
+<ol>
+  <li><strong>Infrastructure</strong> (from CloudWatch/APM):
+    <ul>
+      <li>Replication lag per replica</li>
+      <li>Connection count by database role</li>
+      <li>Query response time P50/P95/P99 by role</li>
+      <li>Error rate by database</li>
+    </ul>
+  </li>
+  <li><strong>Application</strong> (from APM custom metrics):
+    <ul>
+      <li>% of requests using replicas</li>
+      <li>Cache hit rate (higher replica usage should increase this)</li>
+      <li>Replica fallback rate (when replicas fail)</li>
+    </ul>
+  </li>
+  <li><strong>Business Impact</strong>:
+    <ul>
+      <li>Page load time before/after replica adoption</li>
+      <li>API response times by endpoint</li>
+      <li>Background job duration changes</li>
+    </ul>
+  </li>
+</ol>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+</pre></td><td class="rouge-code"><pre><span class="c1"># app/services/replica_monitor.rb</span>
+<span class="k">class</span> <span class="nc">ReplicaMonitor</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">check_all</span>
+    <span class="p">{</span>
+      <span class="ss">replication_lag: </span><span class="n">check_replication_lag</span><span class="p">,</span>
+      <span class="ss">connection_stats: </span><span class="n">check_connections</span><span class="p">,</span>
+      <span class="ss">query_performance: </span><span class="n">check_query_performance</span><span class="p">,</span>
+      <span class="ss">disk_usage: </span><span class="n">check_disk_usage</span><span class="p">,</span>
+      <span class="ss">long_running_queries: </span><span class="n">check_long_queries</span>
+    <span class="p">}</span>
+  <span class="k">end</span>
+  
+  <span class="kp">private</span>
+  
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">check_replication_lag</span>
+    <span class="n">replicas</span> <span class="o">=</span> <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">configurations</span><span class="p">.</span><span class="nf">configs_for</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">)</span>
+    
+    <span class="n">replicas</span><span class="p">.</span><span class="nf">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+      <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">,</span> <span class="ss">shard: </span><span class="n">config</span><span class="p">.</span><span class="nf">name</span><span class="p">.</span><span class="nf">to_sym</span><span class="p">)</span> <span class="k">do</span>
+        <span class="n">lag_query</span> <span class="o">=</span> <span class="o">&lt;&lt;-</span><span class="no">SQL</span><span class="sh">
+          SELECT 
+            pg_is_in_recovery() as is_replica,
+            pg_last_wal_receive_lsn() as receive_lsn,
+            pg_last_wal_replay_lsn() as replay_lsn,
+            EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp())) as lag_seconds,
+            pg_last_xact_replay_timestamp() as last_replay_time
+</span><span class="no">        SQL</span>
+        
+        <span class="n">result</span> <span class="o">=</span> <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connection</span><span class="p">.</span><span class="nf">exec_query</span><span class="p">(</span><span class="n">lag_query</span><span class="p">).</span><span class="nf">first</span>
+        
+        <span class="p">{</span>
+          <span class="ss">name: </span><span class="n">config</span><span class="p">.</span><span class="nf">name</span><span class="p">,</span>
+          <span class="ss">lag_seconds: </span><span class="n">result</span><span class="p">[</span><span class="s1">'lag_seconds'</span><span class="p">]</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">to_f</span> <span class="o">||</span> <span class="mi">0</span><span class="p">,</span>
+          <span class="ss">lag_bytes: </span><span class="n">calculate_lag_bytes</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">'receive_lsn'</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s1">'replay_lsn'</span><span class="p">]),</span>
+          <span class="ss">last_replay: </span><span class="n">result</span><span class="p">[</span><span class="s1">'last_replay_time'</span><span class="p">],</span>
+          <span class="ss">healthy: </span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">'lag_seconds'</span><span class="p">]</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">to_f</span> <span class="o">||</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">5.0</span>
+        <span class="p">}</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+  
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">check_connections</span>
+    <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">)</span> <span class="k">do</span>
+      <span class="n">stats</span> <span class="o">=</span> <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connection</span><span class="p">.</span><span class="nf">exec_query</span><span class="p">(</span><span class="o">&lt;&lt;-</span><span class="no">SQL</span><span class="p">).</span><span class="nf">first</span><span class="sh">
+        SELECT 
+          COUNT(*) FILTER (WHERE state = 'active') as active_connections,
+          COUNT(*) FILTER (WHERE state = 'idle') as idle_connections,
+          COUNT(*) FILTER (WHERE state = 'idle in transaction') as idle_in_transaction,
+          COUNT(*) as total_connections,
+          MAX(EXTRACT(EPOCH FROM (now() - state_change))) as longest_connection_seconds
+        FROM pg_stat_activity
+        WHERE pid &lt;&gt; pg_backend_pid()
+</span><span class="no">      SQL</span>
+      
+      <span class="p">{</span>
+        <span class="ss">active: </span><span class="n">stats</span><span class="p">[</span><span class="s1">'active_connections'</span><span class="p">],</span>
+        <span class="ss">idle: </span><span class="n">stats</span><span class="p">[</span><span class="s1">'idle_connections'</span><span class="p">],</span>
+        <span class="ss">idle_in_transaction: </span><span class="n">stats</span><span class="p">[</span><span class="s1">'idle_in_transaction'</span><span class="p">],</span>
+        <span class="ss">total: </span><span class="n">stats</span><span class="p">[</span><span class="s1">'total_connections'</span><span class="p">],</span>
+        <span class="ss">longest_duration: </span><span class="n">stats</span><span class="p">[</span><span class="s1">'longest_connection_seconds'</span><span class="p">]</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">to_f</span><span class="p">,</span>
+        <span class="ss">pool_exhaustion_risk: </span><span class="n">stats</span><span class="p">[</span><span class="s1">'total_connections'</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">80</span>
+      <span class="p">}</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+  
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">check_query_performance</span>
+    <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">)</span> <span class="k">do</span>
+      <span class="n">slow_queries</span> <span class="o">=</span> <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connection</span><span class="p">.</span><span class="nf">exec_query</span><span class="p">(</span><span class="o">&lt;&lt;-</span><span class="no">SQL</span><span class="p">)</span><span class="sh">
+        SELECT 
+          query,
+          calls,
+          total_time,
+          mean_time,
+          max_time,
+          stddev_time
+        FROM pg_stat_statements
+        WHERE query NOT LIKE '%pg_stat_statements%'
+        ORDER BY mean_time DESC
+        LIMIT 10
+</span><span class="no">      SQL</span>
+      
+      <span class="n">slow_queries</span><span class="p">.</span><span class="nf">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:to_h</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+  
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">calculate_lag_bytes</span><span class="p">(</span><span class="n">receive_lsn</span><span class="p">,</span> <span class="n">replay_lsn</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span> <span class="k">unless</span> <span class="n">receive_lsn</span> <span class="o">&amp;&amp;</span> <span class="n">replay_lsn</span>
+    
+    <span class="c1"># PostgreSQL LSN format: XXXXXXXX/YYYYYYYY</span>
+    <span class="n">receive_bytes</span> <span class="o">=</span> <span class="n">lsn_to_bytes</span><span class="p">(</span><span class="n">receive_lsn</span><span class="p">)</span>
+    <span class="n">replay_bytes</span> <span class="o">=</span> <span class="n">lsn_to_bytes</span><span class="p">(</span><span class="n">replay_lsn</span><span class="p">)</span>
+    
+    <span class="n">receive_bytes</span> <span class="o">-</span> <span class="n">replay_bytes</span>
+  <span class="k">end</span>
+  
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">lsn_to_bytes</span><span class="p">(</span><span class="n">lsn</span><span class="p">)</span>
+    <span class="n">high</span><span class="p">,</span> <span class="n">low</span> <span class="o">=</span> <span class="n">lsn</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">).</span><span class="nf">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="n">x</span><span class="p">.</span><span class="nf">to_i</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span> <span class="p">}</span>
+    <span class="p">(</span><span class="n">high</span> <span class="o">&lt;&lt;</span> <span class="mi">32</span><span class="p">)</span> <span class="o">+</span> <span class="n">low</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="application-level-monitoring">Application-Level Monitoring</h3>
+
+<p>Track how your application uses replicas:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+</pre></td><td class="rouge-code"><pre><span class="c1"># config/initializers/replica_instrumentation.rb</span>
+<span class="no">ActiveSupport</span><span class="o">::</span><span class="no">Notifications</span><span class="p">.</span><span class="nf">subscribe</span><span class="p">(</span><span class="s1">'sql.active_record'</span><span class="p">)</span> <span class="k">do</span> <span class="o">|*</span><span class="n">args</span><span class="o">|</span>
+  <span class="n">event</span> <span class="o">=</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">Notifications</span><span class="o">::</span><span class="no">Event</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+  
+  <span class="c1"># Determine which connection was used</span>
+  <span class="n">connection_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="nf">payload</span><span class="p">[</span><span class="ss">:connection</span><span class="p">]</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">pool</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">db_config</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">name</span> <span class="o">||</span> <span class="s1">'unknown'</span>
+  <span class="n">role</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="nf">payload</span><span class="p">[</span><span class="ss">:connection</span><span class="p">]</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">pool</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">db_config</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">configuration_hash</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">dig</span><span class="p">(</span><span class="ss">:replica</span><span class="p">)</span> <span class="p">?</span> <span class="s1">'replica'</span> <span class="p">:</span> <span class="s1">'primary'</span>
+  
+  <span class="c1"># Track metrics</span>
+  <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="ss">role: </span><span class="n">role</span><span class="p">,</span>
+    <span class="ss">connection: </span><span class="n">connection_name</span><span class="p">,</span>
+    <span class="ss">operation: </span><span class="n">extract_operation</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="nf">payload</span><span class="p">[</span><span class="ss">:sql</span><span class="p">])</span>
+  <span class="p">}</span>
+  
+  <span class="no">StatsD</span><span class="p">.</span><span class="nf">histogram</span><span class="p">(</span><span class="s1">'db.query.duration'</span><span class="p">,</span> <span class="n">event</span><span class="p">.</span><span class="nf">duration</span><span class="p">,</span> <span class="ss">tags: </span><span class="n">tags</span><span class="p">)</span>
+  <span class="no">StatsD</span><span class="p">.</span><span class="nf">increment</span><span class="p">(</span><span class="s1">'db.query.count'</span><span class="p">,</span> <span class="ss">tags: </span><span class="n">tags</span><span class="p">)</span>
+  
+  <span class="c1"># Alert on slow replica queries</span>
+  <span class="k">if</span> <span class="n">role</span> <span class="o">==</span> <span class="s1">'replica'</span> <span class="o">&amp;&amp;</span> <span class="n">event</span><span class="p">.</span><span class="nf">duration</span> <span class="o">&gt;</span> <span class="mi">1000</span>
+    <span class="no">Rails</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">warn</span><span class="p">(</span>
+      <span class="s2">"Slow replica query"</span><span class="p">,</span>
+      <span class="ss">duration: </span><span class="n">event</span><span class="p">.</span><span class="nf">duration</span><span class="p">,</span>
+      <span class="ss">sql: </span><span class="n">event</span><span class="p">.</span><span class="nf">payload</span><span class="p">[</span><span class="ss">:sql</span><span class="p">],</span>
+      <span class="ss">connection: </span><span class="n">connection_name</span>
+    <span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="nf">extract_operation</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+  <span class="k">case</span> <span class="n">sql</span>
+  <span class="k">when</span> <span class="sr">/^SELECT/i</span> <span class="k">then</span> <span class="s1">'select'</span>
+  <span class="k">when</span> <span class="sr">/^INSERT/i</span> <span class="k">then</span> <span class="s1">'insert'</span>
+  <span class="k">when</span> <span class="sr">/^UPDATE/i</span> <span class="k">then</span> <span class="s1">'update'</span>
+  <span class="k">when</span> <span class="sr">/^DELETE/i</span> <span class="k">then</span> <span class="s1">'delete'</span>
+  <span class="k">else</span> <span class="s1">'other'</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="performance-optimization">Performance Optimization</h2>
+
+<h3 id="1-query-optimization-for-replicas">1. Query Optimization for Replicas</h3>
+
+<p>Some queries perform differently on replicas:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+</pre></td><td class="rouge-code"><pre><span class="c1"># app/models/concerns/replica_optimized.rb</span>
+<span class="k">module</span> <span class="nn">ReplicaOptimized</span>
+  <span class="kp">extend</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">Concern</span>
+  
+  <span class="n">class_methods</span> <span class="k">do</span>
+    <span class="k">def</span> <span class="nf">replica_optimized_scope</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      <span class="c1"># Define two versions of the scope</span>
+      <span class="n">scope</span> <span class="s2">"</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">_primary"</span><span class="p">,</span> <span class="n">block</span>
+      <span class="n">scope</span> <span class="s2">"</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">_replica"</span><span class="p">,</span> <span class="n">block</span>
+      
+      <span class="c1"># Smart scope that picks the right version</span>
+      <span class="n">define_singleton_method</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span> <span class="k">do</span> <span class="o">|*</span><span class="n">args</span><span class="o">|</span>
+        <span class="k">if</span> <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">current_role</span> <span class="o">==</span> <span class="ss">:reading</span>
+          <span class="nb">send</span><span class="p">(</span><span class="s2">"</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">_replica"</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">else</span>
+          <span class="nb">send</span><span class="p">(</span><span class="s2">"</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">_primary"</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Product</span> <span class="o">&lt;</span> <span class="no">ApplicationRecord</span>
+  <span class="kp">include</span> <span class="no">ReplicaOptimized</span>
+  
+  <span class="c1"># Regular scope for primary</span>
+  <span class="n">replica_optimized_scope</span> <span class="ss">:search</span> <span class="k">do</span> <span class="o">|</span><span class="n">term</span><span class="o">|</span>
+    <span class="n">where</span><span class="p">(</span><span class="s2">"name ILIKE ?"</span><span class="p">,</span> <span class="s2">"%</span><span class="si">#{</span><span class="n">term</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
+  <span class="k">end</span>
+  
+  <span class="c1"># Override for replica with better performance</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">search_replica</span><span class="p">(</span><span class="n">term</span><span class="p">)</span>
+    <span class="c1"># Use full-text search on replica (assuming GIN index)</span>
+    <span class="n">where</span><span class="p">(</span><span class="s2">"search_vector @@ plainto_tsquery('english', ?)"</span><span class="p">,</span> <span class="n">term</span><span class="p">)</span>
+  <span class="k">end</span>
+  
+  <span class="c1"># Materialized view only on replica</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">top_selling_replica</span>
+    <span class="c1"># This materialized view is refreshed hourly on replicas</span>
+    <span class="n">connection</span><span class="p">.</span><span class="nf">exec_query</span><span class="p">(</span>
+      <span class="s2">"SELECT * FROM top_selling_products_mv LIMIT 100"</span>
+    <span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="2-connection-pool-tuning">2. Connection Pool Tuning</h3>
+
+<p>Optimize pools based on actual usage:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+</pre></td><td class="rouge-code"><pre><span class="c1"># app/services/connection_pool_optimizer.rb</span>
+<span class="k">class</span> <span class="nc">ConnectionPoolOptimizer</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">tune_pools</span>
+    <span class="n">configs</span> <span class="o">=</span> <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">configurations</span><span class="p">.</span><span class="nf">configs_for</span><span class="p">(</span><span class="ss">env_name: </span><span class="no">Rails</span><span class="p">.</span><span class="nf">env</span><span class="p">)</span>
+    
+    <span class="n">configs</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+      <span class="n">pool</span> <span class="o">=</span> <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connection_handler</span><span class="p">.</span><span class="nf">retrieve_connection_pool</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="nf">name</span><span class="p">)</span>
+      <span class="k">next</span> <span class="k">unless</span> <span class="n">pool</span>
+      
+      <span class="n">stats</span> <span class="o">=</span> <span class="n">pool_statistics</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span>
+      
+      <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="ss">:wait_count</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">10</span>
+        <span class="c1"># Pool is too small</span>
+        <span class="n">recommendation</span> <span class="o">=</span> <span class="p">(</span><span class="n">pool</span><span class="p">.</span><span class="nf">size</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">).</span><span class="nf">to_i</span>
+        <span class="no">Rails</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span>
+          <span class="s2">"Pool </span><span class="si">#{</span><span class="n">config</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2"> should be increased to </span><span class="si">#{</span><span class="n">recommendation</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+          <span class="ss">current_size: </span><span class="n">pool</span><span class="p">.</span><span class="nf">size</span><span class="p">,</span>
+          <span class="ss">wait_count: </span><span class="n">stats</span><span class="p">[</span><span class="ss">:wait_count</span><span class="p">]</span>
+        <span class="p">)</span>
+      <span class="k">elsif</span> <span class="n">stats</span><span class="p">[</span><span class="ss">:usage_ratio</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.3</span>
+        <span class="c1"># Pool is too large</span>
+        <span class="n">recommendation</span> <span class="o">=</span> <span class="p">[(</span><span class="n">pool</span><span class="p">.</span><span class="nf">size</span> <span class="o">*</span> <span class="mf">0.7</span><span class="p">).</span><span class="nf">to_i</span><span class="p">,</span> <span class="mi">5</span><span class="p">].</span><span class="nf">max</span>
+        <span class="no">Rails</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span>
+          <span class="s2">"Pool </span><span class="si">#{</span><span class="n">config</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2"> could be reduced to </span><span class="si">#{</span><span class="n">recommendation</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+          <span class="ss">current_size: </span><span class="n">pool</span><span class="p">.</span><span class="nf">size</span><span class="p">,</span>
+          <span class="ss">usage_ratio: </span><span class="n">stats</span><span class="p">[</span><span class="ss">:usage_ratio</span><span class="p">]</span>
+        <span class="p">)</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+  
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">pool_statistics</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="ss">size: </span><span class="n">pool</span><span class="p">.</span><span class="nf">size</span><span class="p">,</span>
+      <span class="ss">connections: </span><span class="n">pool</span><span class="p">.</span><span class="nf">connections</span><span class="p">.</span><span class="nf">size</span><span class="p">,</span>
+      <span class="ss">busy: </span><span class="n">pool</span><span class="p">.</span><span class="nf">connections</span><span class="p">.</span><span class="nf">count</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:in_use?</span><span class="p">),</span>
+      <span class="ss">dead: </span><span class="n">pool</span><span class="p">.</span><span class="nf">connections</span><span class="p">.</span><span class="nf">count</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:disconnected?</span><span class="p">),</span>
+      <span class="ss">wait_count: </span><span class="n">pool</span><span class="p">.</span><span class="nf">stat</span><span class="p">[</span><span class="ss">:wait_count</span><span class="p">],</span>
+      <span class="ss">usage_ratio: </span><span class="n">pool</span><span class="p">.</span><span class="nf">connections</span><span class="p">.</span><span class="nf">count</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:in_use?</span><span class="p">).</span><span class="nf">to_f</span> <span class="o">/</span> <span class="n">pool</span><span class="p">.</span><span class="nf">size</span>
+    <span class="p">}</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1"># app/jobs/connection_pool_monitor_job.rb</span>
+<span class="k">class</span> <span class="nc">ConnectionPoolMonitorJob</span> <span class="o">&lt;</span> <span class="no">ApplicationJob</span>
+  <span class="n">queue_as</span> <span class="ss">:monitoring</span>
+  
+  <span class="k">def</span> <span class="nf">perform</span>
+    <span class="no">ConnectionPoolOptimizer</span><span class="p">.</span><span class="nf">tune_pools</span>
+    
+    <span class="c1"># Schedule next check</span>
+    <span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="ss">wait: </span><span class="mi">5</span><span class="p">.</span><span class="nf">minutes</span><span class="p">).</span><span class="nf">perform_later</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1"># Start monitoring (in an initializer or deploy task)</span>
+<span class="no">ConnectionPoolMonitorJob</span><span class="p">.</span><span class="nf">perform_later</span> <span class="k">if</span> <span class="no">Rails</span><span class="p">.</span><span class="nf">env</span><span class="p">.</span><span class="nf">production?</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="3-multi-region-optimization">3. Multi-Region Optimization</h3>
+
+<p>For global applications, use region-aware routing:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+</pre></td><td class="rouge-code"><pre><span class="c1"># app/services/region_aware_router.rb</span>
+<span class="k">class</span> <span class="nc">RegionAwareRouter</span>
+  <span class="no">REGION_REPLICAS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Map your regions to database configurations</span>
+    <span class="c1"># 'region_key' =&gt; :database_config_name</span>
+    <span class="c1"># Example:</span>
+    <span class="c1"># 'us-east' =&gt; :primary_replica_us_east,</span>
+    <span class="c1"># 'eu' =&gt; :primary_replica_eu,</span>
+  <span class="p">}.</span><span class="nf">freeze</span>
+  
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">nearest_replica</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="n">region</span> <span class="o">=</span> <span class="n">detect_region</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="no">REGION_REPLICAS</span><span class="p">[</span><span class="n">region</span><span class="p">]</span> <span class="o">||</span> <span class="ss">:primary_replica</span>  <span class="c1"># Fallback to default replica</span>
+  <span class="k">end</span>
+  
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">with_nearest_replica</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+    <span class="n">replica</span> <span class="o">=</span> <span class="n">nearest_replica</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    
+    <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">,</span> <span class="ss">shard: </span><span class="n">replica</span><span class="p">)</span> <span class="k">do</span>
+      <span class="k">yield</span>
+    <span class="k">end</span>
+  <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+    <span class="c1"># Critical: Always fallback to a working replica</span>
+    <span class="no">Rails</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">warn</span><span class="p">(</span><span class="s2">"Region replica failed: </span><span class="si">#{</span><span class="n">replica</span><span class="si">}</span><span class="s2">, error: </span><span class="si">#{</span><span class="n">e</span><span class="p">.</span><span class="nf">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="no">StatsD</span><span class="p">.</span><span class="nf">increment</span><span class="p">(</span><span class="s1">'replica.region_fallback'</span><span class="p">,</span> <span class="ss">tags: </span><span class="p">[</span><span class="s2">"region:</span><span class="si">#{</span><span class="n">replica</span><span class="si">}</span><span class="s2">"</span><span class="p">])</span>
+    
+    <span class="c1"># Fallback strategy - could be primary or another region</span>
+    <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+  <span class="k">end</span>
+  
+  <span class="kp">private</span>
+  
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">detect_region</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="c1"># Implement based on your infrastructure:</span>
+    
+    <span class="c1"># Option 1: CDN/Proxy headers</span>
+    <span class="c1"># request.headers['YOUR-CDN-REGION-HEADER']</span>
+    
+    <span class="c1"># Option 2: Load balancer headers</span>
+    <span class="c1"># request.headers['X-AWS-REGION'] or custom headers</span>
+    
+    <span class="c1"># Option 3: GeoIP lookup (implement your preferred service)</span>
+    <span class="c1"># GeoIP.lookup(request.remote_ip).region_code</span>
+    
+    <span class="c1"># Option 4: User preference/account setting</span>
+    <span class="c1"># current_user&amp;.preferred_region</span>
+    
+    <span class="c1"># Implement your detection logic here</span>
+    <span class="c1"># Return a key that matches REGION_REPLICAS</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1"># Usage pattern - apply selectively</span>
+<span class="k">class</span> <span class="nc">ApplicationController</span> <span class="o">&lt;</span> <span class="no">ActionController</span><span class="o">::</span><span class="no">Base</span>
+  <span class="c1"># Only use for read-heavy, latency-sensitive endpoints</span>
+  <span class="k">def</span> <span class="nf">with_regional_replica</span><span class="p">(</span><span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">should_use_regional_routing?</span>
+      <span class="no">RegionAwareRouter</span><span class="p">.</span><span class="nf">with_nearest_replica</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+    <span class="k">else</span>
+      <span class="k">yield</span>  <span class="c1"># Use default routing</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+  
+  <span class="kp">private</span>
+  
+  <span class="k">def</span> <span class="nf">should_use_regional_routing?</span>
+    <span class="c1"># Implement your logic:</span>
+    <span class="c1"># - Feature flag controlled</span>
+    <span class="c1"># - Only for certain controllers/actions</span>
+    <span class="c1"># - Only for premium users</span>
+    <span class="c1"># - etc.</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1"># Example usage in specific controllers</span>
+<span class="k">class</span> <span class="nc">ApiController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+  <span class="k">def</span> <span class="nf">index</span>
+    <span class="n">with_regional_replica</span> <span class="k">do</span>
+      <span class="vi">@data</span> <span class="o">=</span> <span class="no">YourModel</span><span class="p">.</span><span class="nf">complex_read_query</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="disaster-recovery">Disaster Recovery</h2>
+
+<h3 id="automatic-failover">Automatic Failover</h3>
+
+<p>Handle replica failures gracefully:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+</pre></td><td class="rouge-code"><pre><span class="c1"># app/services/replica_failover_manager.rb</span>
+<span class="k">class</span> <span class="nc">ReplicaFailoverManager</span>
+  <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
+    <span class="k">def</span> <span class="nf">healthy_replicas</span>
+      <span class="vi">@healthy_replicas</span> <span class="o">||=</span> <span class="p">{}</span>
+    <span class="k">end</span>
+    
+    <span class="k">def</span> <span class="nf">mark_unhealthy</span><span class="p">(</span><span class="n">replica_name</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+      <span class="n">healthy_replicas</span><span class="p">[</span><span class="n">replica_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="ss">healthy: </span><span class="kp">false</span><span class="p">,</span>
+        <span class="ss">error: </span><span class="n">error</span><span class="p">.</span><span class="nf">message</span><span class="p">,</span>
+        <span class="ss">failed_at: </span><span class="no">Time</span><span class="p">.</span><span class="nf">current</span>
+      <span class="p">}</span>
+      
+      <span class="no">AlertService</span><span class="p">.</span><span class="nf">notify</span><span class="p">(</span>
+        <span class="s2">"Replica marked unhealthy: </span><span class="si">#{</span><span class="n">replica_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="ss">error: </span><span class="n">error</span><span class="p">.</span><span class="nf">message</span>
+      <span class="p">)</span>
+    <span class="k">end</span>
+    
+    <span class="k">def</span> <span class="nf">check_replica_health</span><span class="p">(</span><span class="n">replica_name</span><span class="p">)</span>
+      <span class="k">return</span> <span class="kp">false</span> <span class="k">if</span> <span class="n">healthy_replicas</span><span class="p">[</span><span class="n">replica_name</span><span class="p">]</span><span class="o">&amp;</span><span class="p">.</span><span class="nf">dig</span><span class="p">(</span><span class="ss">:healthy</span><span class="p">)</span> <span class="o">==</span> <span class="kp">false</span>
+      
+      <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">,</span> <span class="ss">shard: </span><span class="n">replica_name</span><span class="p">)</span> <span class="k">do</span>
+        <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connection</span><span class="p">.</span><span class="nf">exec_query</span><span class="p">(</span><span class="s2">"SELECT 1"</span><span class="p">)</span>
+        <span class="kp">true</span>
+      <span class="k">end</span>
+    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+      <span class="n">mark_unhealthy</span><span class="p">(</span><span class="n">replica_name</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+      <span class="kp">false</span>
+    <span class="k">end</span>
+    
+    <span class="k">def</span> <span class="nf">with_failover</span><span class="p">(</span><span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      <span class="n">available_replicas</span> <span class="o">=</span> <span class="p">[</span><span class="ss">:primary_replica</span><span class="p">,</span> <span class="ss">:primary_replica_2</span><span class="p">,</span> <span class="ss">:primary_replica_3</span><span class="p">]</span>
+      
+      <span class="n">available_replicas</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">replica</span><span class="o">|</span>
+        <span class="k">next</span> <span class="k">unless</span> <span class="n">check_replica_health</span><span class="p">(</span><span class="n">replica</span><span class="p">)</span>
+        
+        <span class="k">begin</span>
+          <span class="k">return</span> <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">,</span> <span class="ss">shard: </span><span class="n">replica</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+        <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+          <span class="no">Rails</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">error</span><span class="p">(</span><span class="s2">"Replica </span><span class="si">#{</span><span class="n">replica</span><span class="si">}</span><span class="s2"> failed during query: </span><span class="si">#{</span><span class="n">e</span><span class="p">.</span><span class="nf">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+          <span class="n">mark_unhealthy</span><span class="p">(</span><span class="n">replica</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+      
+      <span class="c1"># All replicas failed, use primary</span>
+      <span class="no">Rails</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">warn</span><span class="p">(</span><span class="s2">"All replicas unhealthy, falling back to primary"</span><span class="p">)</span>
+      <span class="k">yield</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+  
+  <span class="c1"># Background health checker job</span>
+  <span class="k">class</span> <span class="nc">HealthCheckerJob</span> <span class="o">&lt;</span> <span class="no">ApplicationJob</span>
+    <span class="n">queue_as</span> <span class="ss">:monitoring</span>
+    
+    <span class="k">def</span> <span class="nf">perform</span>
+      <span class="no">ReplicaFailoverManager</span><span class="p">.</span><span class="nf">healthy_replicas</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">replica_name</span><span class="p">,</span> <span class="n">status</span><span class="o">|</span>
+        <span class="k">next</span> <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="ss">:healthy</span><span class="p">]</span>
+        
+        <span class="c1"># Try to recover unhealthy replicas</span>
+        <span class="k">if</span> <span class="no">Time</span><span class="p">.</span><span class="nf">current</span> <span class="o">-</span> <span class="n">status</span><span class="p">[</span><span class="ss">:failed_at</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">.</span><span class="nf">minutes</span>
+          <span class="k">if</span> <span class="no">ReplicaFailoverManager</span><span class="p">.</span><span class="nf">check_replica_health</span><span class="p">(</span><span class="n">replica_name</span><span class="p">)</span>
+            <span class="no">ReplicaFailoverManager</span><span class="p">.</span><span class="nf">healthy_replicas</span><span class="p">[</span><span class="n">replica_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">healthy: </span><span class="kp">true</span> <span class="p">}</span>
+            <span class="no">AlertService</span><span class="p">.</span><span class="nf">notify</span><span class="p">(</span><span class="s2">"Replica recovered: </span><span class="si">#{</span><span class="n">replica_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+          <span class="k">end</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+      
+      <span class="c1"># Schedule next check</span>
+      <span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="ss">wait: </span><span class="mi">30</span><span class="p">.</span><span class="nf">seconds</span><span class="p">).</span><span class="nf">perform_later</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="production-checklist">Production Checklist</h2>
+
+<p>Before going live with read replicas:</p>
+
+<ol>
+  <li><strong>Monitoring</strong>
+    <ul>
+      <li>Replication lag alerts (&lt; 5 seconds)</li>
+      <li>Connection pool monitoring</li>
+      <li>Query performance tracking</li>
+      <li>Error rate monitoring</li>
+    </ul>
+  </li>
+  <li><strong>Testing</strong>
+    <ul>
+      <li>Load testing with realistic read/write ratios</li>
+      <li>Failover testing</li>
+      <li>Replication lag simulation</li>
+      <li>Connection pool exhaustion testing</li>
+    </ul>
+  </li>
+  <li><strong>Operations</strong>
+    <ul>
+      <li>Runbook for replica issues</li>
+      <li>Automated health checks</li>
+      <li>Circuit breakers configured</li>
+      <li>Gradual rollout plan</li>
+    </ul>
+  </li>
+  <li><strong>Performance</strong>
+    <ul>
+      <li>Replica-specific indexes created</li>
+      <li>Connection pools tuned</li>
+      <li>Query routing optimized</li>
+      <li>Region-aware routing (if needed)</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="further-reading">Further Reading</h2>
+
+<p>For production deployment best practices:</p>
+
+<ul>
+  <li><strong>PostgreSQL Documentation</strong>
+    <ul>
+      <li><a href="https://www.postgresql.org/docs/current/monitoring-stats.html" target="_blank" rel="nofollow noopener noreferrer">Monitoring Database Activity</a> - Understanding <code class="language-plaintext highlighter-rouge">pg_stat</code> views</li>
+      <li><a href="https://www.postgresql.org/docs/current/high-availability.html" target="_blank" rel="nofollow noopener noreferrer">High Availability, Load Balancing, and Replication</a> - Production deployment patterns</li>
+      <li><a href="https://www.postgresql.org/docs/current/runtime-config-connection.html" target="_blank" rel="nofollow noopener noreferrer">Connection Pooling</a> - Tuning connection parameters</li>
+    </ul>
+  </li>
+  <li><strong>AWS/Cloud Resources</strong>
+    <ul>
+      <li><a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html" target="_blank" rel="nofollow noopener noreferrer">Amazon RDS Read Replicas</a> - If using RDS</li>
+      <li><a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PostgreSQL.Replication.ReadReplicas.html" target="_blank" rel="nofollow noopener noreferrer">Working with PostgreSQL Read Replicas</a> - RDS PostgreSQL specific guide</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="key-takeaways">Key Takeaways</h2>
+
+<p>Successfully running read replicas in production requires:</p>
+
+<ol>
+  <li><strong>Gradual adoption</strong> - Start with shadow mode, increase traffic slowly</li>
+  <li><strong>Comprehensive monitoring</strong> - Track everything from replication lag to query patterns</li>
+  <li><strong>Automatic recovery</strong> - Build systems that heal themselves</li>
+  <li><strong>Performance focus</strong> - Optimize specifically for replica characteristics</li>
+</ol>
+
+<p>Read replicas are powerful but complex. Start simple, measure everything, and build sophistication as your needs grow.</p>
+
+            </div>
+
+            <!-- Post Date -->
+            <p>
+            <small>
+                <span class="post-date"><time class="post-date" datetime="2025-06-25">25 Jun 2025</time></span>
+                
+                </small>
+            </p>
+
+            <!-- Post Categories -->
+            <div class="after-post-cats">
+                <ul class="tags mb-4">
+                    
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#Database">Database</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#PostgreSQL">PostgreSQL</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#Rails">Rails</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#Scaling">Scaling</a>
+                    </li>
+                    
+                </ul>
+            </div>
+            <!-- End Categories -->
+
+            <!-- Author Box -->
+            
+            <div class="row post-bottom-meta">
+                <div class="col-xs-12 col-md-3 col-lg-2 text-center text-md-left mb-4 mb-md-0">
+                    
+                    <img class="author-thumb" src="/assets/images/prateek-avatar.avif" alt="Prateek Choudhary">
+                    
+                </div>
+                <div class="col-xs-12 col-md-9 col-lg-10 text-center text-md-left">
+                    <a target="_blank" class="link-dark" href="prateekcodes.dev">Prateek Choudhary</a>
+                    <section class="author-socials mb-0">
+                        <a target="_blank" href="https://twitter.com/prateekkish"><i class="fab fa-twitter-square"></i></a>
+                        <a target="_blank" href="https://github.com/prateekkish" class="ml-1"><i class="fab fa-github-square"></i></a>
+                        <a target="_blank" href="https://www.linkedin.com/in/choudharyprateek/" class="ml-1"><i class="fab fa-linkedin"></i></a>
+                        <a target="_blank" href="mailto:prateekkish@gmail.com" class="ml-1"><i class="fas fa-envelope-square"></i></a>
+                    </section>
+                    <section class="author-description">Technology Leader</section>
+                </div>
+            </div>
+            
+            <!-- End Author Box -->
+
+            <!-- Post Tags -->
+            <div class="after-post-tags">
+                <ul class="tags">
+                    
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#disaster-recovery">#disaster-recovery</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#postgresql">#postgresql</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#production-optimization">#production-optimization</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#rails-7">#rails-7</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#rails-production">#rails-production</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#read-replicas-monitoring">#read-replicas-monitoring</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#zero-downtime-deployment">#zero-downtime-deployment</a>
+                    </li>
+                    
+                </ul>
+            </div>
+            <!-- End Tags -->
+
+            <!-- Related Posts -->
+            
+
+
+
+
+
+<div class="related-posts">
+  <h3>Related Articles</h3>
+  <div class="row">
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/rails-read-replicas-part-2-advanced-patterns/">Scaling Rails with PostgreSQL Read Replicas: Part 2 - Advanced Patterns and Gotchas</a>
+                </h5>
+                <p class="card-text small">Deep dive into handling replication lag, implementing automatic connection switching, and solving...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-06-25T00:00:00+00:00">Jun 25, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/rails-read-replicas-part-1-understanding-the-basics/">Scaling Rails with PostgreSQL Read Replicas: Part 1 - Understanding the Basics</a>
+                </h5>
+                <p class="card-text small">Learn when and why to use read replicas in Rails applications, understand the architecture, and i...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-06-25T00:00:00+00:00">Jun 25, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/postgresql-17-merge-with-returning-for-rails-developers/">PostgreSQL 17's MERGE with RETURNING: The Game-Changer Rails Developers Have Been Waiting For</a>
+                </h5>
+                <p class="card-text small">PostgreSQL 17 introduces RETURNING support to the MERGE statement, solving a long-standing limita...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-06-25T00:00:00+00:00">Jun 25, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+    
+    
+    
+  </div>
+</div>
+            <!-- End Related Posts -->
+
+        </div>
+        <!-- End Post -->
+
+    </div>
+</div>
+<!-- End Article
+================================================== -->
+
+<!-- Begin Comments
+================================================== -->
+
+    <div class="container">
+        <div id="comments" class="row justify-content-center mb-5">
+            <div class="col-md-10">
+                <script src="https://giscus.app/client.js"
+        data-repo="prateekkish/prateekcodes"
+        data-repo-id=""
+        data-category="General"
+        data-category-id=""
+        data-mapping="title"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="light_protanopia"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+</script>
+            </div>
+        </div>
+    </div>
+
+<!--End Comments
+================================================== -->
+
+</script>
+
+</div>
+
+
+
+</div>
+
+<!-- Begin Footer
+================================================== -->
+<footer class="footer">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-12 text-center">
+                <div class="contact-section">
+                    <h5 class="contact-title">Let's Work Together</h5>
+                    <p class="contact-subtitle">Need help scaling your backend systems? I can help you build robust, high-performance solutions.</p>
+                    <div class="contact-links">
+                        <a href="mailto:prateekkish@gmail.com" class="contact-link email-link">
+                            <i class="fas fa-envelope"></i> Get in touch
+                        </a>
+                        <span class="contact-divider">•</span>
+                        <a href="https://twitter.com/prateekkish" class="contact-link" target="_blank">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                        <span class="contact-divider">•</span>
+                        <a href="https://www.linkedin.com/in/choudharyprateek/" class="contact-link" target="_blank">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+                        <span class="contact-divider">•</span>
+                        <a href="https://github.com/prateekkish" class="contact-link" target="_blank">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="footer-divider">
+        <div class="row">
+            <div class="col-md-6 col-sm-6 text-center text-lg-left">
+                Copyright © 2025 Prateek Codes - Learn Building Scalable Backend Systems
+            </div>
+            <div class="col-md-6 col-sm-6 text-center text-lg-right">
+                Built with Jekyll
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- End Footer
+================================================== -->
+
+</div> <!-- /.site-content -->
+
+<!-- Scripts
+================================================== -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+
+<script src="/assets/js/mediumish.js"></script>
+
+
+
+<script src="/assets/js/ie10-viewport-bug-workaround.js"></script>
+
+</body>
+</html>

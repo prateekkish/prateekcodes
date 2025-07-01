@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link rel="icon" href="/assets/images/logo.avif">
+
+
+
+
+
+
+
+
+
+
+
+<!-- Primary Meta Tags -->
+<title>Scaling Rails with PostgreSQL Read Replicas: Part 1 - Understanding the Basics | Prateek Codes - Learn Building Scalable Backend Systems</title>
+<meta name="title" content="Scaling Rails with PostgreSQL Read Replicas: Part 1 - Understanding the Basics">
+<meta name="description" content="Learn when and why to use read replicas in Rails applications, understand the architecture, and implement basic read/write splitting with real-world exa...">
+<meta name="keywords" content="Rails PostgreSQL read replicas, Rails database scaling, read write splitting Rails, PostgreSQL replication Rails, Rails 7 multiple databases, database performance optimization, Rails, PostgreSQL, Database, Scaling, Ruby on Rails, PostgreSQL, Ruby, Rails development, Rails consulting">
+<meta name="author" content="Prateek Choudhary">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://prateekcodes.dev/rails-read-replicas-part-1-understanding-the-basics/">
+<meta property="og:title" content="Scaling Rails with PostgreSQL Read Replicas: Part 1 - Understanding the Basics">
+<meta property="og:description" content="Learn when and why to use read replicas in Rails applications, understand the architecture, and implement basic read/write splitting with real-world exa...">
+<meta property="og:image" content="https://prateekcodes.dev/assets/images/logo.avif">
+<meta property="og:site_name" content="Prateek Codes - Learn Building Scalable Backend Systems">
+
+<meta property="article:author" content="Prateek Choudhary">
+<meta property="article:published_time" content="2025-06-25T00:00:00+00:00">
+
+
+<meta property="article:tag" content="rails-read-replicas">
+
+<meta property="article:tag" content="postgresql-replication">
+
+<meta property="article:tag" content="database-scaling">
+
+<meta property="article:tag" content="rails-7">
+
+<meta property="article:tag" content="performance-optimization">
+
+<meta property="article:tag" content="read-write-splitting">
+
+
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://prateekcodes.dev/rails-read-replicas-part-1-understanding-the-basics/">
+<meta property="twitter:title" content="Scaling Rails with PostgreSQL Read Replicas: Part 1 - Understanding the Basics">
+<meta property="twitter:description" content="Learn when and why to use read replicas in Rails applications, understand the architecture, and implement basic read/write splitting with real-world exa...">
+<meta property="twitter:image" content="https://prateekcodes.dev/assets/images/logo.avif">
+<meta property="twitter:creator" content="@prateekkish">
+
+<!-- Canonical URL -->
+<link rel="canonical" href="https://prateekcodes.dev/rails-read-replicas-part-1-understanding-the-basics/">
+
+<!-- RSS Feed -->
+<link rel="alternate" type="application/rss+xml" title="Prateek Codes - Learn Building Scalable Backend Systems RSS Feed" href="https://prateekcodes.dev/feed.xml">
+
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Scaling Rails with PostgreSQL Read Replicas: Part 1 - Understanding the Basics",
+  "description": "Learn when and why to use read replicas in Rails applications, understand the architecture, and implement basic read/write splitting with real-world exa...",
+  
+  "image": "https://prateekcodes.dev/assets/images/logo.avif",
+  
+  "datePublished": "2025-06-25T00:00:00+00:00",
+  
+  "dateModified": "2025-06-25T00:00:00+00:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Prateek Choudhary",
+    "url": "https://prateekcodes.dev",
+    "sameAs": [
+      "https://twitter.com/prateekkish",
+      "https://www.linkedin.com/in/choudharyprateek/",
+      "https://github.com/prateekkish"
+    ]
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Prateek Codes - Learn Building Scalable Backend Systems",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://prateekcodes.dev/assets/images/logo.avif"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://prateekcodes.dev/rails-read-replicas-part-1-understanding-the-basics/"
+  },
+  "keywords": "rails-read-replicas, postgresql-replication, database-scaling, rails-7, performance-optimization, read-write-splitting, Rails, PostgreSQL, Database, Scaling",
+  "articleSection": "Rails",
+  "wordCount": "1427"
+}
+</script>
+
+
+
+
+
+<!-- Breadcrumb Navigation -->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://prateekcodes.dev"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Rails",
+      "item": "https://prateekcodes.dev/category/rails"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Scaling Rails with PostgreS...",
+      "item": "https://prateekcodes.dev/rails-read-replicas-part-1-understanding-the-basics/"
+    }
+  ]
+}
+</script>
+
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<link href="/assets/css/screen.css" rel="stylesheet">
+
+<link href="/assets/css/main.css" rel="stylesheet">
+
+
+
+<script src="/assets/js/jquery.min.js"></script>
+
+</head>
+
+
+<!-- change your GA id in _config.yml -->
+<script type="text/javascript">
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-158773406-2', 'auto');
+    ga('send', 'pageview');
+  </script>
+
+
+
+<body class="layout-post">
+	<!-- defer loading of font and font awesome -->
+	<noscript id="deferred-styles">
+		<link href="https://fonts.googleapis.com/css?family=Righteous%7CMerriweather:300,300i,400,400i,700,700i" rel="stylesheet">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+	</noscript>
+
+
+<!-- Begin Menu Navigation
+================================================== -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top mediumnavigation nav-down">
+
+    <div class="container pr-0">
+
+    <!-- Begin Logo -->
+    <a class="navbar-brand" href="/">
+    <img class="navbar-logo" src="/assets/images/logo.avif" alt="Prateek Codes - Learn Building Scalable Backend Systems" width="50px" height="">
+    </a>
+    <!-- End Logo -->
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMediumish" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarMediumish">
+
+        <!-- Begin Menu -->
+
+            <ul class="navbar-nav ml-auto">
+
+                
+                <li class="nav-item ">
+                    <a class="nav-link" href="/">Blog</a>
+                </li>
+                
+                <li class="nav-item ">
+                    <a class="nav-link" href="/categories">Categories</a>
+                </li>
+                
+                <li class="nav-item ">
+                    <a class="nav-link" href="/projects">Projects</a>
+                </li>
+                
+
+                <script src="/assets/js/lunr.js"></script>
+
+
+<style>
+    .lunrsearchresult .title {color: #d9230f;}
+    .lunrsearchresult .url {color: silver;}
+    .lunrsearchresult a {display: block; color: #777;}
+    .lunrsearchresult a:hover, .lunrsearchresult a:focus {text-decoration: none;}
+    .lunrsearchresult a:hover .title {text-decoration: underline;}
+</style>
+
+
+<form class="bd-search" onSubmit="return lunr_search(document.getElementById('lunrsearch').value);">
+    <input type="text" class="form-control text-small launch-modal-search" id="lunrsearch" name="q" maxlength="255" value="" placeholder="Search a post..."/>
+</form>
+
+<div id="lunrsearchresults">
+    <ul></ul>
+</div>
+
+<script src="/assets/js/lunrsearchengine.js"></script>
+
+            </ul>
+
+        <!-- End Menu -->
+
+    </div>
+
+    </div>
+</nav>
+<!-- End Navigation
+================================================== -->
+
+<div class="site-content">
+
+<div class="container">
+
+<!-- Content
+================================================== -->
+<div class="main-content">
+    <!-- Begin Article
+================================================== -->
+<div class="container">
+    <div class="row">
+
+        <!-- Post Share -->
+        <div class="col-md-1 pl-0">
+            
+        </div>
+
+        <!-- Post -->
+        
+
+        <div class="col-md-10 flex-first flex-md-unordered">
+            <div class="mainheading">
+
+                <!-- Post Title -->
+                <h1 class="posttitle">Scaling Rails with PostgreSQL Read Replicas: Part 1 - Understanding the Basics</h1>
+
+            </div>            
+
+            <!-- Post Featured Image -->
+            
+            <!-- End Featured Image -->
+
+            <!-- Post Content -->
+            <div class="article-post">
+                <p>In this three-part series, we’ll explore how to effectively use PostgreSQL read replicas with Rails applications. While the <a href="https://guides.rubyonrails.org/active_record_multiple_databases.html" target="_blank" rel="nofollow noopener noreferrer">official Rails guide</a> covers the configuration basics, implementing read replicas in production requires understanding the nuances that can make or break your application’s performance.</p>
+
+<h2 id="when-do-you-actually-need-read-replicas">When Do You Actually Need Read Replicas?</h2>
+
+<p>Before diving into implementation, let’s understand if read replicas are the right solution for your scaling challenges.</p>
+
+<h3 id="signs-you-need-read-replicas">Signs You Need Read Replicas</h3>
+
+<p>Your application might benefit from read replicas when you see these key indicators:</p>
+
+<ul>
+  <li><strong>Read-heavy workload</strong>: Your read:write ratio exceeds 80:20</li>
+  <li><strong>Long-running queries</strong>: Reports and analytics slow down transactional queries</li>
+  <li><strong>Different access patterns</strong>: OLTP (fast transactions) vs OLAP (complex analytics)</li>
+  <li><strong>Geographic distribution</strong>: Users in different regions need low-latency reads</li>
+</ul>
+
+<p>Does this query seem familiar?</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c1"># Your analytics queries are blocking user-facing features</span>
+<span class="no">User</span><span class="p">.</span><span class="nf">joins</span><span class="p">(</span><span class="ss">:orders</span><span class="p">)</span>
+    <span class="p">.</span><span class="nf">group</span><span class="p">(</span><span class="s1">'users.id'</span><span class="p">)</span>
+    <span class="p">.</span><span class="nf">having</span><span class="p">(</span><span class="s1">'COUNT(orders.id) &gt; ?'</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="p">.</span><span class="nf">pluck</span><span class="p">(</span><span class="s1">'users.email, COUNT(orders.id), SUM(orders.total)'</span><span class="p">)</span>
+<span class="c1"># This query takes 5+ seconds and runs frequently</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="when-read-replicas-wont-help">When Read Replicas Won’t Help</h3>
+
+<p>Read replicas are not a silver bullet. They won’t help if:</p>
+
+<ol>
+  <li><strong>Write bottlenecks</strong>: Your database is slow due to heavy writes</li>
+  <li><strong>Poor query performance</strong>: Unoptimized queries will be slow on replicas too</li>
+  <li><strong>Real-time requirements</strong>: If you can’t tolerate any replication lag</li>
+</ol>
+
+<h2 id="understanding-postgresql-streaming-replication">Understanding PostgreSQL Streaming Replication</h2>
+
+<p>PostgreSQL uses streaming replication to keep replicas synchronized. Here’s what happens under the hood:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c1">-- On the primary database</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">orders</span> <span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">99</span><span class="p">.</span><span class="mi">99</span><span class="p">);</span>
+<span class="c1">-- This generates a WAL (Write-Ahead Log) record</span>
+
+<span class="c1">-- The WAL record streams to replicas</span>
+<span class="c1">-- Replicas apply the change, but with a slight delay</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>This delay, called replication lag, is crucial to understand:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="c1"># On primary</span>
+<span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="p">.</span><span class="nf">create!</span><span class="p">(</span><span class="ss">name: </span><span class="s2">"Jane"</span><span class="p">)</span>
+<span class="c1"># user.id = 123</span>
+
+<span class="c1"># Immediately on replica (within milliseconds)</span>
+<span class="no">User</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span> <span class="c1"># =&gt; ActiveRecord::RecordNotFound</span>
+
+<span class="c1"># After replication lag (typically &lt; 1 second)</span>
+<span class="no">User</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span> <span class="c1"># =&gt; #&lt;User id: 123, name: "Jane"&gt;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="setting-up-your-first-read-replica">Setting Up Your First Read Replica</h2>
+
+<p>Let’s implement a basic read replica setup that handles the most common use case: offloading analytics queries.</p>
+
+<h3 id="step-1-database-configuration">Step 1: Database Configuration</h3>
+
+<p>First, configure your <code class="language-plaintext highlighter-rouge">database.yml</code> to define both primary and replica connections:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="na">production</span><span class="pi">:</span>
+  <span class="na">primary</span><span class="pi">:</span>
+    <span class="na">adapter</span><span class="pi">:</span> <span class="s">postgresql</span>
+    <span class="na">host</span><span class="pi">:</span> <span class="s">&lt;%= ENV['PRIMARY_DB_HOST'] %&gt;</span>
+    <span class="na">database</span><span class="pi">:</span> <span class="s">myapp_production</span>
+    <span class="na">username</span><span class="pi">:</span> <span class="s">&lt;%= ENV['DB_USERNAME'] %&gt;</span>
+    <span class="na">password</span><span class="pi">:</span> <span class="s">&lt;%= ENV['DB_PASSWORD'] %&gt;</span>
+    <span class="na">pool</span><span class="pi">:</span> <span class="s">&lt;%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %&gt;</span>
+    
+  <span class="na">primary_replica</span><span class="pi">:</span>
+    <span class="na">adapter</span><span class="pi">:</span> <span class="s">postgresql</span>
+    <span class="na">host</span><span class="pi">:</span> <span class="s">&lt;%= ENV['REPLICA_DB_HOST'] %&gt;</span>
+    <span class="na">database</span><span class="pi">:</span> <span class="s">myapp_production</span>
+    <span class="na">username</span><span class="pi">:</span> <span class="s">&lt;%= ENV['DB_REPLICA_USERNAME'] %&gt;</span>
+    <span class="na">password</span><span class="pi">:</span> <span class="s">&lt;%= ENV['DB_REPLICA_PASSWORD'] %&gt;</span>
+    <span class="na">pool</span><span class="pi">:</span> <span class="s">&lt;%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %&gt;</span>
+    <span class="na">replica</span><span class="pi">:</span> <span class="kc">true</span>  <span class="c1"># This marks it as a read-only connection</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">replica: true</code> flag is important—it tells Rails this connection should never receive writes.</p>
+
+<h3 id="step-2-model-configuration">Step 2: Model Configuration</h3>
+
+<p>Now, tell your models about these connections:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">ApplicationRecord</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+  <span class="nb">self</span><span class="p">.</span><span class="nf">abstract_class</span> <span class="o">=</span> <span class="kp">true</span>
+  
+  <span class="n">connects_to</span> <span class="ss">database: </span><span class="p">{</span> 
+    <span class="ss">writing: :primary</span><span class="p">,</span> 
+    <span class="ss">reading: :primary_replica</span> 
+  <span class="p">}</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>This configuration means:</p>
+<ul>
+  <li>All write operations (INSERT, UPDATE, DELETE) go to <code class="language-plaintext highlighter-rouge">:primary</code></li>
+  <li>Read operations can be directed to <code class="language-plaintext highlighter-rouge">:primary_replica</code></li>
+  <li>By default, all operations still go to primary (for safety)</li>
+</ul>
+
+<h3 id="step-3-basic-readwrite-splitting">Step 3: Basic Read/Write Splitting</h3>
+
+<p>Here’s how to explicitly route queries to your replica:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">AnalyticsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+  <span class="k">def</span> <span class="nf">revenue_report</span>
+    <span class="c1"># This block ensures all queries inside use the replica</span>
+    <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">)</span> <span class="k">do</span>
+      <span class="vi">@revenue_by_month</span> <span class="o">=</span> <span class="no">Order</span>
+        <span class="p">.</span><span class="nf">group</span><span class="p">(</span><span class="s2">"DATE_TRUNC('month', created_at)"</span><span class="p">)</span>
+        <span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="ss">:total</span><span class="p">)</span>
+        
+      <span class="vi">@top_customers</span> <span class="o">=</span> <span class="no">User</span>
+        <span class="p">.</span><span class="nf">joins</span><span class="p">(</span><span class="ss">:orders</span><span class="p">)</span>
+        <span class="p">.</span><span class="nf">group</span><span class="p">(</span><span class="s1">'users.id'</span><span class="p">)</span>
+        <span class="p">.</span><span class="nf">order</span><span class="p">(</span><span class="s1">'SUM(orders.total) DESC'</span><span class="p">)</span>
+        <span class="p">.</span><span class="nf">limit</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="p">.</span><span class="nf">pluck</span><span class="p">(</span><span class="s1">'users.name, SUM(orders.total)'</span><span class="p">)</span>
+    <span class="k">end</span>
+    
+    <span class="c1"># Queries here go back to primary</span>
+    <span class="n">current_user</span><span class="p">.</span><span class="nf">update!</span><span class="p">(</span><span class="ss">last_viewed_report_at: </span><span class="no">Time</span><span class="p">.</span><span class="nf">current</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">connected_to</code> block is like a database transaction—everything inside it uses the specified connection.</p>
+
+<h2 id="real-world-example-separating-analytics">Real-World Example: Separating Analytics</h2>
+
+<p>Let’s build a practical example where analytics queries never impact your main application:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+</pre></td><td class="rouge-code"><pre><span class="c1"># app/models/analytics/base.rb</span>
+<span class="k">module</span> <span class="nn">Analytics</span>
+  <span class="k">class</span> <span class="nc">Base</span> <span class="o">&lt;</span> <span class="no">ApplicationRecord</span>
+    <span class="nb">self</span><span class="p">.</span><span class="nf">abstract_class</span> <span class="o">=</span> <span class="kp">true</span>
+    
+    <span class="c1"># Always use replica for analytics models</span>
+    <span class="n">connects_to</span> <span class="ss">database: </span><span class="p">{</span> 
+      <span class="ss">writing: :primary</span><span class="p">,</span>
+      <span class="ss">reading: :primary_replica</span> 
+    <span class="p">}</span>
+    
+    <span class="c1"># Force all queries to use replica</span>
+    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">default_role</span>
+      <span class="ss">:reading</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1"># app/models/analytics/user_metrics.rb</span>
+<span class="k">module</span> <span class="nn">Analytics</span>
+  <span class="k">class</span> <span class="nc">UserMetrics</span> <span class="o">&lt;</span> <span class="no">Base</span>
+    <span class="nb">self</span><span class="p">.</span><span class="nf">table_name</span> <span class="o">=</span> <span class="s1">'users'</span>
+    
+    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">monthly_cohort_retention</span>
+      <span class="c1"># This complex query runs on replica, not affecting login performance</span>
+      <span class="n">sql</span> <span class="o">=</span> <span class="o">&lt;&lt;-</span><span class="no">SQL</span><span class="sh">
+        WITH cohorts AS (
+          SELECT 
+            DATE_TRUNC('month', created_at) as cohort_month,
+            id as user_id
+          FROM users
+        ),
+        activities AS (
+          SELECT 
+            user_id,
+            DATE_TRUNC('month', created_at) as activity_month
+          FROM orders
+          GROUP BY 1, 2
+        )
+        SELECT 
+          cohorts.cohort_month,
+          COUNT(DISTINCT cohorts.user_id) as cohort_size,
+          COUNT(DISTINCT activities.user_id) as active_users,
+          ROUND(100.0 * COUNT(DISTINCT activities.user_id) / 
+                COUNT(DISTINCT cohorts.user_id), 2) as retention_rate
+        FROM cohorts
+        LEFT JOIN activities ON cohorts.user_id = activities.user_id
+        GROUP BY 1
+        ORDER BY 1
+</span><span class="no">      SQL</span>
+      
+      <span class="n">connection</span><span class="p">.</span><span class="nf">exec_query</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Now your data team can run heavy queries without fear:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c1"># This query might take 30 seconds, but won't affect your app</span>
+<span class="n">retention_data</span> <span class="o">=</span> <span class="no">Analytics</span><span class="o">::</span><span class="no">UserMetrics</span><span class="p">.</span><span class="nf">monthly_cohort_retention</span>
+
+<span class="c1"># Meanwhile, your users can still log in quickly</span>
+<span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="p">.</span><span class="nf">find_by</span><span class="p">(</span><span class="ss">email: </span><span class="n">params</span><span class="p">[</span><span class="ss">:email</span><span class="p">])</span>
+<span class="n">user</span><span class="p">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="ss">:password</span><span class="p">])</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="monitoring-replication-health">Monitoring Replication Health</h2>
+
+<p>You can’t use read replicas effectively without monitoring. Here’s a simple health check:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">ReplicaHealthCheck</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">replication_lag</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">)</span> <span class="k">do</span>
+      <span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connection</span><span class="p">.</span><span class="nf">execute</span><span class="p">(</span><span class="o">&lt;&lt;-</span><span class="no">SQL</span><span class="p">).</span><span class="nf">first</span><span class="sh">
+        SELECT CASE 
+          WHEN pg_is_in_recovery() THEN 
+            EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp()))
+          ELSE 0
+        END as lag_seconds
+</span><span class="no">      SQL</span>
+    <span class="k">end</span>
+    
+    <span class="n">result</span><span class="p">[</span><span class="s1">'lag_seconds'</span><span class="p">].</span><span class="nf">to_f</span><span class="p">.</span><span class="nf">seconds</span>
+  <span class="k">end</span>
+  
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">healthy?</span>
+    <span class="n">lag</span> <span class="o">=</span> <span class="n">replication_lag</span>
+    <span class="n">lag</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">.</span><span class="nf">seconds</span>
+  <span class="k">rescue</span> <span class="no">PG</span><span class="o">::</span><span class="no">ConnectionBad</span>
+    <span class="kp">false</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1"># app/jobs/replica_health_monitor_job.rb</span>
+<span class="k">class</span> <span class="nc">ReplicaHealthMonitorJob</span> <span class="o">&lt;</span> <span class="no">ApplicationJob</span>
+  <span class="n">queue_as</span> <span class="ss">:monitoring</span>
+  
+  <span class="k">def</span> <span class="nf">perform</span>
+    <span class="n">lag</span> <span class="o">=</span> <span class="no">ReplicaHealthCheck</span><span class="p">.</span><span class="nf">replication_lag</span>
+    
+    <span class="c1"># Report metric to your monitoring service</span>
+    <span class="no">StatsD</span><span class="p">.</span><span class="nf">gauge</span><span class="p">(</span><span class="s1">'database.replica.lag_seconds'</span><span class="p">,</span> <span class="n">lag</span><span class="p">.</span><span class="nf">to_f</span><span class="p">)</span>
+    
+    <span class="c1"># Alert if lag exceeds threshold</span>
+    <span class="k">if</span> <span class="n">lag</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">.</span><span class="nf">seconds</span>
+      <span class="no">Rails</span><span class="p">.</span><span class="nf">error</span><span class="p">.</span><span class="nf">report</span><span class="p">(</span>
+        <span class="no">HighReplicationLagError</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s2">"Replication lag: </span><span class="si">#{</span><span class="n">lag</span><span class="si">}</span><span class="s2">"</span><span class="p">),</span>
+        <span class="ss">severity: :warning</span><span class="p">,</span>
+        <span class="ss">context: </span><span class="p">{</span> <span class="ss">lag_seconds: </span><span class="n">lag</span><span class="p">.</span><span class="nf">to_f</span> <span class="p">}</span>
+      <span class="p">)</span>
+    <span class="k">end</span>
+    
+    <span class="c1"># Schedule next check</span>
+    <span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="ss">wait: </span><span class="mi">30</span><span class="p">.</span><span class="nf">seconds</span><span class="p">).</span><span class="nf">perform_later</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1"># Start monitoring (in an initializer or deploy task)</span>
+<span class="no">ReplicaHealthMonitorJob</span><span class="p">.</span><span class="nf">perform_later</span> <span class="k">if</span> <span class="no">Rails</span><span class="p">.</span><span class="nf">env</span><span class="p">.</span><span class="nf">production?</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="common-pitfalls-in-basic-setups">Common Pitfalls in Basic Setups</h2>
+
+<h3 id="1-accidental-writes-to-replicas">1. Accidental Writes to Replicas</h3>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="c1"># This will raise an error</span>
+<span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">)</span> <span class="k">do</span>
+  <span class="no">User</span><span class="p">.</span><span class="nf">create!</span><span class="p">(</span><span class="ss">name: </span><span class="s2">"Bob"</span><span class="p">)</span>  <span class="c1"># ActiveRecord::ReadOnlyError</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Rails protects you by default, but always double-check your replica database user has read-only permissions:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="c1">-- On your PostgreSQL replica</span>
+<span class="k">CREATE</span> <span class="k">USER</span> <span class="n">replica_user</span> <span class="k">WITH</span> <span class="n">PASSWORD</span> <span class="s1">'secret'</span><span class="p">;</span>
+<span class="k">GRANT</span> <span class="k">SELECT</span> <span class="k">ON</span> <span class="k">ALL</span> <span class="n">TABLES</span> <span class="k">IN</span> <span class="k">SCHEMA</span> <span class="k">public</span> <span class="k">TO</span> <span class="n">replica_user</span><span class="p">;</span>
+<span class="c1">-- No INSERT, UPDATE, DELETE permissions</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="2-lazy-loading-across-connection-boundaries">2. Lazy Loading Across Connection Boundaries</h3>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="c1"># Be careful with lazy-loaded queries</span>
+<span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">)</span> <span class="k">do</span>
+  <span class="vi">@users</span> <span class="o">=</span> <span class="no">User</span><span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="ss">active: </span><span class="kp">true</span><span class="p">)</span>  <span class="c1"># Query not executed yet</span>
+<span class="k">end</span>
+
+<span class="c1"># This executes the query outside the block, using primary instead of replica</span>
+<span class="vi">@users</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">u</span><span class="o">|</span> <span class="nb">puts</span> <span class="n">u</span><span class="p">.</span><span class="nf">name</span> <span class="p">}</span>  <span class="c1"># Uses primary connection!</span>
+
+<span class="c1"># Solution: Force execution within the connection block</span>
+<span class="no">ApplicationRecord</span><span class="p">.</span><span class="nf">connected_to</span><span class="p">(</span><span class="ss">role: :reading</span><span class="p">)</span> <span class="k">do</span>
+  <span class="vi">@users</span> <span class="o">=</span> <span class="no">User</span><span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="ss">active: </span><span class="kp">true</span><span class="p">).</span><span class="nf">load</span>  <span class="c1"># Forces execution on replica</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="further-reading">Further Reading</h2>
+
+<p>For more details on the concepts covered in this post:</p>
+
+<ul>
+  <li><strong>Rails Documentation</strong>
+    <ul>
+      <li><a href="https://guides.rubyonrails.org/active_record_multiple_databases.html" target="_blank" rel="nofollow noopener noreferrer">Active Record Multiple Databases Guide</a> - Official Rails guide on database configuration</li>
+      <li><a href="https://api.rubyonrails.org/classes/ActiveRecord/ConnectionHandling.html#method-i-connected_to" target="_blank" rel="nofollow noopener noreferrer">Database Connection Switching</a> - API documentation for <code class="language-plaintext highlighter-rouge">connected_to</code></li>
+    </ul>
+  </li>
+  <li><strong>PostgreSQL Documentation</strong>
+    <ul>
+      <li><a href="https://www.postgresql.org/docs/current/warm-standby.html#STREAMING-REPLICATION" target="_blank" rel="nofollow noopener noreferrer">Streaming Replication</a> - How PostgreSQL streaming replication works</li>
+      <li><a href="https://www.postgresql.org/docs/current/monitoring-stats.html#MONITORING-PG-STAT-REPLICATION-VIEW" target="_blank" rel="nofollow noopener noreferrer">Monitoring Replication</a> - Using pg_stat_replication view</li>
+      <li><a href="https://www.postgresql.org/docs/current/high-availability.html" target="_blank" rel="nofollow noopener noreferrer">High Availability</a> - PostgreSQL’s approach to HA and read replicas</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="whats-next">What’s Next?</h2>
+
+<p>Make sure to check out:</p>
+<ul>
+  <li><a href="/rails-read-replicas-part-2-advanced-patterns">Part 2 - Advanced Patterns and Gotchas</a></li>
+  <li><a href="/rails-read-replicas-part-3-production-excellence">Part 3 - Production Excellence</a></li>
+</ul>
+
+<p>Remember: start simple. Begin by moving just your analytics queries to replicas and expand from there. The goal is to improve performance without adding unnecessary complexity.</p>
+
+            </div>
+
+            <!-- Post Date -->
+            <p>
+            <small>
+                <span class="post-date"><time class="post-date" datetime="2025-06-25">25 Jun 2025</time></span>
+                
+                </small>
+            </p>
+
+            <!-- Post Categories -->
+            <div class="after-post-cats">
+                <ul class="tags mb-4">
+                    
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#Database">Database</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#PostgreSQL">PostgreSQL</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#Rails">Rails</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#Scaling">Scaling</a>
+                    </li>
+                    
+                </ul>
+            </div>
+            <!-- End Categories -->
+
+            <!-- Author Box -->
+            
+            <div class="row post-bottom-meta">
+                <div class="col-xs-12 col-md-3 col-lg-2 text-center text-md-left mb-4 mb-md-0">
+                    
+                    <img class="author-thumb" src="/assets/images/prateek-avatar.avif" alt="Prateek Choudhary">
+                    
+                </div>
+                <div class="col-xs-12 col-md-9 col-lg-10 text-center text-md-left">
+                    <a target="_blank" class="link-dark" href="prateekcodes.dev">Prateek Choudhary</a>
+                    <section class="author-socials mb-0">
+                        <a target="_blank" href="https://twitter.com/prateekkish"><i class="fab fa-twitter-square"></i></a>
+                        <a target="_blank" href="https://github.com/prateekkish" class="ml-1"><i class="fab fa-github-square"></i></a>
+                        <a target="_blank" href="https://www.linkedin.com/in/choudharyprateek/" class="ml-1"><i class="fab fa-linkedin"></i></a>
+                        <a target="_blank" href="mailto:prateekkish@gmail.com" class="ml-1"><i class="fas fa-envelope-square"></i></a>
+                    </section>
+                    <section class="author-description">Technology Leader</section>
+                </div>
+            </div>
+            
+            <!-- End Author Box -->
+
+            <!-- Post Tags -->
+            <div class="after-post-tags">
+                <ul class="tags">
+                    
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#database-scaling">#database-scaling</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#performance-optimization">#performance-optimization</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#postgresql-replication">#postgresql-replication</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#rails-7">#rails-7</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#rails-read-replicas">#rails-read-replicas</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#read-write-splitting">#read-write-splitting</a>
+                    </li>
+                    
+                </ul>
+            </div>
+            <!-- End Tags -->
+
+            <!-- Related Posts -->
+            
+
+
+
+
+
+<div class="related-posts">
+  <h3>Related Articles</h3>
+  <div class="row">
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/rails-8-serialized-attributes-comparable-option/">Rails 8 adds comparable option to serialized attributes</a>
+                </h5>
+                <p class="card-text small">Rails 8 introduces a `comparable` option for serialized attributes, preventing unnecessary databa...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-07-04T00:00:00+00:00">Jul 04, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/rails-read-replicas-part-3-production-excellence/">Scaling Rails with PostgreSQL Read Replicas: Part 3 - Production Excellence</a>
+                </h5>
+                <p class="card-text small">Master production deployment strategies, monitoring, performance optimization, and failure handli...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-06-25T00:00:00+00:00">Jun 25, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/rails-read-replicas-part-2-advanced-patterns/">Scaling Rails with PostgreSQL Read Replicas: Part 2 - Advanced Patterns and Gotchas</a>
+                </h5>
+                <p class="card-text small">Deep dive into handling replication lag, implementing automatic connection switching, and solving...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-06-25T00:00:00+00:00">Jun 25, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+        
+      
+    
+      
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/postgresql-17-merge-with-returning-for-rails-developers/">PostgreSQL 17's MERGE with RETURNING: The Game-Changer Rails Developers Have Been Waiting For</a>
+                </h5>
+                <p class="card-text small">PostgreSQL 17 introduces RETURNING support to the MERGE statement, solving a long-standing limita...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-06-25T00:00:00+00:00">Jun 25, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+            
+    
+    
+    
+  </div>
+</div>
+            <!-- End Related Posts -->
+
+        </div>
+        <!-- End Post -->
+
+    </div>
+</div>
+<!-- End Article
+================================================== -->
+
+<!-- Begin Comments
+================================================== -->
+
+    <div class="container">
+        <div id="comments" class="row justify-content-center mb-5">
+            <div class="col-md-10">
+                <script src="https://giscus.app/client.js"
+        data-repo="prateekkish/prateekcodes"
+        data-repo-id=""
+        data-category="General"
+        data-category-id=""
+        data-mapping="title"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="light_protanopia"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+</script>
+            </div>
+        </div>
+    </div>
+
+<!--End Comments
+================================================== -->
+
+</script>
+
+</div>
+
+
+
+</div>
+
+<!-- Begin Footer
+================================================== -->
+<footer class="footer">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-12 text-center">
+                <div class="contact-section">
+                    <h5 class="contact-title">Let's Work Together</h5>
+                    <p class="contact-subtitle">Need help scaling your backend systems? I can help you build robust, high-performance solutions.</p>
+                    <div class="contact-links">
+                        <a href="mailto:prateekkish@gmail.com" class="contact-link email-link">
+                            <i class="fas fa-envelope"></i> Get in touch
+                        </a>
+                        <span class="contact-divider">•</span>
+                        <a href="https://twitter.com/prateekkish" class="contact-link" target="_blank">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                        <span class="contact-divider">•</span>
+                        <a href="https://www.linkedin.com/in/choudharyprateek/" class="contact-link" target="_blank">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+                        <span class="contact-divider">•</span>
+                        <a href="https://github.com/prateekkish" class="contact-link" target="_blank">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="footer-divider">
+        <div class="row">
+            <div class="col-md-6 col-sm-6 text-center text-lg-left">
+                Copyright © 2025 Prateek Codes - Learn Building Scalable Backend Systems
+            </div>
+            <div class="col-md-6 col-sm-6 text-center text-lg-right">
+                Built with Jekyll
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- End Footer
+================================================== -->
+
+</div> <!-- /.site-content -->
+
+<!-- Scripts
+================================================== -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+
+<script src="/assets/js/mediumish.js"></script>
+
+
+
+<script src="/assets/js/ie10-viewport-bug-workaround.js"></script>
+
+</body>
+</html>

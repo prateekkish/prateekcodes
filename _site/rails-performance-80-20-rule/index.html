@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link rel="icon" href="/assets/images/logo.avif">
+
+
+
+
+
+
+
+
+
+
+
+<!-- Primary Meta Tags -->
+<title>Why your Rails performance fixes don't work (and how to find ones that do) | Prateek Codes - Learn Building Scalable Backend Systems</title>
+<meta name="title" content="Why your Rails performance fixes don't work (and how to find ones that do)">
+<meta name="description" content="Stop wasting time optimizing code that doesn't matter. Learn how to use the Pareto Principle and profiling tools to find the 20% of your Rails code caus...">
+<meta name="keywords" content="Rails performance optimization, Pareto Principle Rails, 80/20 rule performance, rack-mini-profiler, Rails bottlenecks, APM tools Rails, measurement-driven optimization, Rails profiling flamegraph, Rails, Performance, Optimization, Ruby on Rails, PostgreSQL, Ruby, Rails development, Rails consulting">
+<meta name="author" content="Prateek Choudhary">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://prateekcodes.dev/rails-performance-80-20-rule/">
+<meta property="og:title" content="Why your Rails performance fixes don't work (and how to find ones that do)">
+<meta property="og:description" content="Stop wasting time optimizing code that doesn't matter. Learn how to use the Pareto Principle and profiling tools to find the 20% of your Rails code caus...">
+<meta property="og:image" content="https://prateekcodes.dev/assets/images/logo.avif">
+<meta property="og:site_name" content="Prateek Codes - Learn Building Scalable Backend Systems">
+
+<meta property="article:author" content="Prateek Choudhary">
+<meta property="article:published_time" content="2025-06-28T00:00:00+00:00">
+
+
+<meta property="article:tag" content="rails">
+
+<meta property="article:tag" content="performance">
+
+<meta property="article:tag" content="optimization">
+
+<meta property="article:tag" content="profiling">
+
+<meta property="article:tag" content="bottlenecks">
+
+<meta property="article:tag" content="pareto-principle">
+
+<meta property="article:tag" content="rack-mini-profiler">
+
+<meta property="article:tag" content="apm-tools">
+
+
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://prateekcodes.dev/rails-performance-80-20-rule/">
+<meta property="twitter:title" content="Why your Rails performance fixes don't work (and how to find ones that do)">
+<meta property="twitter:description" content="Stop wasting time optimizing code that doesn't matter. Learn how to use the Pareto Principle and profiling tools to find the 20% of your Rails code caus...">
+<meta property="twitter:image" content="https://prateekcodes.dev/assets/images/logo.avif">
+<meta property="twitter:creator" content="@prateekkish">
+
+<!-- Canonical URL -->
+<link rel="canonical" href="https://prateekcodes.dev/rails-performance-80-20-rule/">
+
+<!-- RSS Feed -->
+<link rel="alternate" type="application/rss+xml" title="Prateek Codes - Learn Building Scalable Backend Systems RSS Feed" href="https://prateekcodes.dev/feed.xml">
+
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Why your Rails performance fixes don&#39;t work (and how to find ones that do)",
+  "description": "Stop wasting time optimizing code that doesn&#39;t matter. Learn how to use the Pareto Principle and profiling tools to find the 20% of your Rails code ...",
+  
+  "image": "https://prateekcodes.dev/assets/images/logo.avif",
+  
+  "datePublished": "2025-06-28T00:00:00+00:00",
+  
+  "dateModified": "2025-06-28T00:00:00+00:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Prateek Choudhary",
+    "url": "https://prateekcodes.dev",
+    "sameAs": [
+      "https://twitter.com/prateekkish",
+      "https://www.linkedin.com/in/choudharyprateek/",
+      "https://github.com/prateekkish"
+    ]
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Prateek Codes - Learn Building Scalable Backend Systems",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://prateekcodes.dev/assets/images/logo.avif"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://prateekcodes.dev/rails-performance-80-20-rule/"
+  },
+  "keywords": "rails, performance, optimization, profiling, bottlenecks, pareto-principle, rack-mini-profiler, apm-tools, Rails, Performance, Optimization",
+  "articleSection": "Rails",
+  "wordCount": "1187"
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "dependencies": "Ruby on Rails",
+  "proficiencyLevel": "Intermediate"
+}
+</script>
+
+
+
+
+<!-- Breadcrumb Navigation -->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://prateekcodes.dev"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Rails",
+      "item": "https://prateekcodes.dev/category/rails"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Why your Rails performance ...",
+      "item": "https://prateekcodes.dev/rails-performance-80-20-rule/"
+    }
+  ]
+}
+</script>
+
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<link href="/assets/css/screen.css" rel="stylesheet">
+
+<link href="/assets/css/main.css" rel="stylesheet">
+
+
+
+<script src="/assets/js/jquery.min.js"></script>
+
+</head>
+
+
+<!-- change your GA id in _config.yml -->
+<script type="text/javascript">
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-158773406-2', 'auto');
+    ga('send', 'pageview');
+  </script>
+
+
+
+<body class="layout-post">
+	<!-- defer loading of font and font awesome -->
+	<noscript id="deferred-styles">
+		<link href="https://fonts.googleapis.com/css?family=Righteous%7CMerriweather:300,300i,400,400i,700,700i" rel="stylesheet">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+	</noscript>
+
+
+<!-- Begin Menu Navigation
+================================================== -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top mediumnavigation nav-down">
+
+    <div class="container pr-0">
+
+    <!-- Begin Logo -->
+    <a class="navbar-brand" href="/">
+    <img class="navbar-logo" src="/assets/images/logo.avif" alt="Prateek Codes - Learn Building Scalable Backend Systems" width="50px" height="">
+    </a>
+    <!-- End Logo -->
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMediumish" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarMediumish">
+
+        <!-- Begin Menu -->
+
+            <ul class="navbar-nav ml-auto">
+
+                
+                <li class="nav-item ">
+                    <a class="nav-link" href="/">Blog</a>
+                </li>
+                
+                <li class="nav-item ">
+                    <a class="nav-link" href="/categories">Categories</a>
+                </li>
+                
+                <li class="nav-item ">
+                    <a class="nav-link" href="/projects">Projects</a>
+                </li>
+                
+
+                <script src="/assets/js/lunr.js"></script>
+
+
+<style>
+    .lunrsearchresult .title {color: #d9230f;}
+    .lunrsearchresult .url {color: silver;}
+    .lunrsearchresult a {display: block; color: #777;}
+    .lunrsearchresult a:hover, .lunrsearchresult a:focus {text-decoration: none;}
+    .lunrsearchresult a:hover .title {text-decoration: underline;}
+</style>
+
+
+<form class="bd-search" onSubmit="return lunr_search(document.getElementById('lunrsearch').value);">
+    <input type="text" class="form-control text-small launch-modal-search" id="lunrsearch" name="q" maxlength="255" value="" placeholder="Search a post..."/>
+</form>
+
+<div id="lunrsearchresults">
+    <ul></ul>
+</div>
+
+<script src="/assets/js/lunrsearchengine.js"></script>
+
+            </ul>
+
+        <!-- End Menu -->
+
+    </div>
+
+    </div>
+</nav>
+<!-- End Navigation
+================================================== -->
+
+<div class="site-content">
+
+<div class="container">
+
+<!-- Content
+================================================== -->
+<div class="main-content">
+    <!-- Begin Article
+================================================== -->
+<div class="container">
+    <div class="row">
+
+        <!-- Post Share -->
+        <div class="col-md-1 pl-0">
+            
+        </div>
+
+        <!-- Post -->
+        
+
+        <div class="col-md-10 flex-first flex-md-unordered">
+            <div class="mainheading">
+
+                <!-- Post Title -->
+                <h1 class="posttitle">Why your Rails performance fixes don't work (and how to find ones that do)</h1>
+
+            </div>            
+
+            <!-- Post Featured Image -->
+            
+            <!-- End Featured Image -->
+
+            <!-- Post Content -->
+            <div class="article-post">
+                <p>You’ve been there. The app feels sluggish. You start optimizing—replacing <code class="language-plaintext highlighter-rouge">where.first</code> with <code class="language-plaintext highlighter-rouge">find_by</code>, caching random method calls, switching from <code class="language-plaintext highlighter-rouge">pluck</code> to <code class="language-plaintext highlighter-rouge">select</code>. After hours of work, you deploy… and nothing changes. The app is still slow.</p>
+
+<p>Here’s why: you’re probably optimizing code that doesn’t matter.</p>
+
+<h2 id="the-uncomfortable-truth-about-rails-performance">The uncomfortable truth about Rails performance</h2>
+
+<p>In most Rails applications, the vast majority of performance issues stem from a small fraction of your codebase. This isn’t speculation—it’s a pattern that emerges from the fundamental mathematics of how code executes in production, following what’s known as the Pareto Principle or 80/20 rule: roughly 80% of your performance problems come from just 20% of your code.</p>
+
+<p>Think about your typical Rails app:</p>
+<ul>
+  <li>Most requests hit a handful of popular endpoints</li>
+  <li>Those endpoints usually call the same few service objects or models</li>
+  <li>Within those, specific database queries or calculations dominate execution time</li>
+</ul>
+
+<p>Yet developers often spread optimization efforts evenly across the codebase, wasting time on code that barely impacts overall performance.</p>
+
+<h2 id="why-guessing-doesnt-work">Why guessing doesn’t work</h2>
+
+<p>Let me share a pattern I’ve seen repeatedly. A developer notices their app is slow and starts optimizing based on assumptions:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="c1"># "This must be slow because it's in a loop!"</span>
+<span class="n">users</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">user</span><span class="o">|</span>
+  <span class="c1"># Spend hours optimizing this</span>
+  <span class="n">user</span><span class="p">.</span><span class="nf">calculate_something_simple</span>
+<span class="k">end</span>
+
+<span class="c1"># Meanwhile, this innocent-looking line...</span>
+<span class="vi">@store</span> <span class="o">=</span> <span class="no">Store</span><span class="p">.</span><span class="nf">includes</span><span class="p">(</span><span class="ss">:products</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="ss">:variants</span><span class="p">,</span> <span class="ss">:images</span><span class="p">])</span>
+              <span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="ss">featured: </span><span class="kp">true</span><span class="p">)</span>
+              <span class="p">.</span><span class="nf">first</span>
+<span class="c1"># ...is loading 10,000 product variants and 30,000 images into memory</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The loop might run 10 times with simple calculations. The “innocent” query might be loading your entire database into memory. Which one deserves optimization?</p>
+
+<p>Without measurement, you’re shooting in the dark.</p>
+
+<h2 id="finding-the-real-bottlenecks">Finding the real bottlenecks</h2>
+
+<p>Here’s a systematic approach to identifying performance problems that actually matter:</p>
+
+<h3 id="step-1-measure-at-the-highest-level">Step 1: Measure at the highest level</h3>
+
+<p>Start with your APM tool (New Relic, Scout, Skylight, etc.) and look for patterns:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>Which endpoints consume the most total time?
+Total Time = Average Response Time × Request Volume
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>A 2-second endpoint hit once per day matters less than a 200ms endpoint hit 10,000 times per hour.</p>
+
+<h3 id="step-2-profile-the-hot-paths">Step 2: Profile the hot paths</h3>
+
+<p>Once you’ve identified problematic endpoints, profile them locally. Here’s a simple approach using <code class="language-plaintext highlighter-rouge">rack-mini-profiler</code>:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c1"># Gemfile</span>
+<span class="n">group</span> <span class="ss">:development</span> <span class="k">do</span>
+  <span class="n">gem</span> <span class="s1">'rack-mini-profiler'</span>
+  <span class="n">gem</span> <span class="s1">'flamegraph'</span>
+  <span class="n">gem</span> <span class="s1">'stackprof'</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Now hit your endpoint with <code class="language-plaintext highlighter-rouge">?pp=flamegraph</code> appended to see exactly where time goes.</p>
+
+<p>The flamegraph will reveal the truth through its visual stack trace: wide bars representing methods that consume the most time, with their child method calls stacked below. You might discover:</p>
+
+<ul>
+  <li>That innocent <code class="language-plaintext highlighter-rouge">includes</code> query spans 60% of the flamegraph width</li>
+  <li>Multiple database round trips hidden in serializers</li>
+  <li>Unexpected N+1 queries from lazy-loaded associations</li>
+  <li>Heavy computation in methods you thought were trivial</li>
+</ul>
+
+<p>The wider the bar, the more time that method consumes. Deep stacks reveal complex call chains that might be optimization opportunities.</p>
+
+<h3 id="step-3-validate-with-production-data">Step 3: Validate with production data</h3>
+
+<p>Local profiling uses development data. Before optimizing, validate against production patterns:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="c1"># Simple production sampling</span>
+<span class="k">class</span> <span class="nc">ApplicationController</span> <span class="o">&lt;</span> <span class="no">ActionController</span><span class="o">::</span><span class="no">Base</span>
+  <span class="n">around_action</span> <span class="ss">:sample_performance</span>
+  
+  <span class="kp">private</span>
+  
+  <span class="k">def</span> <span class="nf">sample_performance</span>
+    <span class="k">return</span> <span class="k">yield</span> <span class="k">unless</span> <span class="nb">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="c1"># Sample 1% of requests</span>
+    
+    <span class="n">result</span> <span class="o">=</span> <span class="kp">nil</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="no">Benchmark</span><span class="p">.</span><span class="nf">realtime</span> <span class="p">{</span> <span class="n">result</span> <span class="o">=</span> <span class="k">yield</span> <span class="p">}</span>
+    
+    <span class="k">if</span> <span class="n">time</span> <span class="o">&gt;</span> <span class="mf">0.5</span> <span class="c1"># Log slow requests</span>
+      <span class="no">Rails</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">info</span> <span class="s2">"[SLOW] </span><span class="si">#{</span><span class="n">controller_name</span><span class="si">}</span><span class="s2">#</span><span class="si">#{</span><span class="n">action_name</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">time</span><span class="si">}</span><span class="s2">s"</span>
+      <span class="c1"># Log additional context like user_id, params, etc.</span>
+    <span class="k">end</span>
+    
+    <span class="n">result</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="the-measurement-first-workflow">The measurement-first workflow</h2>
+
+<p>Here’s the workflow that actually works:</p>
+
+<ol>
+  <li><strong>Identify slow endpoints</strong> using production metrics</li>
+  <li><strong>Profile those specific endpoints</strong> to find bottlenecks</li>
+  <li><strong>Measure the impact</strong> of potential optimizations</li>
+  <li><strong>Implement only changes with meaningful impact</strong></li>
+  <li><strong>Verify improvement</strong> in production</li>
+</ol>
+
+<p>Let’s see this in action:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre></td><td class="rouge-code"><pre><span class="c1"># You profile and find this query taking 800ms:</span>
+<span class="k">def</span> <span class="nf">dashboard_data</span>
+  <span class="vi">@projects</span> <span class="o">=</span> <span class="n">current_user</span><span class="p">.</span><span class="nf">projects</span>
+                         <span class="p">.</span><span class="nf">includes</span><span class="p">(</span><span class="ss">:tasks</span><span class="p">,</span> <span class="ss">:members</span><span class="p">)</span>
+                         <span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="s1">'created_at &gt; ?'</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="nf">year</span><span class="p">.</span><span class="nf">ago</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="c1"># Hypothesis: It's loading too much data</span>
+<span class="c1"># Measurement: How many records are we actually loading?</span>
+<span class="no">Rails</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">info</span> <span class="s2">"Loading </span><span class="si">#{</span><span class="vi">@projects</span><span class="p">.</span><span class="nf">count</span><span class="si">}</span><span class="s2"> projects"</span>
+<span class="no">Rails</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">info</span> <span class="s2">"Total tasks: </span><span class="si">#{</span><span class="vi">@projects</span><span class="p">.</span><span class="nf">sum</span> <span class="p">{</span> <span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="nb">p</span><span class="p">.</span><span class="nf">tasks</span><span class="p">.</span><span class="nf">size</span> <span class="si">}</span><span class="s2">}"</span>
+<span class="c1"># Result: 50 projects, 15,000 tasks!</span>
+
+<span class="c1"># Solution: Don't load everything</span>
+<span class="k">def</span> <span class="nf">dashboard_data</span>
+  <span class="vi">@projects</span> <span class="o">=</span> <span class="n">current_user</span><span class="p">.</span><span class="nf">projects</span>
+                         <span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="s1">'created_at &gt; ?'</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="nf">year</span><span class="p">.</span><span class="nf">ago</span><span class="p">)</span>
+                         <span class="p">.</span><span class="nf">select</span><span class="p">(</span><span class="ss">:id</span><span class="p">,</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:status</span><span class="p">)</span>
+  
+  <span class="c1"># Load counts separately</span>
+  <span class="vi">@task_counts</span> <span class="o">=</span> <span class="no">Task</span><span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="ss">project_id: </span><span class="vi">@projects</span><span class="p">.</span><span class="nf">pluck</span><span class="p">(</span><span class="ss">:id</span><span class="p">))</span>
+                     <span class="p">.</span><span class="nf">group</span><span class="p">(</span><span class="ss">:project_id</span><span class="p">)</span>
+                     <span class="p">.</span><span class="nf">count</span>
+<span class="k">end</span>
+<span class="c1"># Result: 50ms instead of 800ms</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="common-bottleneck-patterns-in-rails">Common bottleneck patterns in Rails</h2>
+
+<p>Through measurement, you’ll often find these patterns:</p>
+
+<h3 id="1-n1-queries-in-serializers">1. N+1 queries in serializers</h3>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="c1"># The profiler shows hundreds of identical queries</span>
+<span class="n">render</span> <span class="ss">json: </span><span class="vi">@posts</span><span class="p">,</span> <span class="ss">each_serializer: </span><span class="no">PostSerializer</span>
+
+<span class="c1"># Inside PostSerializer</span>
+<span class="k">def</span> <span class="nf">author_name</span>
+  <span class="n">object</span><span class="p">.</span><span class="nf">author</span><span class="p">.</span><span class="nf">name</span> <span class="c1"># N+1!</span>
+<span class="k">end</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="2-loading-unnecessary-data">2. Loading unnecessary data</h3>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="c1"># Profiler shows massive memory allocation</span>
+<span class="no">User</span><span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="ss">active: </span><span class="kp">true</span><span class="p">)</span> <span class="c1"># Loading all columns for 10,000 users</span>
+
+<span class="c1"># When you only need:</span>
+<span class="no">User</span><span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="ss">active: </span><span class="kp">true</span><span class="p">).</span><span class="nf">pluck</span><span class="p">(</span><span class="ss">:id</span><span class="p">,</span> <span class="ss">:email</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="3-missing-database-indexes">3. Missing database indexes</h3>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="c1"># Profiler shows long database time</span>
+<span class="no">Order</span><span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="ss">user_id: </span><span class="n">params</span><span class="p">[</span><span class="ss">:user_id</span><span class="p">],</span> <span class="ss">status: </span><span class="s1">'pending'</span><span class="p">)</span>
+
+<span class="c1"># Check your query plan:</span>
+<span class="no">Order</span><span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="ss">user_id: </span><span class="mi">1</span><span class="p">,</span> <span class="ss">status: </span><span class="s1">'pending'</span><span class="p">).</span><span class="nf">explain</span>
+<span class="c1"># =&gt; Seq Scan on orders (cost=0.00..1834.00 rows=1 width=32)</span>
+<span class="c1">#    No index!</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="tools-for-measurement-driven-optimization">Tools for measurement-driven optimization</h2>
+
+<p>Instead of guessing, use these tools:</p>
+
+<p><strong>For production monitoring:</strong></p>
+<ul>
+  <li>APM tools (New Relic, Scout, Skylight, Datadog)</li>
+  <li>Custom logging and metrics</li>
+  <li>Database slow query logs</li>
+</ul>
+
+<p><strong>For local profiling:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">rack-mini-profiler</code> - Real-time web UI</li>
+  <li><code class="language-plaintext highlighter-rouge">ruby-prof</code> - Detailed method-level profiling</li>
+  <li><code class="language-plaintext highlighter-rouge">memory_profiler</code> - Find memory bottlenecks</li>
+  <li><code class="language-plaintext highlighter-rouge">benchmark-ips</code> - Compare implementation options</li>
+</ul>
+
+<p><strong>For database analysis:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">explain</code> on ActiveRecord queries</li>
+  <li><code class="language-plaintext highlighter-rouge">pg_stat_statements</code> for PostgreSQL</li>
+  <li>Query visualization tools</li>
+</ul>
+
+<h2 id="the-optimization-decision-framework">The optimization decision framework</h2>
+
+<p>Before optimizing anything, ask:</p>
+
+<ol>
+  <li>
+    <p><strong>Is this code in the critical path?</strong> If profiling shows it’s consuming &lt;5% of request time, move on.</p>
+  </li>
+  <li>
+    <p><strong>What’s the potential impact?</strong> If you could make it 10x faster, would users notice?</p>
+  </li>
+  <li>
+    <p><strong>What’s the implementation cost?</strong> A complex caching layer for a 10ms improvement rarely makes sense.</p>
+  </li>
+  <li>
+    <p><strong>Can you measure the improvement?</strong> If you can’t measure it, you can’t improve it.</p>
+  </li>
+</ol>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Stop optimizing code based on hunches. The vast majority of performance improvements come from fixing a tiny fraction of your codebase—but only if you identify the right fraction.</p>
+
+<p>Measure first. Profile second. Optimize third. This order matters.</p>
+
+<p>The next time your Rails app feels slow, resist the urge to start optimizing random code. Instead, check your metrics to identify problem areas, then profile those specific endpoints to find out where the time actually goes. You’ll be surprised how often the real bottleneck isn’t where you expected.</p>
+
+            </div>
+
+            <!-- Post Date -->
+            <p>
+            <small>
+                <span class="post-date"><time class="post-date" datetime="2025-06-28">28 Jun 2025</time></span>
+                
+                </small>
+            </p>
+
+            <!-- Post Categories -->
+            <div class="after-post-cats">
+                <ul class="tags mb-4">
+                    
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#Optimization">Optimization</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#Performance">Performance</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/categories#Rails">Rails</a>
+                    </li>
+                    
+                </ul>
+            </div>
+            <!-- End Categories -->
+
+            <!-- Author Box -->
+            
+            <div class="row post-bottom-meta">
+                <div class="col-xs-12 col-md-3 col-lg-2 text-center text-md-left mb-4 mb-md-0">
+                    
+                    <img class="author-thumb" src="/assets/images/prateek-avatar.avif" alt="Prateek Choudhary">
+                    
+                </div>
+                <div class="col-xs-12 col-md-9 col-lg-10 text-center text-md-left">
+                    <a target="_blank" class="link-dark" href="prateekcodes.dev">Prateek Choudhary</a>
+                    <section class="author-socials mb-0">
+                        <a target="_blank" href="https://twitter.com/prateekkish"><i class="fab fa-twitter-square"></i></a>
+                        <a target="_blank" href="https://github.com/prateekkish" class="ml-1"><i class="fab fa-github-square"></i></a>
+                        <a target="_blank" href="https://www.linkedin.com/in/choudharyprateek/" class="ml-1"><i class="fab fa-linkedin"></i></a>
+                        <a target="_blank" href="mailto:prateekkish@gmail.com" class="ml-1"><i class="fas fa-envelope-square"></i></a>
+                    </section>
+                    <section class="author-description">Technology Leader</section>
+                </div>
+            </div>
+            
+            <!-- End Author Box -->
+
+            <!-- Post Tags -->
+            <div class="after-post-tags">
+                <ul class="tags">
+                    
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#apm-tools">#apm-tools</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#bottlenecks">#bottlenecks</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#optimization">#optimization</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#pareto-principle">#pareto-principle</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#performance">#performance</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#profiling">#profiling</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#rack-mini-profiler">#rack-mini-profiler</a>
+                    </li>
+                    
+                    <li>
+                        <a class="smoothscroll" href="/tags#rails">#rails</a>
+                    </li>
+                    
+                </ul>
+            </div>
+            <!-- End Tags -->
+
+            <!-- Related Posts -->
+            
+
+
+
+
+
+<div class="related-posts">
+  <h3>Related Articles</h3>
+  <div class="row">
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/rails-8-multiple-rate-limits-per-controller/">Rails 8 adds ability to use multiple rate limits per controller</a>
+                </h5>
+                <p class="card-text small">Rails 8 now allows defining multiple rate limits within a single controller using named configura...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-07-04T00:00:00+00:00">Jul 04, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/rails-http-caching-strategies/">HTTP Caching for Rails APIs: The Missing Performance Layer</a>
+                </h5>
+                <p class="card-text small">Most Rails APIs ignore HTTP caching entirely, missing out on massive performance gains. Learn pra...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-06-29T00:00:00+00:00">Jun 29, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+        
+      
+    
+      
+    
+      
+        
+        
+        
+        
+        
+        
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/rails-8-framework-defaults/">What are the new Rails 8 framework defaults?</a>
+                </h5>
+                <p class="card-text small">Rails 8 framework defaults include timezone preservation in to_time methods, strict HTTP freshnes...</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <time datetime="2025-06-28T00:00:00+00:00">Jun 28, 2025</time>
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+      
+        
+        
+        
+        
+        
+        
+      
+    
+    
+    
+    
+  </div>
+</div>
+            <!-- End Related Posts -->
+
+        </div>
+        <!-- End Post -->
+
+    </div>
+</div>
+<!-- End Article
+================================================== -->
+
+<!-- Begin Comments
+================================================== -->
+
+    <div class="container">
+        <div id="comments" class="row justify-content-center mb-5">
+            <div class="col-md-10">
+                <script src="https://giscus.app/client.js"
+        data-repo="prateekkish/prateekcodes"
+        data-repo-id=""
+        data-category="General"
+        data-category-id=""
+        data-mapping="title"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="light_protanopia"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+</script>
+            </div>
+        </div>
+    </div>
+
+<!--End Comments
+================================================== -->
+
+</script>
+
+</div>
+
+
+
+</div>
+
+<!-- Begin Footer
+================================================== -->
+<footer class="footer">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-12 text-center">
+                <div class="contact-section">
+                    <h5 class="contact-title">Let's Work Together</h5>
+                    <p class="contact-subtitle">Need help scaling your backend systems? I can help you build robust, high-performance solutions.</p>
+                    <div class="contact-links">
+                        <a href="mailto:prateekkish@gmail.com" class="contact-link email-link">
+                            <i class="fas fa-envelope"></i> Get in touch
+                        </a>
+                        <span class="contact-divider">•</span>
+                        <a href="https://twitter.com/prateekkish" class="contact-link" target="_blank">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                        <span class="contact-divider">•</span>
+                        <a href="https://www.linkedin.com/in/choudharyprateek/" class="contact-link" target="_blank">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+                        <span class="contact-divider">•</span>
+                        <a href="https://github.com/prateekkish" class="contact-link" target="_blank">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="footer-divider">
+        <div class="row">
+            <div class="col-md-6 col-sm-6 text-center text-lg-left">
+                Copyright © 2025 Prateek Codes - Learn Building Scalable Backend Systems
+            </div>
+            <div class="col-md-6 col-sm-6 text-center text-lg-right">
+                Built with Jekyll
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- End Footer
+================================================== -->
+
+</div> <!-- /.site-content -->
+
+<!-- Scripts
+================================================== -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+
+<script src="/assets/js/mediumish.js"></script>
+
+
+
+<script src="/assets/js/ie10-viewport-bug-workaround.js"></script>
+
+</body>
+</html>
