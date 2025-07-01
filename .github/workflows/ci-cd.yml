@@ -113,12 +113,19 @@ jobs:
             --branch-name $BRANCH_NAME \
             --description "Preview for PR #${{ github.event.pull_request.number }}" \
             --stage DEVELOPMENT \
-            --enable-auto-build false || {
-              echo "Branch creation failed, it might already exist"
-            }
+            --enable-auto-build false
           
           # Wait for branch to be ready
-          sleep 5
+          echo "Waiting for branch to be ready..."
+          sleep 10
+          
+          # Verify branch was created successfully
+          aws amplify get-branch \
+            --app-id $APP_ID \
+            --branch-name $BRANCH_NAME || {
+              echo "ERROR: Branch creation failed!"
+              exit 1
+            }
         fi
         
         # Create deployment
