@@ -128,23 +128,60 @@ jobs:
             }
         fi
         
-        # Update branch to use the current commit
-        echo "Updating branch to use commit ${{ github.event.pull_request.head.sha }}..."
-        aws amplify update-branch \
+        # Since the app is repository-connected, we need to upload the build artifacts
+        # First, let's check the branch configuration
+        echo "Checking branch configuration..."
+        aws amplify get-branch \
           --app-id $APP_ID \
           --branch-name $BRANCH_NAME \
-          --enable-auto-build || echo "Branch update failed, continuing..."
+          --output json
         
-        # Trigger a build/deployment for the branch
-        echo "Triggering deployment..."
-        JOB_SUMMARY=$(aws amplify start-job \
+        # Create a deployment and get the upload URL
+        echo "Creating deployment for manual upload..."
+        DEPLOYMENT_RESULT=$(aws amplify create-deployment \
           --app-id $APP_ID \
           --branch-name $BRANCH_NAME \
-          --job-type RELEASE \
-          --commit-id "${{ github.event.pull_request.head.sha }}" \
-          --commit-message "Deploy PR #${{ github.event.pull_request.number }}" \
-          --commit-time "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
-          --output json)
+          --output json 2>&1 || echo "DEPLOYMENT_FAILED")
+        
+        if [[ "$DEPLOYMENT_RESULT" == *"DEPLOYMENT_FAILED"* ]] || [[ "$DEPLOYMENT_RESULT" == *"not supported"* ]]; then
+          echo "Manual deployment not supported. Trying alternative approach..."
+          
+          # Alternative: Update the branch to point to a different source branch
+          echo "Updating branch source to PR head branch..."
+          aws amplify update-branch \
+            --app-id $APP_ID \
+            --branch-name $BRANCH_NAME \
+            --source-branch "${{ github.event.pull_request.head.ref }}" || echo "Source branch update failed"
+          
+          # Trigger a build
+          echo "Triggering build..."
+          JOB_SUMMARY=$(aws amplify start-job \
+            --app-id $APP_ID \
+            --branch-name $BRANCH_NAME \
+            --job-type RELEASE \
+            --output json)
+        else
+          # Manual deployment is supported
+          DEPLOYMENT_URL=$(echo "$DEPLOYMENT_RESULT" | jq -r '.zipUploadUrl')
+          
+          # Create zip of the site
+          cd _site
+          zip -r ../site.zip .
+          cd ..
+          
+          # Upload the zip file
+          echo "Uploading site..."
+          curl -X PUT "$DEPLOYMENT_URL" \
+            -H "Content-Type: application/zip" \
+            --data-binary @site.zip
+          
+          # Start the deployment
+          echo "Starting deployment..."
+          JOB_SUMMARY=$(aws amplify start-deployment \
+            --app-id $APP_ID \
+            --branch-name $BRANCH_NAME \
+            --output json)
+        fi
         
         JOB_ID=$(echo "$JOB_SUMMARY" | jq -r '.jobSummary.jobId')
         
