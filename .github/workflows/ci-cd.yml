@@ -113,7 +113,7 @@ jobs:
             --branch-name $BRANCH_NAME \
             --description "Preview for PR #${{ github.event.pull_request.number }}" \
             --stage DEVELOPMENT \
-            --enable-auto-build false
+            --enable-auto-build
           
           # Wait for branch to be ready
           echo "Waiting for branch to be ready..."
