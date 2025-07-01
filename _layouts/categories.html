@@ -14,7 +14,11 @@ permalink: "/categories.html"
     {% for post in pages_list %}
       {% if post.title != null %}
         {% if group == null or group == post.group %}
-          {% include post-card.html %}
+          {% assign post_date = post.date | date: '%s' %}
+          {% assign current_date = 'now' | date: '%s' %}
+          {% if post_date <= current_date %}
+            {% include post-card.html %}
+          {% endif %}
         {% endif %}
       {% endif %}
     {% endfor %}
