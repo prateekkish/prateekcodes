@@ -107,12 +107,13 @@ jobs:
         if [[ "$BRANCH_EXISTS" == *"not found"* ]] || [[ "$BRANCH_EXISTS" == *"NotFoundException"* ]]; then
           echo "Creating new branch for PR preview..."
           
-          # Create branch without connecting to repository
+          # Create branch and point it to the PR's head commit
           aws amplify create-branch \
             --app-id $APP_ID \
             --branch-name $BRANCH_NAME \
             --description "Preview for PR #${{ github.event.pull_request.number }}" \
-            --stage DEVELOPMENT
+            --stage DEVELOPMENT \
+            --framework "Jekyll"
           
           # Wait for branch to be ready
           echo "Waiting for branch to be ready..."
@@ -127,12 +128,22 @@ jobs:
             }
         fi
         
+        # Update branch to use the current commit
+        echo "Updating branch to use commit ${{ github.event.pull_request.head.sha }}..."
+        aws amplify update-branch \
+          --app-id $APP_ID \
+          --branch-name $BRANCH_NAME \
+          --enable-auto-build || echo "Branch update failed, continuing..."
+        
         # Trigger a build/deployment for the branch
         echo "Triggering deployment..."
         JOB_SUMMARY=$(aws amplify start-job \
           --app-id $APP_ID \
           --branch-name $BRANCH_NAME \
           --job-type RELEASE \
+          --commit-id "${{ github.event.pull_request.head.sha }}" \
+          --commit-message "Deploy PR #${{ github.event.pull_request.number }}" \
+          --commit-time "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
           --output json)
         
         JOB_ID=$(echo "$JOB_SUMMARY" | jq -r '.jobSummary.jobId')
@@ -157,6 +168,12 @@ jobs:
             break
           elif [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "CANCELLED" ]; then
             echo "Preview deployment failed with status: $STATUS"
+            echo "Getting job details for debugging..."
+            aws amplify get-job \
+              --app-id $APP_ID \
+              --branch-name $BRANCH_NAME \
+              --job-id $JOB_ID \
+              --output json
             exit 1
           fi
           
