@@ -112,8 +112,7 @@ jobs:
             --app-id $APP_ID \
             --branch-name $BRANCH_NAME \
             --description "Preview for PR #${{ github.event.pull_request.number }}" \
-            --stage DEVELOPMENT \
-            --enable-auto-build
+            --stage DEVELOPMENT
           
           # Wait for branch to be ready
           echo "Waiting for branch to be ready..."
@@ -128,32 +127,15 @@ jobs:
             }
         fi
         
-        # Create deployment
-        echo "Creating deployment..."
-        DEPLOYMENT_URL=$(aws amplify create-deployment \
+        # Trigger a build/deployment for the branch
+        echo "Triggering deployment..."
+        JOB_SUMMARY=$(aws amplify start-job \
           --app-id $APP_ID \
           --branch-name $BRANCH_NAME \
-          --query 'zipUploadUrl' \
-          --output text)
+          --job-type RELEASE \
+          --output json)
         
-        # Create zip of the site
-        cd _site
-        zip -r ../site.zip .
-        cd ..
-        
-        # Upload the zip file
-        echo "Uploading site..."
-        curl -X PUT "$DEPLOYMENT_URL" \
-          -H "Content-Type: application/zip" \
-          --data-binary @site.zip
-        
-        # Start the deployment
-        echo "Starting deployment..."
-        JOB_ID=$(aws amplify start-deployment \
-          --app-id $APP_ID \
-          --branch-name $BRANCH_NAME \
-          --query 'jobSummary.jobId' \
-          --output text)
+        JOB_ID=$(echo "$JOB_SUMMARY" | jq -r '.jobSummary.jobId')
         
         echo "job_id=$JOB_ID" >> $GITHUB_OUTPUT
         
