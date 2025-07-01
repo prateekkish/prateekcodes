@@ -10,10 +10,6 @@ on:
         options:
           - production
           - preview
-      pr_number:
-        description: 'PR number (required for preview deployments)'
-        required: false
-        type: string
 
 jobs:
   build-and-validate:
@@ -129,20 +125,17 @@ jobs:
         echo "Production deployment triggered!"
     
     # Deploy preview to GitHub Pages
-    - name: Deploy PR Preview to GitHub Pages
+    - name: Deploy Branch Preview to GitHub Pages
       if: inputs.deploy_target == 'preview'
       id: deploy-preview
       run: |
-        # Validate PR number was provided
-        if [ -z "${{ inputs.pr_number }}" ]; then
-          echo "Error: PR number is required for preview deployments"
-          exit 1
-        fi
+        # Get the current branch name
+        BRANCH_NAME="${{ github.ref_name }}"
+        echo "Creating preview deployment for branch: $BRANCH_NAME"
         
-        echo "Creating preview deployment for PR #${{ inputs.pr_number }}..."
-        
-        # Create preview directory structure
-        PREVIEW_DIR="pr-${{ inputs.pr_number }}"
+        # Sanitize branch name for use in directory name
+        SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9-]/-/g' | tr '[:upper:]' '[:lower:]')
+        PREVIEW_DIR="branch-$SAFE_BRANCH_NAME"
         
         # Checkout gh-pages branch or create it if it doesn't exist
         git config user.name "github-actions[bot]"
@@ -164,21 +157,21 @@ jobs:
         mkdir -p "$PREVIEW_DIR"
         cp -r _site/* "$PREVIEW_DIR/"
         
-        # Create index of all PR previews
-        echo "# PR Previews" > index.html
-        echo "<h1>PR Previews</h1><ul>" >> index.html
-        for dir in pr-*/; do
+        # Create index of all branch previews
+        echo "# Branch Previews" > index.html
+        echo "<h1>Branch Previews</h1><ul>" >> index.html
+        for dir in branch-*/; do
           if [ -d "$dir" ]; then
-            pr_num=${dir#pr-}
-            pr_num=${pr_num%/}
-            echo "<li><a href='$dir'>PR #$pr_num</a></li>" >> index.html
+            branch_name=${dir#branch-}
+            branch_name=${branch_name%/}
+            echo "<li><a href='$dir'>Branch: $branch_name</a></li>" >> index.html
           fi
         done
         echo "</ul>" >> index.html
         
         # Commit and push
         git add .
-        git commit -m "Deploy preview for PR #${{ inputs.pr_number }}"
+        git commit -m "Deploy preview for branch: $BRANCH_NAME"
         git push origin gh-pages
         
         # Output preview URL
@@ -186,47 +179,62 @@ jobs:
         echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
     
     - name: Comment PR with preview URL
-      if: inputs.deploy_target == 'preview' && inputs.pr_number != ''
+      if: inputs.deploy_target == 'preview'
       uses: actions/github-script@v7
       with:
         script: |
-          const pr_number = parseInt('${{ inputs.pr_number }}');
           const preview_url = '${{ steps.deploy-preview.outputs.preview_url }}';
           const workflow_url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+          const branch_name = '${{ github.ref_name }}';
           
-          const body = `## 🚀 Preview Deployment
-          
-          Your preview is ready at: ${preview_url}
-          
-          **Build Status:** ✅ Success
-          **Workflow Run:** [View Details](${workflow_url})
-          
-          This preview was manually deployed via workflow dispatch.`;
-          
-          // Find and update existing comment or create new one
-          const { data: comments } = await github.rest.issues.listComments({
+          // Try to find PR for this branch
+          const { data: pulls } = await github.rest.pulls.list({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            issue_number: pr_number,
+            head: `${context.repo.owner}:${branch_name}`,
+            state: 'open'
           });
           
-          const botComment = comments.find(comment => 
-            comment.user.type === 'Bot' && comment.body.includes('Preview Deployment')
-          );
-          
-          if (botComment) {
-            await github.rest.issues.updateComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: botComment.id,
-              body: body
-            });
-          } else {
-            await github.rest.issues.createComment({
+          if (pulls.length > 0) {
+            // Comment on the PR
+            const pr_number = pulls[0].number;
+            const body = `## 🚀 Preview Deployment
+            
+            Your preview is ready at: ${preview_url}
+            
+            **Branch:** ${branch_name}
+            **Build Status:** ✅ Success
+            **Workflow Run:** [View Details](${workflow_url})
+            
+            This preview was manually deployed via workflow dispatch.`;
+            
+            // Find and update existing comment or create new one
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pr_number,
-              body: body
             });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && comment.body.includes('Preview Deployment')
+            );
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr_number,
+                body: body
+              });
+            }
+          } else {
+            console.log(`No open PR found for branch ${branch_name}`);
           }
 
