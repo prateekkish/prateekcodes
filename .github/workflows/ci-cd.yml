@@ -1,0 +1,240 @@
+name: CI/CD Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_target:
+        description: 'Deployment target'
+        required: true
+        type: choice
+        options:
+          - production
+          - preview
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2.2'
+        bundler-cache: true
+    
+    - name: Install dependencies
+      run: |
+        gem install bundler:2.6.7
+        bundle config set --local deployment 'true'
+        bundle install
+    
+    - name: Build Jekyll site
+      run: JEKYLL_ENV=production bundle exec jekyll build
+    
+    - name: Validate build
+      run: |
+        if [ ! -d "_site" ]; then
+          echo "Build failed: _site directory not found"
+          exit 1
+        fi
+        
+        if [ ! -f "_site/index.html" ]; then
+          echo "Build failed: index.html not found"
+          exit 1
+        fi
+        
+        echo "Build validation passed!"
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: jekyll-site
+        path: _site/
+        retention-days: 7
+
+  check-permissions:
+    runs-on: ubuntu-latest
+    outputs:
+      is_admin: ${{ steps.check.outputs.is_admin }}
+    steps:
+    - name: Check if user is admin
+      id: check
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const username = context.actor;
+          const { data: user } = await github.rest.repos.getCollaboratorPermissionLevel({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            username: username
+          });
+          const isAdmin = user.permission === 'admin' || user.permission === 'maintain';
+          console.log(`User ${username} has permission: ${user.permission}`);
+          core.setOutput('is_admin', isAdmin);
+          if (!isAdmin) {
+            core.setFailed('Only repository admins can run this workflow');
+          }
+
+  deploy:
+    needs: [build-and-validate, check-permissions]
+    runs-on: ubuntu-latest
+    if: success() && needs.check-permissions.outputs.is_admin == 'true'
+    
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+      pull-requests: write
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: jekyll-site
+        path: _site/
+    
+    # Configure AWS credentials for production deployment
+    - name: Configure AWS credentials
+      if: inputs.deploy_target == 'production'
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    # Deploy to production via AWS Amplify
+    - name: Deploy to Production
+      if: inputs.deploy_target == 'production'
+      run: |
+        echo "Deploying to production Amplify app..."
+        
+        APP_ID="${{ secrets.AMPLIFY_APP_ID }}"
+        
+        # Trigger deployment on main branch
+        aws amplify start-job \
+          --app-id $APP_ID \
+          --branch-name main \
+          --job-type RELEASE
+        
+        echo "Production deployment triggered!"
+    
+    # Deploy preview to GitHub Pages
+    - name: Deploy Branch Preview to GitHub Pages
+      if: inputs.deploy_target == 'preview'
+      id: deploy-preview
+      run: |
+        # Get the current branch name
+        BRANCH_NAME="${{ github.ref_name }}"
+        echo "Creating preview deployment for branch: $BRANCH_NAME"
+        
+        # Sanitize branch name for use in directory name
+        SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9-]/-/g' | tr '[:upper:]' '[:lower:]')
+        PREVIEW_DIR="branch-$SAFE_BRANCH_NAME"
+        
+        # Checkout gh-pages branch or create it if it doesn't exist
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Try to checkout gh-pages, create if it doesn't exist
+        if git fetch origin gh-pages:gh-pages 2>/dev/null; then
+          git checkout gh-pages
+        else
+          git checkout --orphan gh-pages
+          git rm -rf .
+          echo "# PR Previews" > README.md
+          git add README.md
+          git commit -m "Initial gh-pages branch"
+        fi
+        
+        # Create/update preview directory
+        rm -rf "$PREVIEW_DIR"
+        mkdir -p "$PREVIEW_DIR"
+        cp -r _site/* "$PREVIEW_DIR/"
+        
+        # Create index of all branch previews
+        echo "# Branch Previews" > index.html
+        echo "<h1>Branch Previews</h1><ul>" >> index.html
+        for dir in branch-*/; do
+          if [ -d "$dir" ]; then
+            branch_name=${dir#branch-}
+            branch_name=${branch_name%/}
+            echo "<li><a href='$dir'>Branch: $branch_name</a></li>" >> index.html
+          fi
+        done
+        echo "</ul>" >> index.html
+        
+        # Commit and push
+        git add .
+        git commit -m "Deploy preview for branch: $BRANCH_NAME"
+        git push origin gh-pages
+        
+        # Output preview URL
+        PREVIEW_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/$PREVIEW_DIR/"
+        echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+    
+    - name: Comment PR with preview URL
+      if: inputs.deploy_target == 'preview'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const preview_url = '${{ steps.deploy-preview.outputs.preview_url }}';
+          const workflow_url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+          const branch_name = '${{ github.ref_name }}';
+          
+          // Try to find PR for this branch
+          const { data: pulls } = await github.rest.pulls.list({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            head: `${context.repo.owner}:${branch_name}`,
+            state: 'open'
+          });
+          
+          if (pulls.length > 0) {
+            // Comment on the PR
+            const pr_number = pulls[0].number;
+            const body = `## 🚀 Preview Deployment
+            
+            Your preview is ready at: ${preview_url}
+            
+            **Branch:** ${branch_name}
+            **Build Status:** ✅ Success
+            **Workflow Run:** [View Details](${workflow_url})
+            
+            This preview was manually deployed via workflow dispatch.`;
+            
+            // Find and update existing comment or create new one
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr_number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && comment.body.includes('Preview Deployment')
+            );
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr_number,
+                body: body
+              });
+            }
+          } else {
+            console.log(`No open PR found for branch ${branch_name}`);
+          }
+
