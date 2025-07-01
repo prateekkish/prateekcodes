@@ -1,10 +1,19 @@
 name: CI/CD Pipeline
 
 on:
-  pull_request:
-    branches: [ main ]
-  push:
-    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      deploy_target:
+        description: 'Deployment target'
+        required: true
+        type: choice
+        options:
+          - production
+          - preview
+      pr_number:
+        description: 'PR number (required for preview deployments)'
+        required: false
+        type: string
 
 jobs:
   build-and-validate:
@@ -49,17 +58,44 @@ jobs:
         path: _site/
         retention-days: 7
 
-  deploy:
-    needs: build-and-validate
+  check-permissions:
     runs-on: ubuntu-latest
-    if: success()
+    outputs:
+      is_admin: ${{ steps.check.outputs.is_admin }}
+    steps:
+    - name: Check if user is admin
+      id: check
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const username = context.actor;
+          const { data: user } = await github.rest.repos.getCollaboratorPermissionLevel({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            username: username
+          });
+          const isAdmin = user.permission === 'admin' || user.permission === 'maintain';
+          console.log(`User ${username} has permission: ${user.permission}`);
+          core.setOutput('is_admin', isAdmin);
+          if (!isAdmin) {
+            core.setFailed('Only repository admins can run this workflow');
+          }
+
+  deploy:
+    needs: [build-and-validate, check-permissions]
+    runs-on: ubuntu-latest
+    if: success() && needs.check-permissions.outputs.is_admin == 'true'
     
     permissions:
+      contents: write
+      pages: write
+      id-token: write
       pull-requests: write
-      contents: read
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     
     - name: Download build artifacts
       uses: actions/download-artifact@v4
@@ -67,18 +103,21 @@ jobs:
         name: jekyll-site
         path: _site/
     
+    # Configure AWS credentials for production deployment
     - name: Configure AWS credentials
+      if: inputs.deploy_target == 'production'
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
-    
-    # Deploy to production for main branch
+
+    # Deploy to production via AWS Amplify
     - name: Deploy to Production
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      if: inputs.deploy_target == 'production'
       run: |
         echo "Deploying to production Amplify app..."
+        
         APP_ID="${{ secrets.AMPLIFY_APP_ID }}"
         
         # Trigger deployment on main branch
@@ -89,160 +128,86 @@ jobs:
         
         echo "Production deployment triggered!"
     
-    # Create preview for PRs
-    - name: Deploy PR Preview
-      if: github.event_name == 'pull_request'
+    # Deploy preview to GitHub Pages
+    - name: Deploy PR Preview to GitHub Pages
+      if: inputs.deploy_target == 'preview'
       id: deploy-preview
       run: |
-        echo "Creating preview deployment for PR #${{ github.event.pull_request.number }}..."
-        APP_ID="${{ secrets.AMPLIFY_APP_ID }}"
-        BRANCH_NAME="pr-${{ github.event.pull_request.number }}"
-        
-        # Check if branch exists
-        BRANCH_EXISTS=$(aws amplify get-branch \
-          --app-id $APP_ID \
-          --branch-name $BRANCH_NAME \
-          2>&1 || echo "not found")
-        
-        if [[ "$BRANCH_EXISTS" == *"not found"* ]] || [[ "$BRANCH_EXISTS" == *"NotFoundException"* ]]; then
-          echo "Creating new branch for PR preview..."
-          
-          # Create branch and point it to the PR's head commit
-          aws amplify create-branch \
-            --app-id $APP_ID \
-            --branch-name $BRANCH_NAME \
-            --description "Preview for PR #${{ github.event.pull_request.number }}" \
-            --stage DEVELOPMENT \
-            --framework "Jekyll"
-          
-          # Wait for branch to be ready
-          echo "Waiting for branch to be ready..."
-          sleep 10
-          
-          # Verify branch was created successfully
-          aws amplify get-branch \
-            --app-id $APP_ID \
-            --branch-name $BRANCH_NAME || {
-              echo "ERROR: Branch creation failed!"
-              exit 1
-            }
+        # Validate PR number was provided
+        if [ -z "${{ inputs.pr_number }}" ]; then
+          echo "Error: PR number is required for preview deployments"
+          exit 1
         fi
         
-        # Since the app is repository-connected, we need to upload the build artifacts
-        # First, let's check the branch configuration
-        echo "Checking branch configuration..."
-        aws amplify get-branch \
-          --app-id $APP_ID \
-          --branch-name $BRANCH_NAME \
-          --output json
+        echo "Creating preview deployment for PR #${{ inputs.pr_number }}..."
         
-        # Create a deployment and get the upload URL
-        echo "Creating deployment for manual upload..."
-        DEPLOYMENT_RESULT=$(aws amplify create-deployment \
-          --app-id $APP_ID \
-          --branch-name $BRANCH_NAME \
-          --output json 2>&1 || echo "DEPLOYMENT_FAILED")
+        # Create preview directory structure
+        PREVIEW_DIR="pr-${{ inputs.pr_number }}"
         
-        if [[ "$DEPLOYMENT_RESULT" == *"DEPLOYMENT_FAILED"* ]] || [[ "$DEPLOYMENT_RESULT" == *"not supported"* ]]; then
-          echo "Manual deployment not supported. Trying alternative approach..."
-          
-          # Alternative: Update the branch to point to a different source branch
-          echo "Updating branch source to PR head branch..."
-          aws amplify update-branch \
-            --app-id $APP_ID \
-            --branch-name $BRANCH_NAME \
-            --source-branch "${{ github.event.pull_request.head.ref }}" || echo "Source branch update failed"
-          
-          # Trigger a build
-          echo "Triggering build..."
-          JOB_SUMMARY=$(aws amplify start-job \
-            --app-id $APP_ID \
-            --branch-name $BRANCH_NAME \
-            --job-type RELEASE \
-            --output json)
+        # Checkout gh-pages branch or create it if it doesn't exist
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Try to checkout gh-pages, create if it doesn't exist
+        if git fetch origin gh-pages:gh-pages 2>/dev/null; then
+          git checkout gh-pages
         else
-          # Manual deployment is supported
-          DEPLOYMENT_URL=$(echo "$DEPLOYMENT_RESULT" | jq -r '.zipUploadUrl')
-          
-          # Create zip of the site
-          cd _site
-          zip -r ../site.zip .
-          cd ..
-          
-          # Upload the zip file
-          echo "Uploading site..."
-          curl -X PUT "$DEPLOYMENT_URL" \
-            -H "Content-Type: application/zip" \
-            --data-binary @site.zip
-          
-          # Start the deployment
-          echo "Starting deployment..."
-          JOB_SUMMARY=$(aws amplify start-deployment \
-            --app-id $APP_ID \
-            --branch-name $BRANCH_NAME \
-            --output json)
+          git checkout --orphan gh-pages
+          git rm -rf .
+          echo "# PR Previews" > README.md
+          git add README.md
+          git commit -m "Initial gh-pages branch"
         fi
         
-        JOB_ID=$(echo "$JOB_SUMMARY" | jq -r '.jobSummary.jobId')
+        # Create/update preview directory
+        rm -rf "$PREVIEW_DIR"
+        mkdir -p "$PREVIEW_DIR"
+        cp -r _site/* "$PREVIEW_DIR/"
         
-        echo "job_id=$JOB_ID" >> $GITHUB_OUTPUT
-        
-        # Wait for deployment
-        echo "Waiting for deployment to complete..."
-        MAX_ATTEMPTS=60
-        ATTEMPT=0
-        
-        while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-          STATUS=$(aws amplify get-job \
-            --app-id $APP_ID \
-            --branch-name $BRANCH_NAME \
-            --job-id $JOB_ID \
-            --query 'job.summary.status' \
-            --output text)
-          
-          if [ "$STATUS" = "SUCCEED" ]; then
-            echo "Preview deployment succeeded!"
-            break
-          elif [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "CANCELLED" ]; then
-            echo "Preview deployment failed with status: $STATUS"
-            echo "Getting job details for debugging..."
-            aws amplify get-job \
-              --app-id $APP_ID \
-              --branch-name $BRANCH_NAME \
-              --job-id $JOB_ID \
-              --output json
-            exit 1
+        # Create index of all PR previews
+        echo "# PR Previews" > index.html
+        echo "<h1>PR Previews</h1><ul>" >> index.html
+        for dir in pr-*/; do
+          if [ -d "$dir" ]; then
+            pr_num=${dir#pr-}
+            pr_num=${pr_num%/}
+            echo "<li><a href='$dir'>PR #$pr_num</a></li>" >> index.html
           fi
-          
-          echo "Status: $STATUS. Waiting..."
-          sleep 10
-          ATTEMPT=$((ATTEMPT + 1))
         done
+        echo "</ul>" >> index.html
         
-        # Get preview URL
-        PREVIEW_URL="https://${BRANCH_NAME}.${APP_ID}.amplifyapp.com"
+        # Commit and push
+        git add .
+        git commit -m "Deploy preview for PR #${{ inputs.pr_number }}"
+        git push origin gh-pages
+        
+        # Output preview URL
+        PREVIEW_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/$PREVIEW_DIR/"
         echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
     
     - name: Comment PR with preview URL
-      if: github.event_name == 'pull_request'
+      if: inputs.deploy_target == 'preview' && inputs.pr_number != ''
       uses: actions/github-script@v7
       with:
         script: |
+          const pr_number = parseInt('${{ inputs.pr_number }}');
           const preview_url = '${{ steps.deploy-preview.outputs.preview_url }}';
+          const workflow_url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+          
           const body = `## 🚀 Preview Deployment
           
           Your preview is ready at: ${preview_url}
           
           **Build Status:** ✅ Success
-          **Job ID:** ${{ steps.deploy-preview.outputs.job_id }}
+          **Workflow Run:** [View Details](${workflow_url})
           
-          This preview will be automatically updated when you push new commits.`;
+          This preview was manually deployed via workflow dispatch.`;
           
           // Find and update existing comment or create new one
           const { data: comments } = await github.rest.issues.listComments({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            issue_number: context.issue.number,
+            issue_number: pr_number,
           });
           
           const botComment = comments.find(comment => 
@@ -260,31 +225,8 @@ jobs:
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
+              issue_number: pr_number,
               body: body
             });
           }
 
-  cleanup-preview:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    
-    steps:
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-    
-    - name: Delete preview branch
-      run: |
-        APP_ID="${{ secrets.AMPLIFY_APP_ID }}"
-        BRANCH_NAME="pr-${{ github.event.pull_request.number }}"
-        
-        echo "Deleting preview branch $BRANCH_NAME..."
-        aws amplify delete-branch \
-          --app-id $APP_ID \
-          --branch-name $BRANCH_NAME || true
-        
-        echo "Preview branch deleted."
