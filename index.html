@@ -16,9 +16,11 @@ title: Home
     <div class="row listrecent">
 
         {% for post in paginator.posts %}
-
-        {% include post-card.html %}
-
+            {% assign post_date = post.date | date: '%s' %}
+            {% assign current_date = 'now' | date: '%s' %}
+            {% if post_date <= current_date %}
+                {% include post-card.html %}
+            {% endif %}
         {% endfor %}
 
     </div>
