@@ -1,0 +1,11 @@
+# Newsletter Configuration
+service: "substack"
+
+# Substack Configuration
+substack_username: "prateekkish"
+substack_action: "https://prateekkish.substack.com/api/v1/free"
+
+# Newsletter Settings
+homepage_enabled: true
+post_footer_enabled: true
+bottom_bar_enabled: false  # The alertbar at the bottom of pages
