@@ -1,0 +1,105 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Only process Substack forms
+    if ('{{ site.data.newsletter.service }}' !== 'substack') return;
+    
+    const forms = document.querySelectorAll('.newsletter-form-minimal, .newsletter-form-clean');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const emailInput = form.querySelector('input[type="email"]');
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            const email = emailInput.value;
+            
+            // Validate email
+            if (!email || !email.includes('@')) {
+                showMessage(form, 'error', 'Please enter a valid email address.');
+                return;
+            }
+            
+            // Disable form during submission
+            emailInput.disabled = true;
+            submitButton.disabled = true;
+            submitButton.textContent = 'Opening subscription...';
+            
+            // Open Substack subscription in a popup window
+            const width = 540;
+            const height = 650;
+            const left = (window.innerWidth - width) / 2;
+            const top = (window.innerHeight - height) / 2;
+            
+            const popup = window.open(
+                `https://prateekkish.substack.com/subscribe?email=${encodeURIComponent(email)}&utm_source=${encodeURIComponent(window.location.hostname)}`,
+                'substack-subscribe',
+                `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+            );
+            
+            // Check if popup was blocked
+            if (!popup || popup.closed || typeof popup.closed == 'undefined') {
+                // Fallback to opening in new tab
+                window.open(`https://prateekkish.substack.com/subscribe?email=${encodeURIComponent(email)}`, '_blank');
+                
+                // Reset form
+                setTimeout(() => {
+                    emailInput.disabled = false;
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                    showMessage(form, 'info', 'Subscription form opened in a new tab. Please complete your subscription there.');
+                }, 500);
+            } else {
+                // Monitor popup
+                submitButton.textContent = 'Waiting...';
+                
+                const checkPopup = setInterval(() => {
+                    if (popup.closed) {
+                        clearInterval(checkPopup);
+                        showMessage(form, 'success', 'Thanks for subscribing! If you completed the signup, check your email to confirm.');
+                        emailInput.value = '';
+                        emailInput.disabled = false;
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalButtonText;
+                    }
+                }, 500);
+                
+                // Timeout after 3 minutes
+                setTimeout(() => {
+                    clearInterval(checkPopup);
+                    if (!popup.closed) {
+                        popup.close();
+                    }
+                    emailInput.disabled = false;
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                }, 180000);
+            }
+        });
+    });
+    
+    function showMessage(form, type, message) {
+        // Remove any existing messages
+        const existingMessage = form.parentElement.querySelector('.newsletter-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+        
+        // Create new message element
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `newsletter-message newsletter-${type}`;
+        messageDiv.textContent = message;
+        
+        // Insert message after form
+        form.parentElement.appendChild(messageDiv);
+        
+        // Auto-hide message after 5 seconds (except for errors)
+        if (type !== 'error') {
+            setTimeout(() => {
+                messageDiv.style.opacity = '0';
+                setTimeout(() => messageDiv.remove(), 300);
+            }, 5000);
+        }
+    }
+});
+</script>

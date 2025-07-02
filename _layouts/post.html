@@ -108,6 +108,12 @@ post_class: post-template
             {% include related-posts.html %}
             <!-- End Related Posts -->
 
+            <!-- Newsletter Signup -->
+            {% if site.data.newsletter.post_footer_enabled %}
+            {% include post-newsletter.html %}
+            {% endif %}
+            <!-- End Newsletter -->
+
         </div>
         <!-- End Post -->
 

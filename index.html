@@ -36,3 +36,8 @@ title: Home
 </span>
 </div>
 
+<!-- Newsletter Signup Section -->
+{% if site.data.newsletter.homepage_enabled %}
+{% include newsletter-minimal.html %}
+{% endif %}
+

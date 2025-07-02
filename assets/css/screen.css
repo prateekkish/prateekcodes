@@ -1165,7 +1165,7 @@ iframe {
 /* Better pagination styling */
 .bottompagination {
     margin-top: 3rem;
-    margin-bottom: 3rem;
+    margin-bottom: 0;
 }
 
 .bottompagination .navigation a {
@@ -1234,3 +1234,287 @@ iframe {
     opacity: 0;
     transition: opacity .25s;
 }
+
+/* Newsletter Signup Styles */
+.newsletter-signup {
+    background-color: #f8f9fa;
+    padding: 60px 0;
+    margin: 40px 0;
+}
+
+/* Clean Newsletter Styles */
+.newsletter-minimal {
+    background-color: #1a1a1a;
+    padding: 80px 0;
+    margin: 60px -15px 0 -15px;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+}
+
+.newsletter-box {
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.newsletter-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.newsletter-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.newsletter-form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.newsletter-form .form-control {
+    font-size: 1rem;
+    padding: 12px 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+}
+
+.newsletter-form .form-control:focus {
+    border-color: #00ab6b;
+    box-shadow: none;
+}
+
+.newsletter-form .btn-primary {
+    background-color: #00ab6b;
+    border-color: #00ab6b;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 30px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.newsletter-form .btn-primary:hover {
+    background-color: #00d47f;
+    border-color: #00d47f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 171, 107, 0.3);
+}
+
+.newsletter-promise {
+    margin-top: 15px;
+}
+
+.newsletter-promise small {
+    font-size: 0.9rem;
+}
+
+/* Newsletter in post footer */
+.post-newsletter {
+    background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+    margin: 40px 0;
+    text-align: center;
+}
+
+.post-newsletter .newsletter-title {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.post-newsletter .newsletter-subtitle {
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .newsletter-box {
+        padding: 30px 20px;
+    }
+    
+    .newsletter-title {
+        font-size: 1.5rem;
+    }
+    
+    .newsletter-subtitle {
+        font-size: 1rem;
+    }
+    
+    .newsletter-form .form-row {
+        flex-direction: column;
+    }
+    
+    .newsletter-form .btn-primary {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
+/* Clean Newsletter Form Styles */
+.newsletter-heading {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.newsletter-subheading {
+    font-size: 1.125rem;
+    color: #e0e0e0;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+.newsletter-form-minimal {
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.newsletter-form-minimal .form-inline {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+}
+
+.newsletter-input {
+    font-size: 1rem;
+    padding: 15px 20px;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 4px 0 0 4px;
+    min-width: 280px;
+    transition: all 0.3s ease;
+    height: 50px;
+}
+
+.newsletter-input:focus {
+    box-shadow: 0 0 0 3px rgba(0, 171, 107, 0.2);
+    outline: none;
+}
+
+.btn-newsletter {
+    background-color: #00ab6b;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 15px 32px;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    text-transform: none;
+    letter-spacing: normal;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    height: 50px;
+    display: flex;
+    align-items: center;
+}
+
+.btn-newsletter:hover {
+    background-color: #00ab6b;
+    color: white;
+    transform: none;
+}
+
+
+/* Responsive Design for Newsletter */
+@media (max-width: 576px) {
+    .newsletter-minimal {
+        padding: 60px 20px;
+    }
+    
+    .newsletter-heading {
+        font-size: 1.75rem;
+    }
+    
+    .newsletter-subheading {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+    
+    .newsletter-form-minimal .form-inline {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .newsletter-input {
+        border-radius: 4px;
+        width: 100%;
+        min-width: unset;
+        height: 48px;
+    }
+    
+    .btn-newsletter {
+        border-radius: 4px;
+        width: 100%;
+        height: 48px;
+        justify-content: center;
+    }
+    
+}
+
+/* Newsletter Message Styles */
+.newsletter-message {
+    margin-top: 20px;
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    text-align: center;
+    transition: opacity 0.3s ease;
+}
+
+.newsletter-success {
+    background-color: rgba(0, 171, 107, 0.1);
+    color: #00ab6b;
+    border: 1px solid rgba(0, 171, 107, 0.2);
+}
+
+.newsletter-error {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.newsletter-info {
+    background-color: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+    border: 1px solid rgba(0, 123, 255, 0.2);
+}
+
+/* Dark background message styles */
+.newsletter-minimal .newsletter-message {
+    max-width: 480px;
+    margin: 20px auto 0;
+}
+
+.newsletter-minimal .newsletter-success {
+    background-color: rgba(0, 212, 127, 0.2);
+    color: #00d47f;
+    border-color: rgba(0, 212, 127, 0.3);
+}
+
+.newsletter-minimal .newsletter-error {
+    background-color: rgba(255, 107, 107, 0.2);
+    color: #ff6b6b;
+    border-color: rgba(255, 107, 107, 0.3);
+}
+
+.newsletter-minimal .newsletter-info {
+    background-color: rgba(100, 181, 246, 0.2);
+    color: #64b5f6;
+    border-color: rgba(100, 181, 246, 0.3);
+}
+
