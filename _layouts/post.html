@@ -10,10 +10,10 @@ post_class: post-template
     <div class="row">
 
         <!-- Post Share -->
-        <div class="col-md-1 pl-0">
-            {% if page.show_social_links %}
-              {% include share.html %}
-            {% endif %}
+        <div class="col-md-1 pl-0 d-none d-md-block">
+            <div class="share-wrapper">
+                {% include share.html %}
+            </div>
         </div>
 
         <!-- Post -->
@@ -42,6 +42,11 @@ post_class: post-template
             <!-- Post Content -->
             <div class="article-post">
                 {{content}}
+            </div>
+
+            <!-- Mobile Share Section -->
+            <div class="share-mobile d-md-none">
+                {% include share.html %}
             </div>
 
             <!-- Post Date -->

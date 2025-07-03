@@ -43,7 +43,7 @@
 	<!-- defer loading of font and font awesome -->
 	<noscript id="deferred-styles">
 		<link href="https://fonts.googleapis.com/css?family=Righteous%7CMerriweather:300,300i,400,400i,700,700i" rel="stylesheet">
-		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	</noscript>
 
 
@@ -177,6 +177,65 @@
 <script src="{{ site.baseurl }}/assets/js/ie10-viewport-bug-workaround.js"></script>
 
 {% include newsletter-popup.html %}
+
+<script>
+function copyToClipboard(text) {
+    // Create a temporary input element
+    var tempInput = document.createElement("input");
+    tempInput.value = text;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+    
+    // Show feedback to user
+    var copyButton = event.target.closest('a');
+    var icon = copyButton.querySelector('i');
+    var originalTitle = copyButton.title;
+    
+    // Store original classes
+    var originalClasses = icon.className;
+    
+    // Change to checkmark with green color
+    icon.className = 'fa-solid fa-check';
+    icon.style.color = '#28a745';
+    copyButton.title = "Copied!";
+    
+    // Reset after 2 seconds
+    setTimeout(function() {
+        icon.className = originalClasses;
+        icon.style.color = '';
+        copyButton.title = originalTitle;
+    }, 2000);
+}
+
+// Prevent share section from overlapping newsletter
+document.addEventListener('DOMContentLoaded', function() {
+    var shareElement = document.querySelector('.share');
+    var alertBar = document.querySelector('.alertbar');
+    
+    if (shareElement && alertBar) {
+        function checkOverlap() {
+            var shareRect = shareElement.getBoundingClientRect();
+            var alertRect = alertBar.getBoundingClientRect();
+            
+            // If share section would overlap with alertbar, unstick it
+            if (shareRect.bottom > alertRect.top - 20) {
+                shareElement.style.position = 'absolute';
+                shareElement.style.bottom = '0';
+                shareElement.style.top = 'auto';
+            } else {
+                shareElement.style.position = '';
+                shareElement.style.bottom = '';
+                shareElement.style.top = '';
+            }
+        }
+        
+        window.addEventListener('scroll', checkOverlap);
+        window.addEventListener('resize', checkOverlap);
+    }
+});
+</script>
 
 </body>
 </html>
