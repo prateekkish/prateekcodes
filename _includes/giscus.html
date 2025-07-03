@@ -1,16 +1,61 @@
-<script src="https://giscus.app/client.js"
-        data-repo="prateekkish/prateekcodes"
-        data-repo-id="{{ site.env.REPO_ID}}"
-        data-category="General"
-        data-category-id="{{ site.env.CATEGORY_ID }}"
-        data-mapping="title"
-        data-strict="0"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="top"
-        data-theme="light_protanopia"
-        data-lang="en"
-        data-loading="lazy"
-        crossorigin="anonymous"
-        async>
+<!-- Giscus Comments with Dark Mode Support -->
+<div class="giscus"></div>
+<script>
+  // Function to load Giscus with the appropriate theme
+  function loadGiscus() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' 
+      ? 'dark' 
+      : 'light_protanopia';
+    
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', 'prateekkish/prateekcodes');
+    script.setAttribute('data-repo-id', '{{ site.env.REPO_ID}}');
+    script.setAttribute('data-category', 'General');
+    script.setAttribute('data-category-id', '{{ site.env.CATEGORY_ID }}');
+    script.setAttribute('data-mapping', 'title');
+    script.setAttribute('data-strict', '0');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '0');
+    script.setAttribute('data-input-position', 'top');
+    script.setAttribute('data-theme', theme);
+    script.setAttribute('data-lang', 'en');
+    script.setAttribute('data-loading', 'lazy');
+    script.setAttribute('crossorigin', 'anonymous');
+    script.async = true;
+    
+    document.querySelector('.giscus').appendChild(script);
+  }
+  
+  // Load Giscus on page load
+  loadGiscus();
+  
+  // Update Giscus theme when dark mode is toggled
+  function updateGiscusTheme() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' 
+      ? 'dark' 
+      : 'light_protanopia';
+    
+    const iframe = document.querySelector('iframe.giscus-frame');
+    if (iframe) {
+      iframe.contentWindow.postMessage(
+        { giscus: { setConfig: { theme } } },
+        'https://giscus.app'
+      );
+    }
+  }
+  
+  // Listen for theme changes
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+        updateGiscusTheme();
+      }
+    });
+  });
+  
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+  });
 </script>
