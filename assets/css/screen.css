@@ -14,7 +14,7 @@ Main stylesheet
     --border-color-light: #e9ecef;
     --bg-secondary: #f8f9fa;
     --bg-tertiary: #fafafa;
-    --link-color: #00ab6b;
+    --link-color: #007549;
     --link-hover-color: #038252;
     --nav-bg: rgba(255, 255, 255, 0.97);
     --footer-bg: #fff;
@@ -1002,11 +1002,11 @@ blockquote {
 .share ul li i.fa-brands,
 .share ul li i.fa-solid,
 .share ul li i.fa-regular {
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
     text-align: center;
-    font-size: 18px;
+    font-size: 24px;
     color: #666;
     transition: all 0.2s ease;
 }
@@ -1024,10 +1024,24 @@ blockquote {
     top: 100px;
 }
 
-/* Share wrapper to contain sticky behavior */
-.share-wrapper {
+/* Article container to constrain sticky behavior */
+#article-container {
     position: relative;
-    height: 100%;
+}
+
+/* Share wrapper to contain sticky behavior within blog content */
+.share-wrapper {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sticky share positioning */
+.share.sticky-top {
+    position: sticky;
+    top: 100px;
+    z-index: 50;
 }
 
 /* Ensure alertbar is above share section */
