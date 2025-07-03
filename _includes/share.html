@@ -1,23 +1,27 @@
 <div class="share sticky-top sticky-top-offset">
-    <p>
-        Share
-    </p>
+    <p class="share-label">Spread the word</p>
     <ul>
         <li class="ml-1 mr-1">
             <a target="_blank" href="https://twitter.com/intent/tweet?text={{ page.title }}&url={{ page.url | absolute_url }}" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-                <i class="fab fa-twitter"></i>
+                <i class="fa-brands fa-x-twitter"></i>
             </a>
         </li>
 
         <li class="ml-1 mr-1">
-            <a target="_blank" href="https://facebook.com/sharer.php?u={{ page.url | absolute_url }}" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;">
-                <i class="fab fa-facebook-f"></i>
+            <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url={{ page.url | absolute_url | uri_escape }}&title={{ page.title | uri_escape }}" onclick="window.open(this.href, 'linkedin-share', 'width=550,height=435');return false;">
+                <i class="fa-brands fa-linkedin"></i>
             </a>
         </li>
 
         <li class="ml-1 mr-1">
-            <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url={{ page.url | absolute_url }}" onclick="window.open(this.href, 'width=550,height=435');return false;">
-                <i class="fab fa-linkedin-in"></i>
+            <a target="_blank" href="https://reddit.com/submit?url={{ page.url | absolute_url }}&title={{ page.title }}" onclick="window.open(this.href, 'reddit-share', 'width=850,height=435');return false;">
+                <i class="fa-brands fa-reddit"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a href="javascript:void(0);" onclick="copyToClipboard('{{ page.url | absolute_url }}'); return false;" title="Copy link">
+                <i class="fa-regular fa-copy"></i>
             </a>
         </li>
 
