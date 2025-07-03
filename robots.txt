@@ -4,7 +4,9 @@
 User-agent: *
 Allow: /
 Disallow: /404.html
-Disallow: /assets/
+Disallow: /assets/js/
+Disallow: /assets/css/
+Allow: /assets/images/
 Crawl-delay: 1
 
 # Sitemap location
