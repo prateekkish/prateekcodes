@@ -226,24 +226,63 @@ input:checked + .slider .fa-moon {
 
 /* Mobile Responsive */
 @media (max-width: 991px) {
-    /* Mobile navbar layout using flexbox */
+    /* Fixed mobile navbar layout */
     .mediumnavigation .container {
         display: flex;
         align-items: center;
         justify-content: space-between;
         position: relative;
+        min-height: 67px; /* Maintain consistent height */
+    }
+    
+    /* Keep mobile theme switch on the left */
+    .mobile-theme-switch {
+        flex: 0 0 auto;
+        order: 1;
     }
     
     /* Center the logo */
     .navbar-brand {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
+        flex: 1 1 auto;
+        display: flex;
+        justify-content: center;
+        order: 2;
+        margin: 0; /* Remove default margins */
+        position: static; /* Override absolute positioning */
+        transform: none; /* Remove transform */
     }
     
     /* Keep hamburger on the right */
     .navbar-toggler {
-        margin-left: auto;
+        flex: 0 0 auto;
+        order: 3;
+        margin-left: 0; /* Remove auto margin */
+    }
+    
+    /* Ensure collapsed menu doesn't affect header layout */
+    .navbar-collapse {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--nav-bg);
+        border-top: 1px solid var(--border-color-light);
+        box-shadow: 0 4px 6px var(--shadow-color);
+        z-index: 1000;
+    }
+    
+    /* Mobile menu styling */
+    .navbar-collapse.show {
+        display: block !important;
+    }
+    
+    .navbar-collapse .navbar-nav {
+        padding: 1rem 0;
+    }
+    
+    .navbar-collapse .nav-item {
+        text-align: center;
+        padding: 0.5rem 0;
     }
     
     .theme-switch-wrapper {
