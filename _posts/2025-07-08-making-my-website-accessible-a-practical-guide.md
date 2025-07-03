@@ -44,10 +44,10 @@ I used AccessibilityChecker.org, which revealed my website had 28 failing elemen
 **Why It Matters**: Users with low vision, color blindness, or those using devices in bright sunlight need sufficient contrast to read text clearly.
 
 **Understanding the 4.5:1 Ratio**: This means the lighter color should be 4.5 times brighter than the darker color. For example:
-- **White (#ffffff)** against **medium gray (#767676)** = exactly 4.5:1
-- **Black (#000000)** against **light gray (#959595)** = exactly 4.5:1
-- **rgba(0, 0, 0, 0.6)** on white = only 2.5:1 contrast (fails)
-- **rgba(0, 0, 0, 0.9)** on white = 10:1 contrast (passes)
+- **White** (`#ffffff`) against **medium gray** (`#767676`) = exactly 4.5:1
+- **Black** (`#000000`) against **light gray** (`#959595`) = exactly 4.5:1
+- `rgba(0, 0, 0, 0.6)` on white = only 2.5:1 contrast (fails)
+- `rgba(0, 0, 0, 0.9)` on white = 10:1 contrast (passes)
 
 **How to Check Contrast**: Use tools like:
 - [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/){:target="_blank" rel="noopener noreferrer" aria-label="WebAIM Contrast Checker tool (opens in new tab)"}
@@ -121,6 +121,8 @@ I used AccessibilityChecker.org, which revealed my website had 28 failing elemen
 
 **Why It Matters**: Keyboard users would have to tab through every navigation item on every page to reach the main content.
 
+**Note**: Skip links could be visually hidden (if it messes with your site design) by default but become the first focusable elements when users press Tab. This is the standard, WCAG-compliant approach.
+
 **Solution:**
 ```html
 <body>
@@ -150,7 +152,7 @@ I used AccessibilityChecker.org, which revealed my website had 28 failing elemen
 }
 
 .skip-link:focus {
-    top: 6px; /* Appears when focused */
+    top: 6px; /* Appears when focused - visible to keyboard users only */
 }
 ```
 
