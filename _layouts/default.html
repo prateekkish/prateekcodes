@@ -62,14 +62,14 @@
 
 <!-- Begin Menu Navigation
 ================================================== -->
-<nav class="navbar navbar-expand-lg navbar-light fixed-top mediumnavigation nav-down">
+<nav class="navbar navbar-expand-lg navbar-light fixed-top mediumnavigation nav-down" aria-label="Main navigation">
 
     <div class="container pr-0">
 
     <!-- Mobile Dark Mode Toggle (Left side on mobile) -->
     <div class="mobile-theme-switch d-lg-none">
         <label class="theme-switch" for="mobileThemeToggle">
-            <input type="checkbox" id="mobileThemeToggle" />
+            <input type="checkbox" id="mobileThemeToggle" aria-label="Toggle dark mode" />
             <div class="slider">
                 <i class="fas fa-sun"></i>
                 <i class="fas fa-moon"></i>
@@ -99,13 +99,15 @@
                 </li>
                 {% endfor %}
 
-                {% include search.html %}
+                <li class="nav-item">
+                    {% include search.html %}
+                </li>
 
                 <!-- Dark Mode Toggle Switch (Desktop only) -->
                 <li class="nav-item d-none d-lg-flex align-items-center">
                     <div class="theme-switch-wrapper">
                         <label class="theme-switch" for="darkModeToggle">
-                            <input type="checkbox" id="darkModeToggle" />
+                            <input type="checkbox" id="darkModeToggle" aria-label="Toggle dark mode" />
                             <div class="slider">
                                 <i class="fas fa-sun"></i>
                                 <i class="fas fa-moon"></i>
@@ -138,17 +140,17 @@
 {% if site.mailchimp-list %}
 <!-- Bottom Alert Bar
 ================================================== -->
-<div class="alertbar">
+<aside class="alertbar" aria-label="Newsletter subscription">
 	<div class="container text-center">
-		<span><img src="{{ site.baseurl }}/{{ site.logo }}" alt="{{site.title}}"> &nbsp; Never miss a <b>story</b> from us, subscribe to our newsletter</span>
+		<span class="newsletter-heading"><img src="{{ site.baseurl }}/{{ site.logo }}" alt="{{site.title}}"> &nbsp; Never miss a <b>story</b> from us, subscribe to our newsletter</span>
         <form action="{{site.mailchimp-list}}" method="post" name="mc-embedded-subscribe-form" class="wj-contact-form validate" target="_blank" novalidate>
             <div class="mc-field-group">
-            <input type="email" placeholder="Email" name="EMAIL" class="required email" id="mce-EMAIL" autocomplete="on" required>
+            <input type="email" placeholder="Email" name="EMAIL" class="required email newsletter-input" id="mce-EMAIL" autocomplete="on" required aria-label="Email address for newsletter">
             <input type="submit" value="Subscribe" name="subscribe" class="heart">
             </div>
         </form>
 	</div>
-</div>
+</aside>
 {% endif %}
 
 </div>

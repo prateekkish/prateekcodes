@@ -15,7 +15,7 @@
             </div>
             <div class="card-body">
                 <h2 class="card-title text-dark">{{ post.title }}</h2>
-                <h4 class="card-text">{{ post.excerpt | strip_html | truncatewords:30 }}</h4>
+                <p class="card-text">{{ post.excerpt | strip_html | truncatewords:30 }}</p>
             </div>
             <div class="card-footer bg-white">
                 <div class="wrapfooter">
