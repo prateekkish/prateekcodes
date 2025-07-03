@@ -24,6 +24,19 @@
 
 <script src="{{ site.baseurl }}/assets/js/jquery.min.js"></script>
 
+<!-- Dark Mode Initialization -->
+<script>
+    // Check for saved theme preference or default to system preference
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    } else if (systemPrefersDark) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+</script>
+
 </head>
 
 {% if jekyll.environment == 'production' %}
@@ -49,9 +62,20 @@
 
 <!-- Begin Menu Navigation
 ================================================== -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top mediumnavigation nav-down">
+<nav class="navbar navbar-expand-lg navbar-light fixed-top mediumnavigation nav-down">
 
     <div class="container pr-0">
+
+    <!-- Mobile Dark Mode Toggle (Left side on mobile) -->
+    <div class="mobile-theme-switch d-lg-none">
+        <label class="theme-switch" for="mobileThemeToggle">
+            <input type="checkbox" id="mobileThemeToggle" />
+            <div class="slider">
+                <i class="fas fa-sun"></i>
+                <i class="fas fa-moon"></i>
+            </div>
+        </label>
+    </div>
 
     <!-- Begin Logo -->
     <a class="navbar-brand" href="{{ site.baseurl }}/">
@@ -76,6 +100,19 @@
                 {% endfor %}
 
                 {% include search.html %}
+
+                <!-- Dark Mode Toggle Switch (Desktop only) -->
+                <li class="nav-item d-none d-lg-flex align-items-center">
+                    <div class="theme-switch-wrapper">
+                        <label class="theme-switch" for="darkModeToggle">
+                            <input type="checkbox" id="darkModeToggle" />
+                            <div class="slider">
+                                <i class="fas fa-sun"></i>
+                                <i class="fas fa-moon"></i>
+                            </div>
+                        </label>
+                    </div>
+                </li>
 
             </ul>
 
@@ -234,6 +271,72 @@ document.addEventListener('DOMContentLoaded', function() {
         window.addEventListener('scroll', checkOverlap);
         window.addEventListener('resize', checkOverlap);
     }
+});
+
+// Dark Mode Toggle Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const mobileDarkModeToggle = document.getElementById('mobileThemeToggle');
+    const html = document.documentElement;
+    
+    // Initialize toggles based on current theme
+    const currentTheme = html.getAttribute('data-theme');
+    if (darkModeToggle) darkModeToggle.checked = currentTheme === 'dark';
+    if (mobileDarkModeToggle) mobileDarkModeToggle.checked = currentTheme === 'dark';
+    
+    // Handle theme change
+    function handleThemeChange(isDark) {
+        const newTheme = isDark ? 'dark' : 'light';
+        
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        // Sync both toggles
+        if (darkModeToggle) darkModeToggle.checked = isDark;
+        if (mobileDarkModeToggle) mobileDarkModeToggle.checked = isDark;
+        
+        // Update Giscus if present
+        if (typeof updateGiscusTheme === 'function') {
+            updateGiscusTheme();
+        }
+    }
+    
+    // Desktop toggle handler
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('change', function() {
+            handleThemeChange(this.checked);
+        });
+    }
+    
+    // Mobile toggle handler
+    if (mobileDarkModeToggle) {
+        mobileDarkModeToggle.addEventListener('change', function() {
+            handleThemeChange(this.checked);
+        });
+    }
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        // Only update if user hasn't manually set a preference
+        if (!localStorage.getItem('theme')) {
+            const newTheme = e.matches ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            if (darkModeToggle) darkModeToggle.checked = e.matches;
+            if (mobileDarkModeToggle) mobileDarkModeToggle.checked = e.matches;
+        }
+    });
+    
+    // Close mobile menu on scroll
+    window.addEventListener('scroll', function() {
+        const mobileMenu = document.getElementById('navbarMediumish');
+        const navbarToggler = document.querySelector('.navbar-toggler');
+        
+        if (mobileMenu && mobileMenu.classList.contains('show')) {
+            // Collapse the menu
+            mobileMenu.classList.remove('show');
+            navbarToggler.setAttribute('aria-expanded', 'false');
+        }
+    });
 });
 </script>
 
