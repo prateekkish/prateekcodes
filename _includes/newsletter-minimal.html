@@ -10,7 +10,7 @@
                 <!-- Substack Signup Form -->
                 <form action="{{ site.data.newsletter.substack_action }}" method="post" class="newsletter-form-minimal" target="_blank">
                     <div class="form-inline justify-content-center">
-                        <input type="email" name="email" class="form-control newsletter-input" placeholder="Enter your email" required>
+                        <input type="email" name="email" class="form-control newsletter-input" placeholder="Enter your email" required aria-label="Email address for newsletter subscription">
                         <button type="submit" class="btn btn-newsletter">Subscribe</button>
                     </div>
                     <input type="hidden" name="from_source" value="subscribe_widget">

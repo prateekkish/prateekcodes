@@ -6,9 +6,43 @@
 {% assign minCommonTags = 1 %}
 {% assign relatedCount = 0 %}
 
+{% comment %} First pass: count related posts by tags {% endcomment %}
+{% for post in site.posts %}
+  {% if post.url != page.url %}
+    {% assign sameTagCount = 0 %}
+    {% for tag in post.tags %}
+      {% if page.tags contains tag %}
+        {% assign sameTagCount = sameTagCount | plus: 1 %}
+      {% endif %}
+    {% endfor %}
+    
+    {% if sameTagCount >= minCommonTags %}
+      {% assign relatedCount = relatedCount | plus: 1 %}
+      {% if relatedCount >= maxRelated %}
+        {% break %}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% comment %} If no related posts found by tags, count posts from same category {% endcomment %}
+{% if relatedCount == 0 %}
+  {% for post in site.posts limit:4 %}
+    {% if post.url != page.url and post.categories contains page.categories.first %}
+      {% assign relatedCount = relatedCount | plus: 1 %}
+      {% if relatedCount >= maxRelated %}
+        {% break %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% comment %} Only show related posts section if we have related posts {% endcomment %}
+{% if relatedCount > 0 %}
 <div class="related-posts">
   <h3>Related Articles</h3>
   <div class="row">
+    {% assign displayedCount = 0 %}
     {% for post in site.posts %}
       {% if post.url != page.url %}
         {% assign sameTagCount = 0 %}
@@ -38,8 +72,8 @@
               </div>
             </div>
           </div>
-          {% assign relatedCount = relatedCount | plus: 1 %}
-          {% if relatedCount >= maxRelated %}
+          {% assign displayedCount = displayedCount | plus: 1 %}
+          {% if displayedCount >= maxRelated %}
             {% break %}
           {% endif %}
         {% endif %}
@@ -47,7 +81,7 @@
     {% endfor %}
     
     {% comment %} If no related posts found by tags, show recent posts from same category {% endcomment %}
-    {% if relatedCount == 0 %}
+    {% if displayedCount == 0 %}
       {% for post in site.posts limit:4 %}
         {% if post.url != page.url and post.categories contains page.categories.first %}
           <div class="col-md-6 mb-3">
@@ -65,8 +99,8 @@
               </div>
             </div>
           </div>
-          {% assign relatedCount = relatedCount | plus: 1 %}
-          {% if relatedCount >= maxRelated %}
+          {% assign displayedCount = displayedCount | plus: 1 %}
+          {% if displayedCount >= maxRelated %}
             {% break %}
           {% endif %}
         {% endif %}
@@ -74,3 +108,4 @@
     {% endif %}
   </div>
 </div>
+{% endif %}

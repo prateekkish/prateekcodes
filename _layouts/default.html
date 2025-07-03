@@ -53,6 +53,9 @@
 
 {% capture layout %}{% if page.layout %}layout-{{ page.layout }}{% endif %}{% endcapture %}
 <body class="{{layout}}">
+    <!-- Skip Links for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#navbarMediumish" class="skip-link">Skip to navigation</a>
 	<!-- defer loading of font and font awesome -->
 	<noscript id="deferred-styles">
 		<link href="https://fonts.googleapis.com/css?family=Righteous%7CMerriweather:300,300i,400,400i,700,700i" rel="stylesheet">
@@ -70,7 +73,7 @@
     <div class="mobile-theme-switch d-lg-none">
         <label class="theme-switch" for="mobileThemeToggle">
             <input type="checkbox" id="mobileThemeToggle" aria-label="Toggle dark mode" />
-            <div class="slider">
+            <div class="slider" role="button">
                 <i class="fas fa-sun"></i>
                 <i class="fas fa-moon"></i>
             </div>
@@ -108,7 +111,7 @@
                     <div class="theme-switch-wrapper">
                         <label class="theme-switch" for="darkModeToggle">
                             <input type="checkbox" id="darkModeToggle" aria-label="Toggle dark mode" />
-                            <div class="slider">
+                            <div class="slider" role="button">
                                 <i class="fas fa-sun"></i>
                                 <i class="fas fa-moon"></i>
                             </div>
@@ -133,7 +136,7 @@
 
 <!-- Content
 ================================================== -->
-<div class="main-content">
+<div class="main-content" id="main-content">
     {{ content }}
 </div>
 
@@ -169,15 +172,15 @@
                             <i class="fas fa-envelope"></i> Get in touch
                         </a>
                         <span class="contact-divider">•</span>
-                        <a href="{{ site.authors.prateek.twitter }}" class="contact-link" target="_blank">
+                        <a href="{{ site.authors.prateek.twitter }}" class="contact-link" target="_blank" aria-label="Follow me on Twitter (opens in new tab)">
                             <i class="fab fa-twitter"></i> Twitter
                         </a>
                         <span class="contact-divider">•</span>
-                        <a href="{{ site.authors.prateek.linkedin }}" class="contact-link" target="_blank">
+                        <a href="{{ site.authors.prateek.linkedin }}" class="contact-link" target="_blank" aria-label="Connect with me on LinkedIn (opens in new tab)">
                             <i class="fab fa-linkedin"></i> LinkedIn
                         </a>
                         <span class="contact-divider">•</span>
-                        <a href="{{ site.authors.prateek.github }}" class="contact-link" target="_blank">
+                        <a href="{{ site.authors.prateek.github }}" class="contact-link" target="_blank" aria-label="View my projects on GitHub (opens in new tab)">
                             <i class="fab fa-github"></i> GitHub
                         </a>
                     </div>
