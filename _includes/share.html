@@ -8,7 +8,7 @@
         </li>
 
         <li class="ml-1 mr-1">
-            <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url={{ page.url | absolute_url }}&title={{ page.title | url_encode }}" onclick="window.open(this.href, 'linkedin-share', 'width=550,height=435');return false;">
+            <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url={{ page.url | absolute_url | uri_escape }}&title={{ page.title | uri_escape }}" onclick="window.open(this.href, 'linkedin-share', 'width=550,height=435');return false;">
                 <i class="fa-brands fa-linkedin"></i>
             </a>
         </li>
