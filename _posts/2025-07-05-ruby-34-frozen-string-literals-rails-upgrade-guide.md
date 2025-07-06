@@ -2,7 +2,7 @@
 layout: post
 title: "Ruby 3.4 Frozen String Literals: What Rails Developers Actually Need to Know"
 author: prateek
-categories: [ Ruby, Rails, Performance ]
+categories: [ Ruby, Ruby 3.4, Rails, Performance ]
 tags: [ ruby, rails, upgrade, performance, frozen-string-literal ]
 excerpt: "Ruby 3.4 starts the transition to frozen string literals by default. Here's what changes, why you should care, and how to prepare your Rails app."
 description: "A practical guide to Ruby 3.4's frozen string literal changes for Rails developers. Learn what actually changes, how to find issues in your code, and why this improves performance."
@@ -64,6 +64,8 @@ Performance improvements vary by application, but benchmarks have shown:
 - Up to 20% reduction in garbage collection for string-heavy code
 - Memory savings from string deduplication
 - Faster execution in hot paths that create many identical strings
+
+For more Rails performance optimization strategies, check out our guide on [finding the 20% of code causing 80% of performance problems](/rails-performance-80-20-rule){:target="_blank"}.
 
 ### 2. Your Gems Might Break First
 

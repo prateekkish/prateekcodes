@@ -180,7 +180,7 @@ end
 
 ### Pattern 3: Preventing Unnecessary Queries
 
-The real power comes from avoiding database queries entirely:
+The real power comes from avoiding database queries entirely. For database-heavy applications, you might also consider [implementing read replicas](/rails-read-replicas-part-1-understanding-the-basics){:target="_blank"} to further optimize performance:
 
 ```ruby
 class Api::TimelineController < ApplicationController

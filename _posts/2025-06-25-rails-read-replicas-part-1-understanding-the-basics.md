@@ -2,7 +2,7 @@
 layout: post
 title:  "Scaling Rails with PostgreSQL Read Replicas: Part 1 - Understanding the Basics"
 author: prateek
-categories: [ Rails, PostgreSQL, Database, Scaling ]
+categories: [ Rails, Rails 7, PostgreSQL, Database, Scaling ]
 tags: [ rails-read-replicas, postgresql-replication, database-scaling, rails-7, performance-optimization, read-write-splitting ]
 excerpt: "Learn when and why to use read replicas in Rails applications, understand the architecture, and implement basic read/write splitting with real-world examples."
 description: "Master PostgreSQL read replicas in Rails: understand when to use them, implement read/write splitting, and avoid common pitfalls. Complete guide with production-ready examples."
@@ -224,7 +224,7 @@ user.authenticate(params[:password])
 
 ## Monitoring Replication Health
 
-You can't use read replicas effectively without monitoring. Here's a simple health check:
+You can't use read replicas effectively without monitoring. For a comprehensive guide on identifying performance bottlenecks in your Rails app (including database issues), see our [guide on measurement-driven optimization](/rails-performance-80-20-rule){:target="_blank"}. Here's a simple health check for replica monitoring:
 
 ```ruby
 class ReplicaHealthCheck

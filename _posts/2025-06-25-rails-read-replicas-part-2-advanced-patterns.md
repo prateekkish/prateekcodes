@@ -2,7 +2,7 @@
 layout: post
 title:  "Scaling Rails with PostgreSQL Read Replicas: Part 2 - Advanced Patterns and Gotchas"
 author: prateek
-categories: [ Rails, PostgreSQL, Database, Scaling ]
+categories: [ Rails, Rails 7, PostgreSQL, Database, Scaling ]
 tags: [ rails-read-replicas, replication-lag, connection-switching, sticky-sessions, rails-7, postgresql, database-patterns ]
 excerpt: "Deep dive into handling replication lag, implementing automatic connection switching, and solving real-world challenges with read replicas in Rails applications."
 description: "Master advanced Rails read replica patterns: handle replication lag, implement sticky sessions, optimize connection pools, and solve production challenges with battle-tested solutions."
@@ -310,7 +310,7 @@ Consider explicit methods or service objects instead for better clarity.
 
 ## Connection Pool Management
 
-Read replicas require careful connection pool management to avoid exhaustion:
+Read replicas require careful connection pool management to avoid exhaustion. This builds on Rails' [improved connection management with `with_connection`](/rails-with-connection-better-database-connection-management){:target="_blank"} which helps prevent connection pool exhaustion:
 
 ### Understanding the Problem
 
