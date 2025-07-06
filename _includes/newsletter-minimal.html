@@ -1,11 +1,11 @@
 <!-- Minimal Newsletter CTA -->
-<div class="newsletter-minimal">
+<div class="newsletter-minimal" id="newsletter-section">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8 col-lg-6 text-center">
                 <h2 class="newsletter-heading">Stay up to date with our blogs.</h2>
                 <p class="newsletter-subheading">Subscribe to receive updates on Ruby, Rails, and building scalable backend systems.</p>
-                
+
                 {% if site.data.newsletter.service == "substack" %}
                 <!-- Substack Signup Form -->
                 <form action="{{ site.data.newsletter.substack_action }}" method="post" class="newsletter-form-minimal" target="_blank">
