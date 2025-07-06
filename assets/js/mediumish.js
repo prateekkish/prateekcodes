@@ -249,6 +249,37 @@ jQuery(document).ready(function($){
     // Initialize code copy buttons
     addCodeCopyButtons();
     
+    // Future post visibility management
+    function manageFuturePostVisibility() {
+        // Only run in production environment
+        var $futureCards = $('.card-group[data-post-future="true"]');
+        
+        if ($futureCards.length === 0) {
+            return; // No future post management needed
+        }
+        
+        // Get current UTC timestamp
+        var now = new Date();
+        var currentUTCTimestamp = Math.floor(now.getTime() / 1000);
+        
+        $futureCards.each(function() {
+            var $card = $(this);
+            // Post timestamps from Jekyll are already in UTC (Unix timestamps are always UTC)
+            var postTimestamp = parseInt($card.attr('data-post-date'), 10);
+            
+            if (postTimestamp > currentUTCTimestamp) {
+                // Post is in the future - hide it
+                $card.addClass('future-post-hidden');
+            } else {
+                // Post date has passed - show it
+                $card.removeClass('future-post-hidden');
+            }
+        });
+    }
+    
+    // Initialize future post management
+    manageFuturePostVisibility();
+    
  });   
 
 // deferred style loading
