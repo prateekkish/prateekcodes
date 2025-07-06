@@ -14,6 +14,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const originalButtonText = submitButton.textContent;
             const email = emailInput.value;
             
+            // Track subscribe button click in Google Analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'newsletter_subscribe_click', {
+                    'event_category': 'engagement',
+                    'event_label': 'newsletter_subscribe_button',
+                    'value': 1
+                });
+            }
+            
             // Validate email
             if (!email || !email.includes('@')) {
                 showMessage(form, 'error', 'Please enter a valid email address.');
