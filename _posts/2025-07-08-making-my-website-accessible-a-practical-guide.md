@@ -102,14 +102,14 @@ I used AccessibilityChecker.org, which revealed my website had 28 failing elemen
 
 **Before:**
 ```html
-<a href="https://twitter.com/prateekkish" target="_blank">
+<a href="https://x.com/prateekkish" target="_blank">
     Twitter
 </a>
 ```
 
 **After:**
 ```html
-<a href="https://twitter.com/prateekkish" target="_blank"
+<a href="https://x.com/prateekkish" target="_blank"
    aria-label="Follow me on Twitter (opens in new tab)">
     Twitter
 </a>
