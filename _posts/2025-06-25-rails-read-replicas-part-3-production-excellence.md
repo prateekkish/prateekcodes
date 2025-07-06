@@ -2,7 +2,7 @@
 layout: post
 title:  "Scaling Rails with PostgreSQL Read Replicas: Part 3 - Production Excellence"
 author: prateek
-categories: [ Rails, PostgreSQL, Database, Scaling ]
+categories: [ Rails, Rails 7, PostgreSQL, Database, Scaling ]
 tags: [ rails-production, read-replicas-monitoring, zero-downtime-deployment, disaster-recovery, rails-7, postgresql, production-optimization ]
 excerpt: "Master production deployment strategies, monitoring, performance optimization, and failure handling for Rails applications using PostgreSQL read replicas."
 description: "Production-ready Rails read replicas: zero-downtime deployment, comprehensive monitoring, performance optimization, disaster recovery, and battle-tested operational patterns."
@@ -241,7 +241,7 @@ Production read replicas need monitoring at multiple levels. Most teams already 
 
 ### APM Integration
 
-Modern APM tools automatically track database metrics, but you need to ensure they distinguish between primary and replica queries:
+Modern APM tools automatically track database metrics, but you need to ensure they distinguish between primary and replica queries. This complements the [measurement-driven optimization approach](/rails-performance-80-20-rule){:target="_blank"} we recommend for Rails performance:
 
 ```ruby
 # config/initializers/datadog.rb (if using DataDog)
@@ -493,7 +493,7 @@ end
 
 ### 1. Query Optimization for Replicas
 
-Some queries perform differently on replicas:
+Some queries perform differently on replicas. If you're also using [HTTP caching strategies](/rails-http-caching-strategies){:target="_blank"}, you can combine both approaches for maximum performance:
 
 ```ruby
 # app/models/concerns/replica_optimized.rb

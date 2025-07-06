@@ -2,7 +2,7 @@
 layout: post
 title:  "Rails with_connection: The better way to manage database connections"
 author: prateek
-categories: [ Rails, ActiveRecord, Performance ]
+categories: [ Rails, Rails 7.2, ActiveRecord, Performance ]
 tags: [ rails-7-2, activerecord, database-connections, performance-optimization, connection-pooling ]
 excerpt: "Rails 7.2 introduced `with_connection` for better database connection management. Learn why you should use it instead of the traditional `connection` method."
 description: "Master Rails `with_connection` method for optimized database connection handling in high-concurrency applications, improving performance and resource utilization."
@@ -157,6 +157,8 @@ Use `lease_connection` when you need:
 - Custom connection handling logic
 
 ## Performance Benefits
+
+The new approach provides significant improvements. If you're looking for more Rails performance optimization techniques, check out our guide on [finding the 20% of code causing 80% of performance problems](/rails-performance-80-20-rule){:target="_blank"}.
 
 The new approach provides significant improvements:
 

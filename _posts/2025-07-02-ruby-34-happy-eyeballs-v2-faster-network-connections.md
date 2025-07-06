@@ -2,7 +2,7 @@
 layout: post
 title: "Ruby 3.4's Happy Eyeballs v2: Solving Rails API Timeout Hell"
 author: prateek
-categories: [ Ruby, Rails, Performance ]
+categories: [ Ruby, Ruby 3.4, Rails, Performance ]
 tags: [ ruby, rails, networking, performance, api ]
 excerpt: "Ruby 3.4 introduces Happy Eyeballs v2, dramatically reducing connection delays for external API calls in Rails applications"
 description: "Learn how Ruby 3.4's Happy Eyeballs v2 implementation solves connection timeout issues for Rails apps making external API calls. Practical examples and benchmarks included."

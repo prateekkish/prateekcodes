@@ -2,7 +2,7 @@
 layout: post
 title: "Why your Rails performance fixes don't work (and how to find ones that do)"
 author: prateek
-categories: [ Rails, Performance, Optimization ]
+categories: [ Rails, Performance ]
 tags: [ rails, performance, optimization, profiling, bottlenecks, pareto-principle, rack-mini-profiler, apm-tools ]
 excerpt: "Stop wasting time optimizing code that doesn't matter. Learn how to use the Pareto Principle and profiling tools to find the 20% of your Rails code causing 80% of performance problems."
 description: "Discover why your Rails performance optimizations fail and how to find bottlenecks that actually matter. A practical guide to measurement-driven optimization using rack-mini-profiler, APM tools, and the 80/20 rule."
@@ -178,6 +178,8 @@ User.where(active: true) # Loading all columns for 10,000 users
 User.where(active: true).pluck(:id, :email)
 ```
 
+For database-heavy applications, consider implementing [read replicas to offload analytics queries](/rails-read-replicas-part-1-understanding-the-basics){:target="_blank"} that might be slowing down your primary database.
+
 ### 3. Missing database indexes
 
 ```ruby
@@ -198,6 +200,7 @@ Instead of guessing, use these tools:
 - APM tools (New Relic, Scout, Skylight, Datadog)
 - Custom logging and metrics
 - Database slow query logs
+- [HTTP caching metrics](/rails-http-caching-strategies){:target="_blank"} to track cache hit rates
 
 **For local profiling:**
 - `rack-mini-profiler` - Real-time web UI
