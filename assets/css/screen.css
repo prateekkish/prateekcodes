@@ -1792,6 +1792,11 @@ iframe {
     margin-bottom: 2rem !important;
 }
 
+/* Future post visibility management */
+.card-group.future-post-hidden {
+    display: none !important;
+}
+
 /* Add loading animation */
 .listrecent .card {
     opacity: 0;
