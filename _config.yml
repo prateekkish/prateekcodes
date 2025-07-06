@@ -6,7 +6,7 @@ logo: 'assets/images/logo.avif'
 favicon: 'assets/images/logo.avif'
 baseurl: ""
 url: "https://prateekcodes.dev"
-google_analytics: UA-158773406-2
+google_analytics: G-W6J29Y0M3V
 mailchimp-list:
 include: ["_pages"]
 permalink: /:title/
