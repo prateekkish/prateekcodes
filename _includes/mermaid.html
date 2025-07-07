@@ -1,0 +1,75 @@
+<!-- Mermaid diagram support -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  // Detect if user prefers dark mode
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  mermaid.initialize({ 
+    startOnLoad: true,
+    theme: 'neutral',
+    themeVariables: {
+      // Use colors that work in both light and dark modes
+      primaryColor: '#f4f4f4',
+      primaryTextColor: '#333',
+      primaryBorderColor: '#333',
+      lineColor: '#333',
+      secondaryColor: '#e1e1e1',
+      tertiaryColor: '#f9f9f9',
+      background: '#ffffff',
+      mainBkg: '#f4f4f4',
+      secondBkg: '#e1e1e1',
+      tertiaryBkg: '#f9f9f9',
+      textColor: '#333',
+      labelBoxBkgColor: '#f4f4f4',
+      labelTextColor: '#333',
+      actorBkg: '#f4f4f4',
+      actorBorder: '#333',
+      actorTextColor: '#333',
+      noteBkgColor: '#fff9c4',
+      noteTextColor: '#333',
+      // State diagram specific
+      stateBkg: '#f4f4f4',
+      stateBorder: '#333',
+      // Flowchart specific
+      nodeBkg: '#f4f4f4',
+      nodeBorder: '#333',
+      clusterBkg: '#efefef',
+      clusterBorder: '#333',
+      edgeLabelBackground: '#ffffff'
+    }
+  });
+</script>
+<style>
+  .mermaid {
+    text-align: center;
+    margin: 2em 0;
+    background: #ffffff;
+    padding: 2em;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  /* Override for better visibility */
+  .mermaid text {
+    fill: #333 !important;
+  }
+  
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node polygon {
+    fill: #f4f4f4 !important;
+    stroke: #333 !important;
+  }
+  
+  .mermaid .edgeLabel {
+    background-color: #ffffff !important;
+  }
+  
+  /* Dark mode adjustments */
+  @media (prefers-color-scheme: dark) {
+    .mermaid {
+      background: #f9f9f9;
+      box-shadow: 0 2px 4px rgba(255,255,255,0.1);
+    }
+  }
+</style>
