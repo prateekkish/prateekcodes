@@ -139,7 +139,7 @@ The most common issue is running out of connections:
 
 ```ruby
 # This error means all connections are in use
-`ActiveRecord::ConnectionTimeoutError`: could not obtain a connection from the pool within 5.000 seconds
+ActiveRecord::ConnectionTimeoutError: could not obtain a connection from the pool within 5.000 seconds
 ```
 
 This happens when:
