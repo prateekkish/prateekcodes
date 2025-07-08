@@ -4,8 +4,8 @@ title: "Ruby Threads Explained: A Simple Guide to Multithreading (Part 1)"
 author: prateek
 categories: [ Ruby, Concurrency, Threading ]
 tags: [ ruby, threads, multithreading, concurrency, parallel-programming, gvl, gil ]
-excerpt: "Learn Ruby threads from the ground up with simple examples. Understand how multithreading works in Ruby, why the GVL exists, and when to use threads effectively."
-description: "A beginner-friendly guide to understanding threads and multithreading in Ruby. Learn what threads are, how Ruby handles them with the Global VM Lock, and practical examples with clear explanations."
+excerpt: "Learn Ruby threads from the ground up with simple examples. Understand how multithreading works in CRuby, why the GVL exists, and when to use threads effectively."
+description: "A beginner-friendly guide to understanding threads and multithreading in Ruby. Learn what threads are, how CRuby handles them with the Global VM Lock, and practical examples with clear explanations."
 keywords: "ruby threads, ruby multithreading, ruby concurrency, GVL ruby, Global VM Lock, thread safety ruby, ruby parallel processing, Thread.new ruby"
 ---
 
@@ -84,7 +84,9 @@ Notice how `sleep` causes thread switching? When a thread calls `sleep`, it tell
 
 ## Understanding the Global VM Lock (GVL)
 
-Ruby has something called the Global VM Lock (also known as GIL - Global Interpreter Lock). Only one thread can execute Ruby code at a time. It's like having multiple chefs in the kitchen, but only one cutting board they must share.
+CRuby (MRI - the default Ruby implementation) has something called the Global VM Lock (also known as GIL - Global Interpreter Lock). In CRuby, only one thread can execute Ruby code at a time. It's like having multiple chefs in the kitchen, but only one cutting board they must share.
+
+**Note:** Other Ruby implementations like JRuby don't have this limitation and can execute threads in true parallel. This post focuses on CRuby since it's what most developers use.
 
 ```ruby
 require 'benchmark'
@@ -329,7 +331,11 @@ end
 
 ## What's Next?
 
-Threads are powerful but limited by the GVL. In Part 2, we'll explore Fibers - Ruby's lightweight concurrency primitive that gives you cooperative concurrency and fine-grained control over execution flow. Then in Part 3, we'll dive into Ractors - Ruby 3's answer to true parallel execution without the GVL limitations.
+Threads are powerful but limited by the GVL in CRuby. In this series, we'll explore:
+
+- **Part 2**: Fibers - Ruby's lightweight concurrency primitive for cooperative concurrency
+- **Part 3**: Ractors - Ruby 3's answer to true parallel execution in CRuby
+- **Part 4**: Beyond CRuby - How JRuby and TruffleRuby deliver true parallel threads without GVL limitations
 
 Understanding threads is your foundation for mastering Ruby's evolving concurrency story.
 

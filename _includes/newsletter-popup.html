@@ -16,11 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Track subscribe button click in Google Analytics
             if (typeof gtag !== 'undefined') {
-                gtag('event', 'newsletter_subscribe_click', {
-                    'event_category': 'engagement',
-                    'event_label': 'newsletter_subscribe_button',
-                    'value': 1
-                });
+                gtag('event', 'subscribe_email_entered');
             }
             
             // Validate email
