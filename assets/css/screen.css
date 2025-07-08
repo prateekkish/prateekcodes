@@ -2086,6 +2086,22 @@ iframe {
     transform: none;
 }
 
+/* Standalone newsletter button */
+.btn-newsletter-standalone {
+    font-size: 1.125rem;
+    padding: 16px 48px;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 171, 107, 0.2);
+}
+
+.btn-newsletter-standalone:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 171, 107, 0.3);
+}
+
 
 /* Responsive Design for Newsletter */
 @media (max-width: 576px) {
@@ -2174,4 +2190,295 @@ iframe {
     color: #64b5f6;
     border-color: rgba(100, 181, 246, 0.3);
 }
+
+/* Modern Pagination Styles
+================================================== */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin: 3rem 0;
+}
+
+.pagination-list {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.pagination-item {
+    display: flex;
+}
+
+.pagination-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    border: 2px solid var(--border-color-light);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.pagination-link:hover {
+    color: var(--link-color);
+    background-color: var(--bg-secondary);
+    border-color: var(--link-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    text-decoration: none;
+}
+
+/* Current page styling */
+.pagination-current {
+    color: white;
+    background-color: var(--link-color);
+    border-color: var(--link-color);
+    cursor: default;
+}
+
+.pagination-current:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Disabled state */
+.pagination-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: var(--bg-secondary);
+}
+
+.pagination-disabled:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--border-color-light);
+    color: var(--text-color);
+}
+
+/* Previous/Next buttons */
+.pagination-prev,
+.pagination-next {
+    gap: 0.5rem;
+    padding: 0 16px;
+    font-weight: 600;
+}
+
+.pagination-prev i,
+.pagination-next i {
+    font-size: 0.75rem;
+}
+
+/* Ellipsis styling */
+.pagination-ellipsis .pagination-link {
+    border: none;
+    background: none;
+    cursor: default;
+    min-width: 30px;
+    color: var(--text-color-muted);
+}
+
+.pagination-ellipsis .pagination-link:hover {
+    transform: none;
+    box-shadow: none;
+    background: none;
+}
+
+/* Number pages specific */
+.pagination-number .pagination-link {
+    font-weight: 600;
+}
+
+/* Dark mode specific adjustments */
+[data-theme="dark"] .pagination-link {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .pagination-link:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--link-color);
+    box-shadow: 0 4px 12px rgba(77, 184, 148, 0.3);
+}
+
+[data-theme="dark"] .pagination-current {
+    background-color: var(--link-color);
+    border-color: var(--link-color);
+    color: var(--bg-color);
+}
+
+[data-theme="dark"] .pagination-disabled {
+    background-color: var(--bg-tertiary);
+    opacity: 0.4;
+}
+
+/* Mobile responsive */
+@media (max-width: 576px) {
+    .pagination-list {
+        gap: 0.25rem;
+    }
+    
+    .pagination-link {
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        font-size: 0.875rem;
+        border-radius: 6px;
+    }
+    
+    .pagination-prev,
+    .pagination-next {
+        padding: 0 12px;
+    }
+    
+    /* Hide "Previous" and "Next" text on mobile, show only icons */
+    .pagination-text {
+        display: none;
+    }
+    
+    .pagination-prev i,
+    .pagination-next i {
+        font-size: 0.875rem;
+    }
+    
+    /* Show fewer page numbers on mobile */
+    .pagination-number:nth-child(n+8) {
+        display: none;
+    }
+}
+
+/* Remove the old pagination arrow and border */
+.bottompagination {
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+}
+
+.bottompagination .pointerup {
+    display: none;
+}
+
+.bottompagination span.navigation {
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: block;
+}
+
+/* Focus styles for accessibility */
+.pagination-link:focus {
+    outline: 2px solid var(--link-color);
+    outline-offset: 2px;
+}
+
+/* Floating Subscribe Button
+================================================== */
+.floating-subscribe-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: var(--link-color);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 16px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 171, 107, 0.3);
+    z-index: 100;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+    animation-delay: 1s;
+}
+
+.floating-subscribe-btn:hover {
+    background-color: var(--link-hover-color);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 171, 107, 0.4);
+}
+
+.floating-subscribe-btn:active {
+    transform: translateY(-1px);
+}
+
+.floating-subscribe-btn i {
+    font-size: 1.1rem;
+}
+
+.floating-subscribe-text {
+    display: inline-block;
+}
+
+/* Animation for button entrance */
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hide text on smaller screens */
+@media (max-width: 576px) {
+    .floating-subscribe-btn {
+        bottom: 20px;
+        right: 20px;
+        padding: 16px;
+        border-radius: 50%;
+        width: 56px;
+        height: 56px;
+        justify-content: center;
+    }
+    
+    .floating-subscribe-text {
+        display: none;
+    }
+    
+    .floating-subscribe-btn i {
+        font-size: 1.25rem;
+        margin: 0;
+    }
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .floating-subscribe-btn {
+    background-color: var(--link-color);
+    box-shadow: 0 4px 12px rgba(77, 184, 148, 0.4);
+}
+
+[data-theme="dark"] .floating-subscribe-btn:hover {
+    background-color: var(--link-hover-color);
+    box-shadow: 0 6px 20px rgba(77, 184, 148, 0.5);
+}
+
+/* Hide button when newsletter section is visible */
+.floating-subscribe-btn.hide {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+}
+
+/* Focus styles for accessibility */
+.floating-subscribe-btn:focus {
+    outline: 2px solid var(--link-color);
+    outline-offset: 4px;
+}
+
 

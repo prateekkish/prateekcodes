@@ -1,25 +1,104 @@
 {% if paginator.total_pages > 1 %}
-<div class="pagination">
-  {% if paginator.previous_page %}
-    <a class="ml-1 mr-1" href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&laquo; Prev</a>
-  {% else %}
-    <span>&laquo; Prev</span>
-  {% endif %}
-
-  {% for page in (1..paginator.total_pages) %}
-    {% if page == paginator.page %}
-      <span class="ml-1 mr-1">{{ page }}</span>
-    {% elsif page == 1 %}
-      <a class="ml-1 mr-1" href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">{{ page }}</a>
+<nav class="pagination-container" aria-label="Pagination Navigation">
+  <ul class="pagination-list">
+    <!-- Previous Page -->
+    {% if paginator.previous_page %}
+      <li class="pagination-item">
+        <a class="pagination-link pagination-prev" href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}" aria-label="Go to previous page">
+          <i class="fas fa-chevron-left" aria-hidden="true"></i>
+          <span class="pagination-text">Previous</span>
+        </a>
+      </li>
     {% else %}
-      <a class="ml-1 mr-1" href="{{ site.paginate_path | prepend: site.baseurl | replace: '//', '/' | replace: ':num', page }}">{{ page }}</a>
+      <li class="pagination-item">
+        <span class="pagination-link pagination-disabled" aria-disabled="true">
+          <i class="fas fa-chevron-left" aria-hidden="true"></i>
+          <span class="pagination-text">Previous</span>
+        </span>
+      </li>
     {% endif %}
-  {% endfor %}
 
-  {% if paginator.next_page %}
-    <a class="ml-1 mr-1" href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Next &raquo;</a>
-  {% else %}
-    <span>Next &raquo;</span>
-  {% endif %}
-</div>
+    <!-- Page Numbers -->
+    {% assign page_start = 1 %}
+    {% assign page_end = paginator.total_pages %}
+    
+    <!-- Show limited pages on mobile -->
+    {% if paginator.total_pages > 7 %}
+      {% if paginator.page > 3 %}
+        {% assign page_start = paginator.page | minus: 2 %}
+      {% endif %}
+      {% if paginator.page < paginator.total_pages | minus: 2 %}
+        {% assign page_end = paginator.page | plus: 2 %}
+      {% else %}
+        {% assign page_end = paginator.total_pages %}
+        {% assign page_start = paginator.total_pages | minus: 4 %}
+      {% endif %}
+      {% if page_start < 1 %}
+        {% assign page_start = 1 %}
+        {% assign page_end = 5 %}
+      {% endif %}
+      {% if page_end > paginator.total_pages %}
+        {% assign page_end = paginator.total_pages %}
+      {% endif %}
+    {% endif %}
+
+    <!-- First page + ellipsis -->
+    {% if page_start > 1 %}
+      <li class="pagination-item pagination-number">
+        <a class="pagination-link" href="{{ '/' | prepend: site.baseurl | replace: '//', '/' }}" aria-label="Go to page 1">1</a>
+      </li>
+      {% if page_start > 2 %}
+        <li class="pagination-item pagination-ellipsis">
+          <span class="pagination-link" aria-hidden="true">...</span>
+        </li>
+      {% endif %}
+    {% endif %}
+
+    <!-- Page numbers -->
+    {% for page in (page_start..page_end) %}
+      {% if page == paginator.page %}
+        <li class="pagination-item pagination-number">
+          <span class="pagination-link pagination-current" aria-current="page" aria-label="Current page, page {{ page }}">{{ page }}</span>
+        </li>
+      {% elsif page == 1 %}
+        <li class="pagination-item pagination-number">
+          <a class="pagination-link" href="{{ '/' | prepend: site.baseurl | replace: '//', '/' }}" aria-label="Go to page {{ page }}">{{ page }}</a>
+        </li>
+      {% else %}
+        <li class="pagination-item pagination-number">
+          <a class="pagination-link" href="{{ site.paginate_path | prepend: site.baseurl | replace: '//', '/' | replace: ':num', page }}" aria-label="Go to page {{ page }}">{{ page }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    <!-- Last page + ellipsis -->
+    {% if page_end < paginator.total_pages %}
+      {% if page_end < paginator.total_pages | minus: 1 %}
+        <li class="pagination-item pagination-ellipsis">
+          <span class="pagination-link" aria-hidden="true">...</span>
+        </li>
+      {% endif %}
+      <li class="pagination-item pagination-number">
+        <a class="pagination-link" href="{{ site.paginate_path | prepend: site.baseurl | replace: '//', '/' | replace: ':num', paginator.total_pages }}" aria-label="Go to page {{ paginator.total_pages }}">{{ paginator.total_pages }}</a>
+      </li>
+    {% endif %}
+
+    <!-- Next Page -->
+    {% if paginator.next_page %}
+      <li class="pagination-item">
+        <a class="pagination-link pagination-next" href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}" aria-label="Go to next page">
+          <span class="pagination-text">Next</span>
+          <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        </a>
+      </li>
+    {% else %}
+      <li class="pagination-item">
+        <span class="pagination-link pagination-disabled" aria-disabled="true">
+          <span class="pagination-text">Next</span>
+          <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        </span>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
 {% endif %}
