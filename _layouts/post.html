@@ -127,6 +127,14 @@ post_class: post-template
 <!-- End Article
 ================================================== -->
 
+<!-- Floating Subscribe Button -->
+{% if site.data.newsletter.post_footer_enabled %}
+<button class="floating-subscribe-btn" onclick="openSubscribePopup()" aria-label="Subscribe to newsletter">
+    <i class="fas fa-envelope" aria-hidden="true"></i>
+    <span class="floating-subscribe-text">Subscribe</span>
+</button>
+{% endif %}
+
 <!-- Begin Comments
 ================================================== -->
 {% if page.comments != false %}

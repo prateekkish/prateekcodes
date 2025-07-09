@@ -342,6 +342,65 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Subscribe Popup Function
+function openSubscribePopup() {
+    // Track floating button click in Google Analytics
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'subscribe_email_entered');
+    }
+    
+    // Get Substack URL from configuration
+    var substackUrl = 'https://prateekkish.substack.com/subscribe';
+    
+    // Calculate popup window dimensions and position
+    var width = 550;
+    var height = 650;
+    var left = (window.screen.width - width) / 2;
+    var top = (window.screen.height - height) / 2;
+    
+    // Popup window features
+    var features = 'width=' + width + 
+                   ',height=' + height + 
+                   ',left=' + left + 
+                   ',top=' + top + 
+                   ',resizable=yes,scrollbars=yes,status=yes';
+    
+    // Open the popup window
+    window.open(substackUrl, 'substackPopup', features);
+    
+    return false;
+}
+
+
+// Hide/show floating subscribe button based on newsletter visibility
+document.addEventListener('DOMContentLoaded', function() {
+    var floatingBtn = document.querySelector('.floating-subscribe-btn');
+    var newsletterSection = document.getElementById('newsletter-section');
+    
+    if (floatingBtn && newsletterSection) {
+        function checkNewsletterVisibility() {
+            var rect = newsletterSection.getBoundingClientRect();
+            var windowHeight = window.innerHeight || document.documentElement.clientHeight;
+            
+            // Check if newsletter section is in viewport
+            var isVisible = rect.top < windowHeight && rect.bottom > 0;
+            
+            if (isVisible) {
+                floatingBtn.classList.add('hide');
+            } else {
+                floatingBtn.classList.remove('hide');
+            }
+        }
+        
+        // Check on scroll and resize
+        window.addEventListener('scroll', checkNewsletterVisibility);
+        window.addEventListener('resize', checkNewsletterVisibility);
+        
+        // Initial check
+        setTimeout(checkNewsletterVisibility, 1500); // After animation completes
+    }
+});
 </script>
 
 </body>
