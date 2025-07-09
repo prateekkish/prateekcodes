@@ -345,6 +345,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Subscribe Popup Function
 function openSubscribePopup() {
+    // Track floating button click in Google Analytics
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'subscribe_email_entered');
+    }
+    
     // Get Substack URL from configuration
     var substackUrl = 'https://prateekkish.substack.com/subscribe';
     
@@ -366,6 +371,7 @@ function openSubscribePopup() {
     
     return false;
 }
+
 
 // Hide/show floating subscribe button based on newsletter visibility
 document.addEventListener('DOMContentLoaded', function() {

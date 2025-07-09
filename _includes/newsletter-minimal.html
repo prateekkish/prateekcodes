@@ -7,12 +7,17 @@
                 <p class="newsletter-subheading">Subscribe to receive updates on Ruby, Rails, and building scalable backend systems.</p>
 
                 {% if site.data.newsletter.service == "substack" %}
-                <!-- Substack Signup Button -->
-                <div class="newsletter-form-minimal">
-                    <button type="button" class="btn btn-newsletter btn-newsletter-standalone" onclick="openSubscribePopup()">
-                        Subscribe
-                    </button>
-                </div>
+                <!-- Substack Signup Form -->
+                <form action="{{ site.data.newsletter.substack_action }}" method="post" class="newsletter-form-minimal" target="_blank" onsubmit="if(typeof gtag !== 'undefined') { gtag('event', 'subscribe_email_entered'); }">
+                    <div class="form-inline justify-content-center">
+                        <input type="email" name="email" class="form-control newsletter-input" placeholder="Enter your email" required aria-label="Email address for newsletter subscription">
+                        <button type="submit" class="btn btn-newsletter">Subscribe</button>
+                    </div>
+                    <input type="hidden" name="from_source" value="subscribe_widget">
+                    <input type="hidden" name="referrer" value="{{ page.url | absolute_url }}">
+                    <input type="hidden" name="referring_pub_id" value="">
+                    <input type="hidden" name="direct" value="true">
+                </form>
                 {% endif %}
             </div>
         </div>

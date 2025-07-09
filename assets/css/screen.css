@@ -2389,7 +2389,7 @@ iframe {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    background-color: var(--link-color);
+    background-color: #6c757d;
     color: white;
     border: none;
     border-radius: 50px;
@@ -2397,7 +2397,7 @@ iframe {
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 171, 107, 0.3);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     z-index: 100;
     transition: all 0.3s ease;
     display: flex;
@@ -2410,9 +2410,9 @@ iframe {
 }
 
 .floating-subscribe-btn:hover {
-    background-color: var(--link-hover-color);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 171, 107, 0.4);
+    background-color: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
 .floating-subscribe-btn:active {
@@ -2459,20 +2459,21 @@ iframe {
 
 /* Dark mode adjustments */
 [data-theme="dark"] .floating-subscribe-btn {
-    background-color: var(--link-color);
-    box-shadow: 0 4px 12px rgba(77, 184, 148, 0.4);
+    background-color: #495057;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme="dark"] .floating-subscribe-btn:hover {
-    background-color: var(--link-hover-color);
-    box-shadow: 0 6px 20px rgba(77, 184, 148, 0.5);
+    background-color: #343a40;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* Hide button when newsletter section is visible */
 .floating-subscribe-btn.hide {
-    opacity: 0;
+    opacity: 0 !important;
     pointer-events: none;
-    transform: translateY(20px);
+    transform: translateY(20px) !important;
+    visibility: hidden;
 }
 
 /* Focus styles for accessibility */
