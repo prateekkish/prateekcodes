@@ -9,7 +9,13 @@ description: "Deep dive into Ruby Ractors for true parallel programming. Underst
 keywords: "ruby ractors, parallel ruby, actor model ruby, ruby 3 ractors, multicore ruby, GVL bypass, parallel processing ruby, Ractor.new"
 ---
 
+{% include mermaid.html %}
+
 After exploring Threads (limited by GVL) and Fibers (cooperative concurrency), we now reach Ruby's most ambitious concurrency feature: Ractors. Introduced in Ruby 3.0 as an experimental feature, Ractors enable true parallel execution across multiple CPU cores.
+
+> **Quick Reminder: The GVL Limitation**
+> 
+> The Global VM Lock (GVL) in CRuby prevents multiple threads from executing Ruby code simultaneously, limiting them to I/O concurrency. While threads can handle I/O operations in parallel, only one thread can execute Ruby code at a time. Ractors break this limitation by creating isolated Ruby interpreters that can run in parallel without sharing mutable state.
 
 ## What Are Ractors?
 
@@ -19,6 +25,53 @@ Think of Ractors as isolated Ruby interpreters running in parallel. Each Ractor 
 - Execution context
 
 They can't accidentally step on each other's toes because they can't share mutable objects.
+
+<div class="mermaid">
+flowchart TB
+    subgraph Main["Main Process"]
+        GVL["Global VM Lock (GVL)"]
+    end
+    
+    subgraph R1["Ractor 1"]
+        H1["Own Heap"]
+        V1["Own Variables"]
+        C1["Own Context"]
+    end
+    
+    subgraph R2["Ractor 2"]
+        H2["Own Heap"]
+        V2["Own Variables"]
+        C2["Own Context"]
+    end
+    
+    subgraph R3["Ractor 3"]
+        H3["Own Heap"]
+        V3["Own Variables"]
+        C3["Own Context"]
+    end
+    
+    R1 <-->|"Message<br/>Passing"| R2
+    R2 <-->|"Message<br/>Passing"| R3
+    R1 <-->|"Message<br/>Passing"| R3
+    
+    Main -.->|"No GVL<br/>Required!"| R1
+    Main -.->|"No GVL<br/>Required!"| R2
+    Main -.->|"No GVL<br/>Required!"| R3
+    
+    Note1["Each Ractor is isolated<br/>No shared mutable state<br/>True parallel execution"]
+    
+    R2 -.-> Note1
+    
+    classDef mainStyle fill:#ff9999,stroke:#cc0000,stroke-width:3px
+    classDef ractorStyle fill:#99ccff,stroke:#0066cc,stroke-width:2px
+    classDef componentStyle fill:#e6f3ff,stroke:#4d94ff,stroke-width:1px
+    classDef noteStyle fill:#ffffcc,stroke:#ffcc00,stroke-dasharray: 5 5
+    
+    class Main mainStyle
+    class R1,R2,R3 ractorStyle
+    class H1,H2,H3,V1,V2,V3,C1,C2,C3 componentStyle
+    class Note1 noteStyle
+</div>
 
 ## The Problem Ractors Solve
 
@@ -128,6 +181,46 @@ CONFIG = { host: "localhost", port: 3000 }
 # CONFIG is now automatically shareable
 ```
 
+### The shareable_constant_value Directive
+
+This magic comment introduced in Ruby 3.0 tells Ruby how to handle constants for Ractor sharing:
+
+```ruby
+# shareable_constant_value: literal
+# Makes constants with literal values automatically frozen and shareable
+SETTINGS = { timeout: 30, retries: 3 }  # Frozen recursively
+NUMBERS = [1, 2, 3]                     # Frozen array with frozen elements
+
+# shareable_constant_value: experimental_everything  
+# Makes ALL constants shareable (use with caution!)
+class MyConfig
+  DEFAULTS = { host: "localhost" }      # Automatically shareable
+end
+
+# shareable_constant_value: experimental_copy
+# Deep copies constants when sharing between Ractors
+MUTABLE_CONFIG = { counter: 0 }         # Each Ractor gets its own copy
+
+# shareable_constant_value: none
+# Default behavior - constants aren't automatically shareable
+NORMAL_HASH = { a: 1 }                  # Must use Ractor.make_shareable manually
+```
+
+You can also scope the directive:
+
+```ruby
+# shareable_constant_value: literal
+module Api
+  ENDPOINTS = {                         # This is shareable
+    users: "/api/users",
+    posts: "/api/posts"
+  }
+  
+  # shareable_constant_value: none  
+  CACHE = {}                            # This is not shareable
+end
+```
+
 ## Communication Patterns
 
 Ractors communicate through message passing. There are two main patterns:
@@ -182,6 +275,8 @@ puts producer.take  # "All done"
 
 ### Ractor.select - Waiting for Multiple Ractors
 
+When you have multiple Ractors running concurrently, you often need to respond to whichever one completes first. `Ractor.select` is your Swiss Army knife for this - it blocks until one of the given Ractors is ready to yield a value, then returns both the ready Ractor and its value. This pattern is perfect for building responsive systems that process results as they become available, rather than waiting for all tasks to complete in a predetermined order.
+
 ```ruby
 # Create multiple workers
 workers = 3.times.map do |i|
@@ -200,6 +295,8 @@ end
 ```
 
 ### Bidirectional Communication
+
+While simple one-way message passing works for many scenarios, real-world systems often need request-response patterns. By including a "reply_to" Ractor reference in your messages, you can build sophisticated services where Ractors act as independent microservices within your application. This pattern shines when building actor-based architectures where different Ractors handle specific responsibilities and communicate through well-defined message protocols.
 
 ```ruby
 # Calculator service
@@ -226,6 +323,42 @@ calculator.send({ op: :multiply, a: 4, b: 7, reply_to: main })
 puts "4 * 7 = #{Ractor.receive}"  # 28
 
 calculator.send(:shutdown)
+```
+
+### The Main Ractor
+
+Ruby starts with one special Ractor - the main Ractor. It has special privileges:
+
+Not all Ractors are created equal. The main Ractor - the one Ruby starts with - has superpowers that other Ractors don't. It's the only Ractor allowed to perform operations that affect the global state of your Ruby process, like requiring files, accessing environment variables, or reading from STDIN. Understanding this distinction is crucial for architecting Ractor-based applications: your main Ractor often becomes the coordinator, handling system-level operations and delegating pure computation to worker Ractors.
+
+```ruby
+# Check if we're in the main Ractor
+puts Ractor.main == Ractor.current  # true (in main thread)
+
+# Main Ractor can access things others can't
+main_only_features = Ractor.new do
+  begin
+    # These operations are only allowed in main Ractor:
+    # - Requiring files
+    # - Accessing ENV
+    # - Using stdin/stdout directly
+    # - Modifying global variables
+    
+    require 'json'  # Error!
+  rescue => e
+    "Error: #{e.message}"
+  end
+end
+
+puts main_only_features.take
+# "Error: can not access non-shareable objects in constant Object::ENV by non-main Ractor"
+
+# Main Ractor should handle these operations
+data = JSON.parse('{"key": "value"}')  # Works in main
+worker = Ractor.new(data) do |parsed_data|
+  # Worker processes already parsed data
+  parsed_data["key"]
+end
 ```
 
 ## Move Semantics: Transferring Ownership
@@ -255,51 +388,127 @@ average = processor.take
 puts "Average: #{average}"
 ```
 
-## Practical Example: Parallel Map
+## Ractor Lifecycle
 
-Here's how to implement a parallel map using Ractors:
+Understanding when Ractors start and stop is crucial for building reliable concurrent programs:
 
 ```ruby
-def parallel_map(array, worker_count = 4)
-  # Create work queue
-  queue = array.each_with_index.to_a
-  results = Array.new(array.size)
+# Ractors begin execution immediately upon creation
+r = Ractor.new do
+  puts "Started immediately!"
+  sleep(1)
+  "Final result"
+end
+
+# Ractors don't have a direct way to check if they're running
+# You can only wait for their result with take or select
+
+# Take blocks until the Ractor finishes
+result = r.take  # "Final result"
+puts "Got result: #{result}"
+
+# Calling take again on terminated Ractor raises error
+begin
+  r.take
+rescue Ractor::ClosedError => e
+  puts "Ractor is closed"
+end
+
+# Example showing Ractor lifecycle with multiple Ractors
+workers = 3.times.map do |i|
+  Ractor.new(i) do |id|
+    sleep(id * 0.5)  # Different sleep times
+    "Worker #{id} done"
+  end
+end
+
+# Ractor.select waits for the first available result
+while workers.any?
+  ractor, result = Ractor.select(*workers)
+  puts result
+  workers.delete(ractor)  # Remove completed Ractor
+end
+```
+
+### Handling Unreceived Messages
+
+```ruby
+# Messages are lost if Ractor terminates
+sender = Ractor.new do
+  receiver = Ractor.receive
+  receiver.send("Message 1")
+  receiver.send("Message 2")
+  # Ractor terminates here - any unsent messages are lost
+end
+
+receiver = Ractor.new do
+  sleep(0.1)  # Simulate being busy
+  # By the time we try to receive, sender might be gone
+  Ractor.receive rescue "No message"
+end
+
+sender.send(receiver)
+```
+
+## Exception Handling Across Ractors
+
+When a Ractor raises an exception, Ruby wraps it in a `Ractor::RemoteError` before passing it across Ractor boundaries. This wrapper preserves the original exception as the `cause`, allowing you to access both the context of where the error crossed Ractor boundaries and the original error details. This design ensures that exceptions from parallel execution contexts are clearly distinguished from local exceptions:
+
+```ruby
+# Basic exception handling
+worker = Ractor.new do
+  raise ArgumentError, "Something went wrong!"
+end
+
+begin
+  worker.take
+rescue Ractor::RemoteError => e
+  puts "Remote error: #{e.message}"
+  puts "Original error: #{e.cause.class} - #{e.cause.message}"
   
-  # Create workers
-  workers = worker_count.times.map do
-    Ractor.new do
-      loop do
-        item, index = Ractor.receive
-        break if item.nil?
-        
-        # Process item (example: expensive computation)
-        result = yield(item)
-        Ractor.yield([index, result])
+  # You can re-raise the original exception if needed
+  raise e.cause
+rescue ArgumentError => e
+  puts "Handled original ArgumentError: #{e.message}"
+end
+```
+
+### Handling Errors in Worker Pools
+
+```ruby
+def safe_parallel_process(items)
+  workers = items.map do |item|
+    Ractor.new(item) do |data|
+      # Wrap work in exception handling
+      begin
+        # Potentially failing work
+        raise "Failed!" if data == 13  # Unlucky number
+        data * 2
+      rescue => e
+        { error: e.message, item: data }
       end
     end
   end
   
-  # Distribute work
-  queue.each do |item, index|
-    workers.sample.send([item, index])
+  # Collect results and errors
+  results = workers.map do |worker|
+    begin
+      worker.take
+    rescue Ractor::RemoteError => e
+      { error: "Ractor crashed", cause: e.cause.message }
+    end
   end
   
-  # Send stop signal
-  workers.each { |w| w.send([nil, nil]) }
+  errors = results.select { |r| r.is_a?(Hash) && r[:error] }
+  puts "Errors: #{errors}" unless errors.empty?
   
-  # Collect results
-  (array.size).times do
-    ractor, (index, result) = Ractor.select(*workers)
-    results[index] = result
-  end
-  
-  results
+  results.reject { |r| r.is_a?(Hash) && r[:error] }
 end
 
-# Use it!
-numbers = (1..20).to_a
-squares = parallel_map(numbers) { |n| n ** 2 }
-puts squares.inspect
+# Usage
+safe_parallel_process([1, 2, 13, 4, 5])
+# Errors: [{:error=>"Failed!", :item=>13}]
+# Returns: [2, 4, 8, 10]
 ```
 
 ## Common Pitfalls and Solutions
@@ -349,28 +558,86 @@ Ractor.new do
 end
 ```
 
+### Debugging Tips
+
+Name your Ractors for easier debugging:
+
+```ruby
+# Named Ractors make debugging much easier
+worker = Ractor.new(name: "DataProcessor") do
+  loop do
+    data = Ractor.receive
+    puts "[#{Ractor.current.name}] Processing: #{data}"
+    break if data == :stop
+  end
+end
+
+# In error messages, you'll see the name
+worker.send("important data")
+worker.send(:stop)
+
+# Create multiple named workers
+workers = 3.times.map do |i|
+  Ractor.new(name: "Worker-#{i}") do
+    # Worker logic
+    Ractor.yield("#{Ractor.current.name} completed")
+  end
+end
+
+# Easy to identify which worker responded
+workers.each do |w|
+  puts w.take
+end
+
+# Output:
+# [DataProcessor] Processing: important data
+# [DataProcessor] Processing: stop
+# Worker-0 completed
+# Worker-1 completed
+# Worker-2 completed
+```
+
 ## Performance Reality Check
 
 While Ractors enable parallelism, they're not always faster:
 
 ```ruby
-# Object allocation heavy workload
-def allocation_heavy
-  1_000_000.times.map { Object.new }
+require 'benchmark'
+
+# Small, quick task - Ractor overhead dominates
+def quick_calculation
+  sum = 0
+  1000.times { |i| sum += i }
+  sum
 end
 
-# This can be SLOWER with Ractors due to GC synchronization
-time1 = Benchmark.realtime { allocation_heavy }
+# Run many iterations to see overhead
+iterations = 100_000
+
+# Single process
+time1 = Benchmark.realtime do
+  iterations.times { quick_calculation }
+end
+
+# With Ractor creation overhead
 time2 = Benchmark.realtime do
-  r = Ractor.new { allocation_heavy }
-  r.take
+  iterations.times do
+    r = Ractor.new { quick_calculation }
+    r.take
+  end
 end
 
-puts "Single: #{time1}s, Ractor: #{time2}s"
-# Ractor might be slower!
+puts "Single: #{time1.round(3)}s"
+puts "Ractors: #{time2.round(3)}s"
+puts "Overhead: #{((time2 - time1) / time1 * 100).round(1)}%"
+
+# Example output:
+# Single: 3.464s
+# Ractors: 5.571s
+# Overhead: 60.8%
 ```
 
-Why? Garbage collection still requires stopping all Ractors. Heavy allocation workloads expose this bottleneck.
+Why the massive overhead? Creating a Ractor has significant startup cost. For small, quick tasks, this overhead completely dominates the execution time. Ractors are designed for long-running, CPU-intensive work where the parallelism benefits outweigh the creation costs - not for tiny tasks that complete in microseconds.
 
 ## When to Use Ractors
 
@@ -396,7 +663,7 @@ Let's be honest about Ractors today:
 - Active development and improvements
 
 **Challenges:**
-- Experimental status with breaking changes possible
+- Experimental status with breaking changes possible (Ruby 3.5 preview shows API changes like the removal of `Ractor#close` method)
 - Most gems don't work with Ractors
 - Complex debugging
 - GC synchronization bottlenecks
@@ -422,4 +689,3 @@ Each tool has its place. Ractors represent CRuby's experimental approach to para
 
 - [Ruby Ractor Documentation](https://docs.ruby-lang.org/en/3.4/ractor_md.html){:target="_blank" rel="noopener noreferrer" aria-label="Ruby Ractor Documentation (opens in new tab)"}
 - [Ractor Design Document](https://docs.ruby-lang.org/en/3.4/doc/ractor_md.html){:target="_blank" rel="noopener noreferrer" aria-label="Ractor design document (opens in new tab)"}
-- [Understanding Ruby Ractors](https://blog.appsignal.com/2022/08/24/an-introduction-to-ractors-in-ruby.html){:target="_blank" rel="noopener noreferrer" aria-label="Understanding Ruby Ractors on AppSignal (opens in new tab)"}
