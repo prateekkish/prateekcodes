@@ -11,13 +11,15 @@ keywords: "ruby 3.4, frozen string literals, rails upgrade, performance optimiza
 
 Ruby 3.4 takes the first step in a multi-version transition to frozen string literals by default. Your Rails app will continue working exactly as before, but Ruby now provides opt-in warnings to help you prepare. Here's what you need to know.
 
-## The Three-Phase Transition Plan
+## The Transition Plan
 
-Ruby is implementing frozen string literals gradually over three releases:
+Ruby is implementing frozen string literals gradually:
 
 1. **Ruby 3.4 (Now)**: Opt-in warnings when you enable deprecation warnings
-2. **Ruby 3.7 (Future)**: Warnings enabled by default
-3. **Ruby 4.0 (Future)**: Frozen string literals become the default
+2. **Future Ruby versions**: Warnings may be enabled by default
+3. **Ruby 4.0 (Goal)**: Frozen string literals become the default
+
+**Note**: While the original proposal mentioned Ruby 3.7 as a potential version for default warnings, no official timeline has been confirmed for intermediate steps between Ruby 3.4 and 4.0.
 
 ## What Actually Changes in Ruby 3.4
 
@@ -211,8 +213,8 @@ Yes. Here's why the transition is developer-friendly:
 ### Timeline for Action
 
 - **Now (Ruby 3.4)**: Upgrade and run normally, enable warnings in development
-- **Before Ruby 3.7**: Fix warnings at your own pace
-- **Ruby 3.7**: Warnings become default, most issues should be fixed
+- **Before future Ruby versions**: Fix warnings at your own pace
+- **Future Ruby versions**: Warnings may become default, most issues should be fixed
 - **Ruby 4.0**: Frozen strings become default
 
 ### If You Need More Time
