@@ -6,7 +6,7 @@ categories: [ Rails, DevOps, AWS, PostgreSQL ]
 tags: [ rails, deployments, migrations, zero-downtime, aws-codedeploy, ecs, blue-green ]
 excerpt: "A deep dive into how Rails applications achieve true zero-downtime deployments with database migrations using AWS CodeDeploy and ECS."
 description: "Learn how production Rails applications implement blue-green deployments with database migrations. Real-world patterns using AWS CodeDeploy, ECS, and migration-first deployment strategies."
-keywords: "rails blue green deployment, aws codedeploy rails, ecs database migrations, zero downtime rails deployment, rails migration strategies, aws blue green deployment, how to run rails migrations without downtime, rails deployment with database migrations aws, blue green deployment database migration strategy, rails concurrent index creation production, rails migration rollback strategy production, aws ecs run migration task, rails idempotent migrations example, rails multi service deployment coordination, postgresql concurrent index rails migration, rails materialized view migration pattern, terraform blue green deployment configuration, rails migration timeout configuration, how to handle failed migrations in production, rails deployment pipeline with migrations"
+keywords: "rails blue green deployment, aws codedeploy rails, ecs database migrations, zero downtime rails deployment, rails migration strategies, aws blue green deployment, how to run rails migrations without downtime, rails deployment with database migrations aws, blue green deployment database migration strategy, rails concurrent index creation production, rails migration rollback strategy production, aws ecs run migration task, rails idempotent migrations example, rails multi service deployment coordination, postgresql concurrent index rails migration, rails materialized view migration pattern, terraform blue green deployment configuration, rails migration timeout configuration, how to handle failed migrations in production, rails deployment pipeline with migrations, rails strong_migrations gem, rails migration lock_timeout, rails disable_ddl_transaction, aws ecs task definition override, rails production migration best practices"
 ---
 
 {% include mermaid.html %}
@@ -69,6 +69,9 @@ jobs:
           task-definition: app-task-definition
           subnet-ids: ${{ vars.PRIVATE_SUBNET }}
           security-group-ids: ${{ vars.APP_SECURITY_GROUP }}
+          override-container-environment: |
+            PG_STATEMENT_TIMEOUT=0
+            RAILS_ENV=production
           override-container-command: |
             bundle exec rake db:migrate --trace
           wait-for-task-stopped: true
@@ -91,9 +94,14 @@ This approach ensures:
 - Migrations use the same Docker image and environment as your application
 - Database changes are isolated from serving traffic
 - Clear success/failure signals prevent deploying incompatible code
-- Logs are captured in your standard monitoring tools
+- Logs are captured in CloudWatch for debugging
+- Network isolation prevents external access during migration
+
+**Important**: Ensure your ECS task has sufficient memory and CPU allocated, as migrations can be resource-intensive, especially when creating indexes on large tables.
 
 ## Handling Statement Timeouts
+
+PostgreSQL's statement timeout is a critical safety feature that prevents runaway queries from consuming resources indefinitely. However, during migrations, you often need to perform operations that legitimately take longer than your default timeout. The key is to temporarily adjust timeouts for migration tasks while keeping strict limits for normal application queries.
 
 Production Rails apps need careful timeout management during migrations:
 
@@ -105,10 +113,11 @@ production:
     statement_timeout: <%= ENV["PG_STATEMENT_TIMEOUT"] || "30000" %>
 
 # During migration, override the timeout
-docker exec -e PG_STATEMENT_TIMEOUT='0' app bundle exec rake db:migrate
+# Set to 0 (unlimited) for long-running migrations
+PG_STATEMENT_TIMEOUT='0' bundle exec rake db:migrate
 ```
 
-For specific long-running migrations:
+For specific long-running migrations, you can set timeouts within the migration itself. This provides fine-grained control and documents expectations about execution time:
 
 ```ruby
 class CreateReportingView < ActiveRecord::Migration[8.0]
@@ -127,7 +136,8 @@ class CreateReportingView < ActiveRecord::Migration[8.0]
       algorithm: :concurrently,
       if_not_exists: true
 
-    execute "SET statement_timeout = '30s'"
+    # Reset to default timeout
+    execute "RESET statement_timeout"
   end
 end
 ```
@@ -181,9 +191,13 @@ resource "aws_codedeploy_deployment_group" "app" {
 
 ## Real-World Migration Patterns
 
+Production deployments require careful consideration of how migrations affect your running application. The following patterns address common scenarios you'll encounter when deploying schema changes to high-traffic Rails applications.
+
 Let's examine common migration scenarios that require special handling in production. These patterns ensure your database remains available while schema changes are applied, even on tables with millions of rows.
 
 ### Concurrent Index Creation
+
+When adding indexes to tables with millions of rows, a standard `add_index` will lock the entire table for writes, causing your application to grind to a halt. PostgreSQL's concurrent index creation allows the database to continue serving requests while building the index in the background. This is essential for maintaining availability during deployments.
 
 Always create indexes concurrently in production:
 
@@ -201,6 +215,8 @@ end
 ```
 
 ### Idempotent Migrations
+
+Migrations can fail partway through due to timeouts, network issues, or resource constraints. When this happens, you need to be able to safely retry the migration without causing errors or duplicate operations. Idempotent migrations check for existing state before making changes, allowing them to resume from where they left off.
 
 Make migrations safe to run multiple times:
 
@@ -220,9 +236,33 @@ end
 
 ### Managing Materialized Views
 
+Materialized views provide a powerful way to pre-compute expensive queries for reporting and analytics. Unlike regular views, they store the query results physically, making reads lightning fast. However, they need to be refreshed periodically to stay current with your data. The concurrent refresh option ensures your application can continue reading from the view while it's being updated.
+
 For complex reporting queries, use materialized views with proper refresh strategies:
 
 ```ruby
+class CreateSalesSummaryView < ActiveRecord::Migration[8.0]
+  def up
+    execute <<~SQL
+      CREATE MATERIALIZED VIEW sales_summary AS
+      SELECT
+        date_trunc('month', created_at) as month,
+        COUNT(*) as order_count,
+        SUM(total) as revenue
+      FROM orders
+      GROUP BY 1
+    SQL
+
+    # Create unique index to enable concurrent refresh
+    # Without this unique index, REFRESH MATERIALIZED VIEW CONCURRENTLY will fail
+    add_index :sales_summary, :month, unique: true
+  end
+
+  def down
+    execute "DROP MATERIALIZED VIEW IF EXISTS sales_summary"
+  end
+end
+
 # Rake task for view refresh
 namespace :views do
   task refresh_reports: :environment do
@@ -232,46 +272,91 @@ namespace :views do
   end
 end
 
-# Run via cron or after deployments
 ```
 
 ## Multi-Service Coordination
+
+Production Rails applications often consist of multiple services - web servers, background workers, and queue processors. Each service must coordinate properly during deployment to maintain system consistency.
 
 When deploying multiple services, ensure proper ordering:
 
 ```yaml
 deploy-web:
   needs: [build, database-migration]
+  # Web servers start serving new code
 
 deploy-worker:
   needs: [build, database-migration]
-  # Workers get graceful shutdown signal
+  # Workers get graceful shutdown signal (SIGTERM)
+  # Finish current jobs before terminating
 
 deploy-queue-processor:
   needs: [build, database-migration]
-  # Queue processors also wait for migrations
+  # Queue processors drain current batch
+  # Then restart with new code
 ```
 
-All services wait for migrations to complete, preventing version mismatches.
+All services wait for migrations to complete, preventing version mismatches. Configure your services to handle graceful shutdown:
+
+```ruby
+# config/puma.rb
+on_worker_shutdown do
+  puts "Gracefully shutting down worker..."
+  # Allow time for in-flight requests
+end
+
+# Background job processor
+class ApplicationJob < ActiveJob::Base
+  around_perform do |job, block|
+    # Check for shutdown signal
+    if shutting_down?
+      job.retry_job(wait: 30.seconds)
+    else
+      block.call
+    end
+  end
+end
+```
 
 ## Production Best Practices
 
-1. **Always disable DDL transactions** for index operations
-2. **Set appropriate timeouts** for different migration types
-3. **Use concurrent operations** to avoid locking
-4. **Make migrations idempotent** for safety
-5. **Test rollback procedures** in staging first
-6. **Monitor migration duration** and set alerts
-7. **Keep migrations small** - one concern per migration
+1. **Always disable DDL transactions** for index operations and other long-running migrations
+2. **Set appropriate timeouts** for different migration types (consider `lock_timeout` too)
+3. **Use concurrent operations** to avoid locking tables during reads
+4. **Make migrations idempotent** for safety and retry capability
+5. **Test rollback procedures** in staging first with production-like data
+6. **Monitor migration duration** and set alerts for long-running migrations
+7. **Keep migrations small** - one concern per migration for easier debugging
+8. **Use [strong_migrations](https://github.com/ankane/strong_migrations){:target="_blank" rel="noopener noreferrer" aria-label="Strong migrations gem github page (opens in new tab)"} gem** to catch unsafe migrations before production
 
 ## When Things Go Wrong
 
 Despite best practices, issues can occur:
 
 - **Partial migration failure**: Design migrations to be resumable
+  ```ruby
+  # Check if step was already completed
+  unless index_exists?(:orders, :customer_id)
+    add_index :orders, :customer_id, algorithm: :concurrently
+  end
+  ```
 - **Timeout during migration**: Increase timeout for specific operations
+  ```ruby
+  execute "SET statement_timeout = '1h'"
+  # Long operation here
+  execute "RESET statement_timeout"
+  ```
 - **Lock contention**: Use `lock_timeout` to fail fast instead of blocking
+  ```ruby
+  execute "SET lock_timeout = '10s'"
+  # Operation that might need locks
+  ```
 - **Rollback needed**: Ensure down methods work correctly
+  ```ruby
+  def down
+    remove_index :orders, :customer_id, if_exists: true
+  end
+  ```
 
 ## Conclusion
 
