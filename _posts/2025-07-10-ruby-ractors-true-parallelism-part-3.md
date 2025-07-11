@@ -9,12 +9,10 @@ description: "Deep dive into Ruby Ractors for true parallel programming. Underst
 keywords: "ruby ractors, parallel ruby, actor model ruby, ruby 3 ractors, multicore ruby, GVL bypass, parallel processing ruby, Ractor.new"
 ---
 
-{% include mermaid.html %}
-
 After exploring Threads (limited by GVL) and Fibers (cooperative concurrency), we now reach Ruby's most ambitious concurrency feature: Ractors. Introduced in Ruby 3.0 as an experimental feature, Ractors enable true parallel execution across multiple CPU cores.
 
 > **Quick Reminder: The GVL Limitation**
-> 
+>
 > The Global VM Lock (GVL) in CRuby prevents multiple threads from executing Ruby code simultaneously, limiting them to I/O concurrency. While threads can handle I/O operations in parallel, only one thread can execute Ruby code at a time. Ractors break this limitation by creating isolated Ruby interpreters that can run in parallel without sharing mutable state.
 
 ## What Are Ractors?
@@ -26,52 +24,7 @@ Think of Ractors as isolated Ruby interpreters running in parallel. Each Ractor 
 
 They can't accidentally step on each other's toes because they can't share mutable objects.
 
-<div class="mermaid">
-flowchart TB
-    subgraph Main["Main Process"]
-        GVL["Global VM Lock (GVL)"]
-    end
-    
-    subgraph R1["Ractor 1"]
-        H1["Own Heap"]
-        V1["Own Variables"]
-        C1["Own Context"]
-    end
-    
-    subgraph R2["Ractor 2"]
-        H2["Own Heap"]
-        V2["Own Variables"]
-        C2["Own Context"]
-    end
-    
-    subgraph R3["Ractor 3"]
-        H3["Own Heap"]
-        V3["Own Variables"]
-        C3["Own Context"]
-    end
-    
-    R1 <-->|"Message<br/>Passing"| R2
-    R2 <-->|"Message<br/>Passing"| R3
-    R1 <-->|"Message<br/>Passing"| R3
-    
-    Main -.->|"No GVL<br/>Required!"| R1
-    Main -.->|"No GVL<br/>Required!"| R2
-    Main -.->|"No GVL<br/>Required!"| R3
-    
-    Note1["Each Ractor is isolated<br/>No shared mutable state<br/>True parallel execution"]
-    
-    R2 -.-> Note1
-    
-    classDef mainStyle fill:#ff9999,stroke:#cc0000,stroke-width:3px
-    classDef ractorStyle fill:#99ccff,stroke:#0066cc,stroke-width:2px
-    classDef componentStyle fill:#e6f3ff,stroke:#4d94ff,stroke-width:1px
-    classDef noteStyle fill:#ffffcc,stroke:#ffcc00,stroke-dasharray: 5 5
-    
-    class Main mainStyle
-    class R1,R2,R3 ractorStyle
-    class H1,H2,H3,V1,V2,V3,C1,C2,C3 componentStyle
-    class Note1 noteStyle
-</div>
+![Ruby Ractors Architecture](/assets/images/ractors.png)
 
 ## The Problem Ractors Solve
 
@@ -191,7 +144,7 @@ This magic comment introduced in Ruby 3.0 tells Ruby how to handle constants for
 SETTINGS = { timeout: 30, retries: 3 }  # Frozen recursively
 NUMBERS = [1, 2, 3]                     # Frozen array with frozen elements
 
-# shareable_constant_value: experimental_everything  
+# shareable_constant_value: experimental_everything
 # Makes ALL constants shareable (use with caution!)
 class MyConfig
   DEFAULTS = { host: "localhost" }      # Automatically shareable
@@ -215,8 +168,8 @@ module Api
     users: "/api/users",
     posts: "/api/posts"
   }
-  
-  # shareable_constant_value: none  
+
+  # shareable_constant_value: none
   CACHE = {}                            # This is not shareable
 end
 ```
@@ -304,12 +257,12 @@ calculator = Ractor.new do
   loop do
     operation = Ractor.receive
     break if operation == :shutdown
-    
+
     result = case operation[:op]
     when :add then operation[:a] + operation[:b]
     when :multiply then operation[:a] * operation[:b]
     end
-    
+
     operation[:reply_to].send(result)
   end
 end
@@ -343,7 +296,7 @@ main_only_features = Ractor.new do
     # - Accessing ENV
     # - Using stdin/stdout directly
     # - Modifying global variables
-    
+
     require 'json'  # Error!
   rescue => e
     "Error: #{e.message}"
@@ -465,7 +418,7 @@ begin
 rescue Ractor::RemoteError => e
   puts "Remote error: #{e.message}"
   puts "Original error: #{e.cause.class} - #{e.cause.message}"
-  
+
   # You can re-raise the original exception if needed
   raise e.cause
 rescue ArgumentError => e
@@ -489,7 +442,7 @@ def safe_parallel_process(items)
       end
     end
   end
-  
+
   # Collect results and errors
   results = workers.map do |worker|
     begin
@@ -498,10 +451,10 @@ def safe_parallel_process(items)
       { error: "Ractor crashed", cause: e.cause.message }
     end
   end
-  
+
   errors = results.select { |r| r.is_a?(Hash) && r[:error] }
   puts "Errors: #{errors}" unless errors.empty?
-  
+
   results.reject { |r| r.is_a?(Hash) && r[:error] }
 end
 
@@ -552,7 +505,7 @@ end
 Ractor.new do
   # These will error:
   # - $global_variable
-  # - @@class_variable  
+  # - @@class_variable
   # - ENV['PATH']
   # - STDIN.gets
 end
