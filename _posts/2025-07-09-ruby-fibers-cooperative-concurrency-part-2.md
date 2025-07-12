@@ -711,9 +711,16 @@ For many applications, threads remain the pragmatic choice despite their limitat
 
 Fibers give us lightweight concurrency with precise control, perfect for I/O-bound operations. But what if we need true parallelism across CPU cores? 
 
-In Part 3, we'll explore Ractors - Ruby's ambitious but controversial feature that attempts to break free from the GVL in CRuby. And in Part 4, we'll discover how alternative Ruby implementations like JRuby and TruffleRuby already deliver true parallel threads without any GVL limitations.
+Continue the series:
+- **[Part 1: Threads](/ruby-threads-explained-simple-guide-part-1/)** - Understanding Ruby threads and the GVL
+- **[Part 3: Ractors](/ruby-ractors-true-parallelism-part-3/)** - Ruby's ambitious but controversial feature for parallelism in CRuby
+- **[Part 4: Beyond CRuby](/ruby-multithreading-beyond-cruby-part-4/)** - How JRuby and TruffleRuby deliver true parallel threads
 
 While Fibers excel at cooperative concurrency within a single thread, the journey to true parallelism takes two different paths: Ractors for CRuby users, or switching to JRuby/TruffleRuby for immediate parallel execution.
+
+---
+
+Enjoying this Ruby concurrency series? Subscribe to get notified about more deep-dives into Ruby performance and optimization.
 
 ## References
 

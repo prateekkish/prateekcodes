@@ -631,12 +631,16 @@ For now, approach Ractors with curiosity for experiments and future-proofing. If
 ## Summary
 
 Ruby's concurrency story continues to evolve:
-- **Threads**: Mature, practical for I/O despite GVL in CRuby
-- **Fibers**: Lightweight, great for cooperative concurrency
+- **[Threads (Part 1)](/ruby-threads-explained-simple-guide-part-1/)**: Mature, practical for I/O despite GVL in CRuby
+- **[Fibers (Part 2)](/ruby-fibers-cooperative-concurrency-part-2/)**: Lightweight, great for cooperative concurrency
 - **Ractors**: Experimental true parallelism in CRuby with trade-offs
-- **Alternative Implementations**: JRuby and TruffleRuby offer true parallel threads today (see Part 4)
+- **[Alternative Implementations (Part 4)](/ruby-multithreading-beyond-cruby-part-4/)**: JRuby and TruffleRuby offer true parallel threads today
 
 Each tool has its place. Ractors represent CRuby's experimental approach to parallelism, but if you need proven parallel execution today, Part 4 explores how JRuby and TruffleRuby already deliver it without the complexities of Ractors.
+
+---
+
+Following this Ruby concurrency series? Subscribe to stay updated on Ruby performance insights and optimization techniques.
 
 ## References
 

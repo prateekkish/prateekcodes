@@ -4,6 +4,7 @@ title: "Ruby Threads Explained: A Simple Guide to Multithreading (Part 1)"
 author: prateek
 categories: [ Ruby, Concurrency, Threading ]
 tags: [ ruby, threads, multithreading, concurrency, parallel-programming, gvl, gil ]
+featured: true
 excerpt: "Learn Ruby threads from the ground up with simple examples. Understand how multithreading works in CRuby, why the GVL exists, and when to use threads effectively."
 description: "A beginner-friendly guide to understanding threads and multithreading in Ruby. Learn what threads are, how CRuby handles them with the Global VM Lock, and practical examples with clear explanations."
 keywords: "ruby threads, ruby multithreading, ruby concurrency, GVL ruby, Global VM Lock, thread safety ruby, ruby parallel processing, Thread.new ruby"
@@ -333,13 +334,11 @@ end
 
 Threads are powerful but limited by the GVL in CRuby. In this series, we'll explore:
 
-- **Part 2**: Fibers - Ruby's lightweight concurrency primitive for cooperative concurrency
-- **Part 3**: Ractors - Ruby 3's answer to true parallel execution in CRuby
-- **Part 4**: Beyond CRuby - How JRuby and TruffleRuby deliver true parallel threads without GVL limitations
+- **[Part 2: Fibers](/ruby-fibers-cooperative-concurrency-part-2/)** - Ruby's lightweight concurrency primitive for cooperative concurrency
+- **[Part 3: Ractors](/ruby-ractors-true-parallelism-part-3/)** - Ruby 3's answer to true parallel execution in CRuby
+- **[Part 4: Beyond CRuby](/ruby-multithreading-beyond-cruby-part-4/)** - How JRuby and TruffleRuby deliver true parallel threads without GVL limitations
 
 Understanding threads is your foundation for mastering Ruby's evolving concurrency story.
-
-**Stay tuned for Part 2: Ruby Fibers - Mastering Cooperative Concurrency!**
 
 Want to be notified when the next part drops? [Subscribe to the newsletter](#newsletter-section) or follow me on [Twitter](https://x.com/intent/user?screen_name=prateekkish){:target="_blank" rel="noopener noreferrer" aria-label="Follow Prateek on Twitter (opens in new tab)"} for updates.
 
