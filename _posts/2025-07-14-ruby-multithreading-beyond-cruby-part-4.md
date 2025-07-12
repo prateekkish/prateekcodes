@@ -24,6 +24,10 @@ Let's explore how these implementations deliver the parallelism that CRuby can't
 
 JRuby runs Ruby code on the Java Virtual Machine, leveraging Java's mature threading model. This means threads in JRuby are actual OS threads that can execute Ruby code simultaneously.
 
+> "JRuby has been used in production applications for almost 20 years, providing parallel execution of code along with leading-edge JIT and GC from the JVM. Rails apps on JRuby can power a whole site with a single process, saving users time and money when scaling up."
+>
+> — Charles Oliver Nutter (headius), JRuby Lead Developer
+
 ### Setting Up JRuby
 
 First, ensure you have Java installed (JRuby requires Java 8 or higher):
@@ -33,23 +37,23 @@ First, ensure you have Java installed (JRuby requires Java 8 or higher):
 java -version
 
 # Install Java if needed (macOS example)
-brew install openjdk@17
+brew install openjdk@21
 ```
 
 Then install JRuby:
 
 ```bash
 # Using mise
-mise install ruby@jruby-9.4.13.0
-mise use ruby@jruby-9.4.13.0
+mise install ruby@jruby-10.0.0.1
+mise use ruby@jruby-10.0.0.1
 
 # Using rbenv
-rbenv install jruby-9.4.13.0
-rbenv local jruby-9.4.13.0
+rbenv install jruby-10.0.0.1
+rbenv local jruby-10.0.0.1
 
 # Or using RVM
-rvm install jruby
-rvm use jruby
+rvm install jruby-10.0.0.1
+rvm use jruby-10.0.0.1
 ```
 
 ### True Parallel Execution
@@ -80,19 +84,9 @@ end
 puts "Single-threaded: #{time1.round(2)}s"
 puts "Multi-threaded: #{time2.round(2)}s"
 puts "Speedup: #{(time1/time2).round(2)}x"
-
-# JRuby Output:
-# Single-threaded: 1.95s
-# Multi-threaded: 0.51s
-# Speedup: 3.78x
-
-# CRuby Output (for comparison):
-# Single-threaded: 2.93s
-# Multi-threaded: 2.84s
-# Speedup: 1.03x
 ```
 
-JRuby achieves nearly 4x speedup on a 4-core machine - true parallel execution!
+With JRuby, the multi-threaded version can utilize multiple CPU cores simultaneously, unlike CRuby where threads are limited by the GVL.
 
 ### Thread Safety Becomes Critical
 
@@ -221,7 +215,7 @@ rbenv local truffleruby
 
 ### Parallel Performance
 
-TruffleRuby threads behave similarly to JRuby - true parallel execution. This example demonstrates TruffleRuby's impressive performance on CPU-intensive matrix multiplication, where parallel threads can utilize all available CPU cores:
+TruffleRuby threads behave similarly to JRuby - true parallel execution. This example shows how parallel threads can utilize multiple CPU cores for CPU-intensive operations like matrix multiplication:
 
 ```ruby
 require 'benchmark'
@@ -259,11 +253,6 @@ end
 puts "Sequential: #{time1.round(2)}s"
 puts "Parallel: #{time2.round(2)}s"
 puts "Speedup: #{(time1/time2).round(2)}x"
-
-# TruffleRuby Output (8-core machine):
-# Sequential: 4.82s
-# Parallel: 0.78s
-# Speedup: 6.18x
 ```
 
 ### TruffleRuby's Polyglot Features
@@ -365,8 +354,8 @@ end
 
 ### When to Use TruffleRuby
 
-- **Maximum performance** - Advanced JIT compilation
 - **Polyglot applications** - Mix Ruby with JavaScript, Python, Java
+- **Advanced optimizations** - Sophisticated JIT compilation
 - **Research/experimentation** - Cutting-edge VM technology
 - **C extension compatibility** - Better than JRuby for many gems
 
@@ -375,7 +364,7 @@ end
 - **Gem compatibility** - Best support for the Ruby ecosystem
 - **Deployment simplicity** - Widely supported, well-understood
 - **I/O-bound workloads** - GVL released during I/O operations
-- **Lower memory usage** - Generally uses less memory than JVM-based implementations (check out how much time it takes to start an irb session)
+- **Lower memory usage** - Generally uses less memory than JVM-based implementations
 
 ## Migration Considerations
 
@@ -431,14 +420,24 @@ end
 
 ## Conclusion
 
-JRuby and TruffleRuby prove that Ruby can deliver true parallel performance. While CRuby's GVL simplifies thread safety, these alternative implementations show what's possible when threads can genuinely run in parallel.
+JRuby and TruffleRuby demonstrate that Ruby can support true parallel thread execution. While CRuby's GVL simplifies thread safety, these alternative implementations show what's possible when threads can genuinely run in parallel.
 
 The choice of implementation depends on your needs:
 - **CRuby** for compatibility and simplicity
 - **JRuby** for Java integration and stable parallelism
-- **TruffleRuby** for maximum performance and polyglot capabilities
+- **TruffleRuby** for advanced optimizations and polyglot capabilities
 
 Understanding these options empowers you to choose the right tool for your concurrent Ruby applications. The GVL isn't a limitation of Ruby - it's an implementation choice that you can opt out of when true parallelism matters.
+
+---
+
+This concludes our Ruby Multithreading series! We've journeyed from understanding [CRuby's threads and the GVL](/ruby-threads-explained-simple-guide-part-1/), through [cooperative concurrency with Fibers](/ruby-fibers-cooperative-concurrency-part-2/), to [true parallelism with Ractors](/ruby-ractors-true-parallelism-part-3/), and finally explored alternative Ruby implementations that break free from the GVL entirely.
+
+If you found this series helpful, consider subscribing to stay updated on more Ruby deep-dives and performance optimization content.
+
+## Acknowledgments
+
+Special thanks to Charles Oliver Nutter ([headius](https://github.com/headius){:target="_blank" rel="noopener noreferrer" aria-label="headius github account (opens in new tab)"}), JRuby's lead developer, for reviewing this post and providing valuable feedback to ensure technical accuracy.
 
 ## References
 

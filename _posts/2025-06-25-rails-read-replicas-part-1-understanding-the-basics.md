@@ -4,6 +4,7 @@ title:  "Scaling Rails with PostgreSQL Read Replicas: Part 1 - Understanding the
 author: prateek
 categories: [ Rails, Rails 7, PostgreSQL, Database, Scaling ]
 tags: [ rails-read-replicas, postgresql-replication, database-scaling, rails-7, performance-optimization, read-write-splitting ]
+featured: true
 excerpt: "Learn when and why to use read replicas in Rails applications, understand the architecture, and implement basic read/write splitting with real-world examples."
 description: "Master PostgreSQL read replicas in Rails: understand when to use them, implement read/write splitting, and avoid common pitfalls. Complete guide with production-ready examples."
 keywords: "Rails PostgreSQL read replicas, Rails database scaling, read write splitting Rails, PostgreSQL replication Rails, Rails 7 multiple databases, database performance optimization"
