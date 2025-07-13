@@ -8,10 +8,10 @@ module Jekyll
       excerpt_text = post.data['excerpt'].to_s.strip
       post.data['description'] = excerpt_text.gsub(/\s+/, ' ').strip[0..159]
     end
-    
+
     # Don't add default images - only use if explicitly provided
     # This prevents broken image references
-    
+
     # Auto-generate keywords from tags and categories if not provided
     if post.data['keywords'].nil?
       keywords = []
@@ -27,7 +27,7 @@ module Jekyll
     def generate(site)
       site.posts.docs.each do |post|
         words = post.content.split.size
-        reading_time = (words / 200.0).ceil
+        reading_time = (words / 185.0).ceil
         post.data['reading_time'] = reading_time
       end
     end

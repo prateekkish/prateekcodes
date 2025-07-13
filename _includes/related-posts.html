@@ -67,6 +67,9 @@
                 <p class="card-text">
                   <small class="text-muted">
                     <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %d, %Y" }}</time>
+                    {% if post.reading_time %}
+                    · {{ post.reading_time }} min read
+                    {% endif %}
                   </small>
                 </p>
               </div>
@@ -94,6 +97,9 @@
                 <p class="card-text">
                   <small class="text-muted">
                     <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %d, %Y" }}</time>
+                    {% if post.reading_time %}
+                    · {{ post.reading_time }} min read
+                    {% endif %}
                   </small>
                 </p>
               </div>
