@@ -20,7 +20,7 @@ Understanding query plans is only half the battle. The real value comes from rec
 When PostgreSQL reads many rows only to discard most of them, you have a filter ratio problem:
 
 ```sql
- Seq Scan on orders  (cost=0.00..26432.00 rows=539294 width=116) 
+ Seq Scan on orders  (cost=0.00..26432.00 rows=539294 width=116)
                      (actual time=0.006..56.066 rows=538622 loops=1)
    Filter: ((created_at >= '2024-01-01 00:00:00') AND ((status)::text = 'completed'::text))
    Rows Removed by Filter: 461378
@@ -50,7 +50,7 @@ That's like reading an entire phone book to find people whose last names start w
 
 3. **Consider partial indexes** for common filters:
    ```sql
-   CREATE INDEX idx_completed_orders_2024 ON orders(created_at) 
+   CREATE INDEX idx_completed_orders_2024 ON orders(created_at)
    WHERE status = 'completed' AND created_at >= '2024-01-01';
    ```
 
@@ -91,7 +91,7 @@ SET work_mem = '256MB';
 The most common performance killer in hash joins:
 
 ```sql
- Hash  (cost=2819.00..2819.00 rows=100000 width=14) 
+ Hash  (cost=2819.00..2819.00 rows=100000 width=14)
        (actual time=20.349..20.349 rows=100001 loops=1)
    Buckets: 2048  Batches: 128  Memory Usage: 55kB
 ```
@@ -139,7 +139,7 @@ For each of 100,000 users, scan all 1,000,000 orders = 100 billion row compariso
 #### Good Nested Loop Example
 
 ```sql
- Nested Loop  (cost=4.80..56.04 rows=11 width=229) 
+ Nested Loop  (cost=4.80..56.04 rows=11 width=229)
               (actual time=0.025..0.028 rows=4 loops=1)
    ->  Index Scan using users_pkey on users u  (rows=1)
    ->  Index Scan using idx_orders_user_id on orders o  (rows=4)
@@ -233,7 +233,7 @@ ANALYZE orders;
 Use BUFFERS option to see cache behavior:
 
 ```sql
-EXPLAIN (ANALYZE, BUFFERS) 
+EXPLAIN (ANALYZE, BUFFERS)
 SELECT * FROM users WHERE email = 'user1000@example.com';
 
  Index Scan using idx_users_email on users
@@ -411,8 +411,6 @@ With practice, you'll develop an intuition for common patterns and their solutio
 ---
 
 **Ready to master PostgreSQL performance?** Subscribe for more deep dives into database optimization, query tuning, and performance best practices.
-
-{% include subscribe.html %}
 
 ## References
 
