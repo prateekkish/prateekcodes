@@ -50,7 +50,7 @@ Before diving into scan strategies, let's understand what EXPLAIN ANALYZE actual
 ```sql
 EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'user@example.com';
 
-                                                            QUERY PLAN                                                            
+                                                            QUERY PLAN
 ----------------------------------------------------------------------------------------------------------------------------------
  Index Scan using idx_users_email on users  (cost=0.42..8.44 rows=1 width=113) (actual time=0.015..0.016 rows=1 loops=1)
    Index Cond: ((email)::text = 'user@example.com'::text)
@@ -82,7 +82,7 @@ Let's break down this output line by line:
 4. **Index Condition**: `Index Cond: ((email)::text = 'user@example.com'::text)`
    - Shows exactly how the index is being used
 
-5. **Timing Summary**: 
+5. **Timing Summary**:
    - `Planning Time: 0.077 ms` - Time to create the execution plan (milliseconds)
    - `Execution Time: 0.023 ms` - Time to actually run the query (milliseconds)
 
@@ -108,7 +108,7 @@ The actual time `(actual time=first..last rows=count loops=iterations)` tells us
 - **rows**: Actual rows returned
 - **loops**: Number of times this node executed
 
-**Key difference**: 
+**Key difference**:
 - Cost = Planner's estimate in arbitrary units
 - Actual time = Real execution time in milliseconds
 
@@ -123,7 +123,7 @@ The simplest strategy: read every page of the table sequentially.
 ```sql
 EXPLAIN ANALYZE SELECT * FROM orders WHERE total_amount > 1000;
 
- Seq Scan on orders  (cost=0.00..23932.00 rows=510476 width=116) 
+ Seq Scan on orders  (cost=0.00..23932.00 rows=510476 width=116)
                      (actual time=0.032..82.451 rows=505588 loops=1)
    Filter: (total_amount > '1000'::numeric)
    Rows Removed by Filter: 494412
@@ -148,7 +148,7 @@ Traverses B-tree index to find matching rows, then fetches from table.
 ```sql
 EXPLAIN ANALYZE SELECT * FROM users WHERE id = 42;
 
- Index Scan using users_pkey on users  (cost=0.29..8.31 rows=1 width=113) 
+ Index Scan using users_pkey on users  (cost=0.29..8.31 rows=1 width=113)
                                        (actual time=0.007..0.007 rows=1 loops=1)
    Index Cond: (id = 42)
  Planning Time: 0.444 ms
@@ -181,7 +181,7 @@ Retrieves data entirely from index without touching the table.
 ```sql
 EXPLAIN ANALYZE SELECT email FROM users WHERE email LIKE 'john%';
 
- Index Only Scan using idx_users_email_covering on users  (cost=0.42..4.44 rows=10 width=21) 
+ Index Only Scan using idx_users_email_covering on users  (cost=0.42..4.44 rows=10 width=21)
                                                           (actual time=0.003..0.003 rows=1 loops=1)
    Index Cond: ((email >= 'john'::text) AND (email < 'joho'::text))
    Filter: ((email)::text ~~ 'john%'::text)
@@ -218,11 +218,11 @@ This random jumping is expensive, especially on traditional hard drives. Bitmap 
 ```sql
 EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 42;
 
- Bitmap Heap Scan on orders  (cost=4.51..47.62 rows=11 width=116) 
+ Bitmap Heap Scan on orders  (cost=4.51..47.62 rows=11 width=116)
                              (actual time=0.019..0.021 rows=4 loops=1)
    Recheck Cond: (user_id = 42)
    Heap Blocks: exact=4
-   ->  Bitmap Index Scan on idx_orders_user_id  (cost=0.00..4.51 rows=11 width=0) 
+   ->  Bitmap Index Scan on idx_orders_user_id  (cost=0.00..4.51 rows=11 width=0)
                                                 (actual time=0.010..0.010 rows=4 loops=1)
          Index Cond: (user_id = 42)
 ```
@@ -257,9 +257,9 @@ PostgreSQL typically chooses bitmap scans when:
 Bitmap scans truly shine when combining multiple conditions:
 
 ```sql
-EXPLAIN ANALYZE 
-SELECT * FROM orders 
-WHERE user_id = 42 
+EXPLAIN ANALYZE
+SELECT * FROM orders
+WHERE user_id = 42
    OR (status = 'pending' AND created_at >= '2024-01-01');
 
  Bitmap Heap Scan on orders
@@ -293,7 +293,7 @@ Every row in PostgreSQL has a system column called `ctid` that represents its ph
 ```sql
 EXPLAIN ANALYZE SELECT * FROM users WHERE ctid = '(0,1)';
 
- Tid Scan on users  (cost=0.00..4.01 rows=1 width=113) 
+ Tid Scan on users  (cost=0.00..4.01 rows=1 width=113)
                     (actual time=0.002..0.002 rows=1 loops=1)
    TID Cond: (ctid = '(0,1)'::tid)
  Planning Time: 0.049 ms
@@ -325,10 +325,10 @@ The last scan type handles a different data source entirely: functions that retu
 When you query a function that returns multiple rows (a "set-returning function"), PostgreSQL uses a Function Scan:
 
 ```sql
-EXPLAIN ANALYZE SELECT * FROM generate_series(1,1000) AS n 
+EXPLAIN ANALYZE SELECT * FROM generate_series(1,1000) AS n
 WHERE n % 10 = 0;
 
- Function Scan on generate_series n  (cost=0.00..15.00 rows=5 width=4) 
+ Function Scan on generate_series n  (cost=0.00..15.00 rows=5 width=4)
                                      (actual time=0.030..0.048 rows=100 loops=1)
    Filter: ((n % 10) = 0)
    Rows Removed by Filter: 900
@@ -350,7 +350,7 @@ You'll see function scans when using:
 
 Example with JSON data:
 ```sql
-EXPLAIN ANALYZE 
+EXPLAIN ANALYZE
 SELECT item->>'name' AS product_name
 FROM orders,
      json_array_elements(order_items) AS item
@@ -379,21 +379,21 @@ FOR each row in the outer table:
 Let's see this in action:
 
 ```sql
-EXPLAIN ANALYZE 
-SELECT u.*, o.* FROM users u 
-JOIN orders o ON u.id = o.user_id 
+EXPLAIN ANALYZE
+SELECT u.*, o.* FROM users u
+JOIN orders o ON u.id = o.user_id
 WHERE u.id = 42;
 
- Nested Loop  (cost=4.80..56.04 rows=11 width=229) 
+ Nested Loop  (cost=4.80..56.04 rows=11 width=229)
               (actual time=0.025..0.028 rows=4 loops=1)
-   ->  Index Scan using users_pkey on users u  (cost=0.29..8.31 rows=1 width=113) 
+   ->  Index Scan using users_pkey on users u  (cost=0.29..8.31 rows=1 width=113)
                                                (actual time=0.004..0.004 rows=1 loops=1)
          Index Cond: (id = 42)
-   ->  Bitmap Heap Scan on orders o  (cost=4.51..47.62 rows=11 width=116) 
+   ->  Bitmap Heap Scan on orders o  (cost=4.51..47.62 rows=11 width=116)
                                      (actual time=0.019..0.021 rows=4 loops=1)
          Recheck Cond: (user_id = 42)
          Heap Blocks: exact=4
-         ->  Bitmap Index Scan on idx_orders_user_id  (cost=0.00..4.51 rows=11 width=0) 
+         ->  Bitmap Index Scan on idx_orders_user_id  (cost=0.00..4.51 rows=11 width=0)
                                                       (actual time=0.010..0.010 rows=4 loops=1)
                Index Cond: (user_id = 42)
  Planning Time: 0.151 ms
@@ -440,22 +440,22 @@ Hash joins work in two phases:
 Think of it like creating a phone book (hash table) from your contacts, then looking up numbers as you go through a list of people to call.
 
 ```sql
-EXPLAIN ANALYZE 
-SELECT o.*, u.username 
-FROM orders o 
+EXPLAIN ANALYZE
+SELECT o.*, u.username
+FROM orders o
 JOIN users u ON o.user_id = u.id
 WHERE o.created_at >= '2024-01-01'
 LIMIT 100;
 
- Hash Join  (cost=4558.00..64262.11 rows=1000000 width=126) 
+ Hash Join  (cost=4558.00..64262.11 rows=1000000 width=126)
             (actual time=21.966..589.594 rows=1000000 loops=1)
    Hash Cond: (o.user_id = u.id)
-   ->  Seq Scan on orders o  (cost=0.00..21432.00 rows=1000000 width=116) 
+   ->  Seq Scan on orders o  (cost=0.00..21432.00 rows=1000000 width=116)
                              (actual time=0.002..25.622 rows=1000000 loops=1)
-   ->  Hash  (cost=2819.00..2819.00 rows=100000 width=14) 
+   ->  Hash  (cost=2819.00..2819.00 rows=100000 width=14)
              (actual time=20.349..20.349 rows=100001 loops=1)
          Buckets: 2048  Batches: 128  Memory Usage: 55kB
-         ->  Seq Scan on users u  (cost=0.00..2819.00 rows=100000 width=14) 
+         ->  Seq Scan on users u  (cost=0.00..2819.00 rows=100000 width=14)
                                   (actual time=0.001..7.047 rows=100001 loops=1)
  Planning Time: 0.079 ms
  Execution Time: 604.340 ms
@@ -515,21 +515,21 @@ Imagine you have two stacks of cards, both sorted by number. To find matching pa
 5. Continue until one stack is empty
 
 ```sql
-EXPLAIN ANALYZE 
-SELECT u.created_at, o.created_at 
-FROM users u 
+EXPLAIN ANALYZE
+SELECT u.created_at, o.created_at
+FROM users u
 JOIN orders o ON u.created_at = o.created_at
 LIMIT 100;
 
- Limit  (cost=1.12..29.16 rows=100 width=16) 
+ Limit  (cost=1.12..29.16 rows=100 width=16)
         (actual time=68.602..68.602 rows=0 loops=1)
-   ->  Merge Join  (cost=1.12..32450.39 rows=115729 width=16) 
+   ->  Merge Join  (cost=1.12..32450.39 rows=115729 width=16)
                    (actual time=68.602..68.602 rows=0 loops=1)
          Merge Cond: (u.created_at = o.created_at)
-         ->  Index Only Scan using idx_users_created_at on users u  (cost=0.29..2604.29 rows=100000 width=8) 
+         ->  Index Only Scan using idx_users_created_at on users u  (cost=0.29..2604.29 rows=100000 width=8)
                                                                      (actual time=0.004..8.544 rows=100001 loops=1)
                Heap Fetches: 6
-         ->  Index Only Scan using idx_orders_created_at on orders o  (cost=0.42..25940.42 rows=1000000 width=8) 
+         ->  Index Only Scan using idx_orders_created_at on orders o  (cost=0.42..25940.42 rows=1000000 width=8)
                                                                        (actual time=0.005..39.723 rows=1000000 loops=1)
                Heap Fetches: 0
  Planning Time: 0.351 ms
@@ -584,27 +584,27 @@ When you write `GROUP BY status`, PostgreSQL can:
 Let's examine a more complex example with parallel execution:
 
 ```sql
-EXPLAIN ANALYZE 
-SELECT status, COUNT(*), AVG(total_amount) 
-FROM orders 
+EXPLAIN ANALYZE
+SELECT status, COUNT(*), AVG(total_amount)
+FROM orders
 GROUP BY status;
 
- Finalize GroupAggregate  (cost=19723.78..19724.85 rows=4 width=50) 
+ Finalize GroupAggregate  (cost=19723.78..19724.85 rows=4 width=50)
                          (actual time=50.478..64.344 rows=4 loops=1)
    Group Key: status
-   ->  Gather Merge  (cost=19723.78..19724.72 rows=8 width=50) 
+   ->  Gather Merge  (cost=19723.78..19724.72 rows=8 width=50)
                      (actual time=50.366..64.330 rows=12 loops=1)
          Workers Planned: 2
          Workers Launched: 2
-         ->  Sort  (cost=18723.76..18723.77 rows=4 width=50) 
+         ->  Sort  (cost=18723.76..18723.77 rows=4 width=50)
                    (actual time=48.765..48.765 rows=4 loops=3)
                Sort Key: status
                Sort Method: quicksort  Memory: 25kB
-               ->  Partial HashAggregate  (cost=18723.67..18723.72 rows=4 width=50) 
+               ->  Partial HashAggregate  (cost=18723.67..18723.72 rows=4 width=50)
                                          (actual time=48.749..48.750 rows=4 loops=3)
                      Group Key: status
                      Batches: 1  Memory Usage: 24kB
-                     ->  Parallel Seq Scan on orders  (cost=0.00..15598.67 rows=416667 width=16) 
+                     ->  Parallel Seq Scan on orders  (cost=0.00..15598.67 rows=416667 width=16)
                                                       (actual time=0.028..14.355 rows=333333 loops=3)
  Planning Time: 0.398 ms
  Execution Time: 64.365 ms
@@ -653,31 +653,31 @@ Unlike HashAggregate, GroupAggregate processes data in order:
 4. Start accumulating the next group
 
 ```sql
-EXPLAIN ANALYZE 
-SELECT date_trunc('day', created_at) AS day, COUNT(*) 
-FROM orders 
+EXPLAIN ANALYZE
+SELECT date_trunc('day', created_at) AS day, COUNT(*)
+FROM orders
 WHERE created_at >= '2024-01-01'
-GROUP BY day 
+GROUP BY day
 ORDER BY day
 LIMIT 10;
 
- Limit  (cost=52158.83..52160.14 rows=10 width=16) 
+ Limit  (cost=52158.83..52160.14 rows=10 width=16)
         (actual time=62.782..65.747 rows=10 loops=1)
-   ->  Finalize GroupAggregate  (cost=52158.83..144644.84 rows=706147 width=16) 
+   ->  Finalize GroupAggregate  (cost=52158.83..144644.84 rows=706147 width=16)
                                 (actual time=62.782..65.745 rows=10 loops=1)
          Group Key: (date_trunc('day'::text, created_at))
-         ->  Gather Merge  (cost=52158.83..132610.82 rows=641436 width=16) 
+         ->  Gather Merge  (cost=52158.83..132610.82 rows=641436 width=16)
                            (actual time=62.751..65.740 rows=31 loops=1)
                Workers Planned: 2
                Workers Launched: 2
-               ->  Partial GroupAggregate  (cost=51158.81..57573.17 rows=320718 width=16) 
+               ->  Partial GroupAggregate  (cost=51158.81..57573.17 rows=320718 width=16)
                                            (actual time=58.600..60.358 rows=63 loops=3)
                      Group Key: (date_trunc('day'::text, created_at))
-                     ->  Sort  (cost=51158.81..51960.60 rows=320718 width=8) 
+                     ->  Sort  (cost=51158.81..51960.60 rows=320718 width=8)
                                (actual time=58.565..59.588 rows=29057 loops=3)
                            Sort Key: (date_trunc('day'::text, created_at))
                            Sort Method: external merge  Disk: 4816kB
-                           ->  Parallel Seq Scan on orders  (cost=0.00..17442.13 rows=320718 width=8) 
+                           ->  Parallel Seq Scan on orders  (cost=0.00..17442.13 rows=320718 width=8)
                                                             (actual time=0.039..32.511 rows=256251 loops=3)
                                  Filter: (created_at >= '2024-01-01 00:00:00'::timestamp without time zone)
                                  Rows Removed by Filter: 77083
@@ -722,15 +722,15 @@ When sorting small datasets that fit in memory, PostgreSQL uses efficient in-mem
 #### Example: Index-Optimized Sort
 
 ```sql
-EXPLAIN ANALYZE 
-SELECT * FROM users 
-WHERE country_code = 'US' 
-ORDER BY created_at DESC 
+EXPLAIN ANALYZE
+SELECT * FROM users
+WHERE country_code = 'US'
+ORDER BY created_at DESC
 LIMIT 100;
 
- Limit  (cost=0.29..17.24 rows=100 width=113) 
+ Limit  (cost=0.29..17.24 rows=100 width=113)
         (actual time=0.006..0.111 rows=100 loops=1)
-   ->  Index Scan Backward using idx_users_created_at on users  (cost=0.29..10130.22 rows=59790 width=113) 
+   ->  Index Scan Backward using idx_users_created_at on users  (cost=0.29..10130.22 rows=59790 width=113)
                                                                  (actual time=0.006..0.107 rows=100 loops=1)
          Filter: ((country_code)::text = 'US'::text)
          Rows Removed by Filter: 54
@@ -745,7 +745,7 @@ Here, PostgreSQL cleverly avoided sorting entirely! By reading the index backwar
 When an index isn't available, you'll see an actual sort operation:
 
 ```sql
-Sort  (cost=18723.76..18723.77 rows=4 width=50) 
+Sort  (cost=18723.76..18723.77 rows=4 width=50)
       (actual time=48.765..48.765 rows=4 loops=3)
   Sort Key: status
   Sort Method: quicksort  Memory: 25kB
@@ -761,7 +761,7 @@ Key indicators of a healthy in-memory sort:
 When data exceeds `work_mem`, PostgreSQL must use disk for sorting:
 
 ```sql
-Sort  (cost=51158.81..51960.60 rows=320718 width=8) 
+Sort  (cost=51158.81..51960.60 rows=320718 width=8)
       (actual time=58.565..59.588 rows=29057 loops=3)
   Sort Key: (date_trunc('day'::text, created_at))
   Sort Method: external merge  Disk: 4816kB
@@ -807,18 +807,18 @@ Modern PostgreSQL can split work across multiple CPU cores. Understanding parall
 
 ```sql
 SET max_parallel_workers_per_gather = 2;
-EXPLAIN ANALYZE 
+EXPLAIN ANALYZE
 SELECT COUNT(*) FROM orders WHERE total_amount > 100;
 
- Finalize Aggregate  (cost=18636.41..18636.42 rows=1 width=8) 
+ Finalize Aggregate  (cost=18636.41..18636.42 rows=1 width=8)
                      (actual time=29.257..30.348 rows=1 loops=1)
-   ->  Gather  (cost=18636.20..18636.41 rows=2 width=8) 
+   ->  Gather  (cost=18636.20..18636.41 rows=2 width=8)
                (actual time=29.121..30.345 rows=3 loops=1)
          Workers Planned: 2
          Workers Launched: 2
-         ->  Partial Aggregate  (cost=17636.20..17636.21 rows=1 width=8) 
+         ->  Partial Aggregate  (cost=17636.20..17636.21 rows=1 width=8)
                                (actual time=27.019..27.019 rows=1 loops=3)
-               ->  Parallel Seq Scan on orders  (cost=0.00..16640.33 rows=398345 width=0) 
+               ->  Parallel Seq Scan on orders  (cost=0.00..16640.33 rows=398345 width=0)
                                                 (actual time=0.005..21.210 rows=318402 loops=3)
                      Filter: (total_amount > '100'::numeric)
                      Rows Removed by Filter: 14932
@@ -870,7 +870,7 @@ Common Table Expressions (CTEs) are the WITH clauses that let you write more rea
 #### CTE Optimization in Modern PostgreSQL
 
 ```sql
-EXPLAIN ANALYZE 
+EXPLAIN ANALYZE
 WITH high_value_users AS (
     SELECT user_id, SUM(total_amount) as total_spent
     FROM orders
@@ -883,19 +883,19 @@ FROM users u
 JOIN high_value_users h ON u.id = h.user_id
 LIMIT 10;
 
- Limit  (cost=0.72..26.23 rows=10 width=42) 
+ Limit  (cost=0.72..26.23 rows=10 width=42)
         (actual time=0.020..0.081 rows=10 loops=1)
-   ->  Merge Join  (cost=0.72..78015.27 rows=30579 width=42) 
+   ->  Merge Join  (cost=0.72..78015.27 rows=30579 width=42)
                    (actual time=0.020..0.080 rows=10 loops=1)
          Merge Cond: (u.id = orders.user_id)
-         ->  Index Scan using users_pkey on users u  (cost=0.29..4426.29 rows=100000 width=14) 
+         ->  Index Scan using users_pkey on users u  (cost=0.29..4426.29 rows=100000 width=14)
                                                      (actual time=0.003..0.004 rows=15 loops=1)
-         ->  GroupAggregate  (cost=0.42..72650.95 rows=30579 width=36) 
+         ->  GroupAggregate  (cost=0.42..72650.95 rows=30579 width=36)
                             (actual time=0.016..0.074 rows=10 loops=1)
                Group Key: orders.user_id
                Filter: (sum(orders.total_amount) > '5000'::numeric)
                Rows Removed by Filter: 5
-               ->  Index Scan using idx_orders_user_id on orders  (cost=0.42..67771.73 rows=700633 width=10) 
+               ->  Index Scan using idx_orders_user_id on orders  (cost=0.42..67771.73 rows=700633 width=10)
                                                                   (actual time=0.005..0.064 rows=116 loops=1)
                      Filter: ((status)::text = 'completed'::text)
                      Rows Removed by Filter: 36
@@ -947,25 +947,25 @@ InitPlans are subqueries that PostgreSQL executes once at the beginning:
 
 ```sql
 EXPLAIN ANALYZE
-SELECT * FROM orders 
+SELECT * FROM orders
 WHERE total_amount > (SELECT AVG(total_amount) FROM orders);
 
- Bitmap Heap Scan on orders  (cost=23888.32..39486.99 rows=333333 width=116) 
+ Bitmap Heap Scan on orders  (cost=23888.32..39486.99 rows=333333 width=116)
                              (actual time=53.599..78.352 rows=500213 loops=1)
    Recheck Cond: (total_amount > $1)
    Heap Blocks: exact=11378
    InitPlan 1 (returns $1)
-     ->  Finalize Aggregate  (cost=17640.56..17640.57 rows=1 width=32) 
+     ->  Finalize Aggregate  (cost=17640.56..17640.57 rows=1 width=32)
                             (actual time=27.101..27.124 rows=1 loops=1)
-           ->  Gather  (cost=17640.34..17640.55 rows=2 width=32) 
+           ->  Gather  (cost=17640.34..17640.55 rows=2 width=32)
                        (actual time=26.948..27.119 rows=3 loops=1)
                  Workers Planned: 2
                  Workers Launched: 2
-                 ->  Partial Aggregate  (cost=16640.34..16640.35 rows=1 width=32) 
+                 ->  Partial Aggregate  (cost=16640.34..16640.35 rows=1 width=32)
                                        (actual time=25.709..25.710 rows=1 loops=3)
-                       ->  Parallel Seq Scan on orders orders_1  (cost=0.00..15598.67 rows=416667 width=6) 
+                       ->  Parallel Seq Scan on orders orders_1  (cost=0.00..15598.67 rows=416667 width=6)
                                                                  (actual time=0.002..9.329 rows=333333 loops=3)
-   ->  Bitmap Index Scan on idx_orders_total_amount  (cost=0.00..6164.42 rows=333333 width=0) 
+   ->  Bitmap Index Scan on idx_orders_total_amount  (cost=0.00..6164.42 rows=333333 width=0)
                                                      (actual time=52.779..52.779 rows=500213 loops=1)
          Index Cond: (total_amount > $1)
 ```
@@ -982,7 +982,7 @@ SubPlans are correlated subqueries executed for each row:
 
 ```sql
 -- Example of a query that would create a SubPlan
-SELECT o.*, 
+SELECT o.*,
        (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as item_count
 FROM orders o;
 
@@ -1033,7 +1033,7 @@ You now have the foundation to read and understand PostgreSQL's EXPLAIN ANALYZE 
 
 - How to decode cost estimates and actual execution times
 - Six different scan strategies and when PostgreSQL uses each
-- Three join algorithms and their performance characteristics  
+- Three join algorithms and their performance characteristics
 - How aggregation and sorting operations work
 - Advanced features like parallel queries and CTEs
 
@@ -1053,8 +1053,6 @@ Stay tuned for the practical guide to applying these EXPLAIN ANALYZE concepts!
 ---
 
 **Want more PostgreSQL optimization tips?** Subscribe to get notified when new database performance articles are published.
-
-{% include subscribe.html %}
 
 ## References
 
