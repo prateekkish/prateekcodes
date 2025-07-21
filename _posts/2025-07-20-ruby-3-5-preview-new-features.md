@@ -57,10 +57,6 @@ producer.join
 consumer.join
 ```
 
-### New Ractor Methods
-Ruby 3.5 adds new methods for better Ractor control:
-- `Ractor#join` - Wait for a Ractor to finish execution
-- `Ractor#value` - Get the return value of a Ractor
 
 ### Removed Ractor Methods
 The following methods have been removed:
