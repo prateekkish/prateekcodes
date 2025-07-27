@@ -11,7 +11,7 @@ keywords: "rails structured events, rails.event, rails observability, rails tele
 
 Most Rails developers have moved beyond the default string-based logging with gems like Lograge or Semantic Logger. But when it comes to tracking business events - user signups, order completions, feature usage - we're still building custom solutions or wrestling with tools that weren't designed for this purpose.
 
-Rails is working on something that could change this: a native event reporting system built right into the framework. Instead of cobbling together custom solutions, you'd have a first-class Rails API for emitting structured business events.
+Rails is exploring something that could change this: a native event reporting system built right into the framework. A pull request is currently under review that would give you a first-class Rails API for emitting structured business events, though it's still uncertain whether this feature will make it into Rails core.
 
 ## The Current State of Rails Event Tracking
 
@@ -66,9 +66,9 @@ It works, but you're maintaining custom event tracking code, manually managing c
 
 ## Enter Rails.event: A Native Solution for Business Events
 
-There's a [pull request in progress](https://github.com/rails/rails/pull/55334){:target="_blank" rel="noopener noreferrer" aria-label="Rails PR #55334 on GitHub (opens in new tab)"} that brings event tracking directly into Rails core. It introduces `Rails.event` - a native API that eliminates the need for custom event tracking gems or homegrown solutions.
+There's a [pull request under review](https://github.com/rails/rails/pull/55334){:target="_blank" rel="noopener noreferrer" aria-label="Rails PR #55334 on GitHub (opens in new tab)"} that proposes bringing event tracking directly into Rails core. It introduces `Rails.event` - a potential native API that could eliminate the need for custom event tracking gems or homegrown solutions.
 
-The beauty of having this built into Rails is consistency: every Rails app would have the same event emission patterns, the same context management, and the same subscriber architecture. No more researching which gem to use or building your own EventTracker class.
+If accepted, this would bring consistency to Rails apps: every Rails app could have the same event emission patterns, the same context management, and the same subscriber architecture. No more researching which gem to use or building your own EventTracker class.
 
 ### The Basics: Clean, Structured Events
 
@@ -238,41 +238,38 @@ Imagine you're building an e-commerce site and want to track what's happening in
 ```ruby
 class OrdersController < ApplicationController
   def create
-    # Tag everything in this action with controller/action context
-    Rails.event.tagged("controller" => "orders", "action" => "create") do
-      @order = current_user.orders.build(order_params)
+    @order = current_user.orders.build(order_params)
 
-      if @order.save
-        # Track successful order creation for analytics
-        Rails.event.notify("order.created", {
-          order_id: @order.id,
-          total: @order.total,
-          items_count: @order.items.count,
-          customer_tier: current_user.tier
-        })
-
-        # Signal that this order needs processing
-        Rails.event.notify("order.needs_processing", {
-          order_id: @order.id,
-          priority: @order.priority
-        })
-
-        redirect_to @order
-      else
-        # Track failed attempts (useful for funnel analysis)
-        Rails.event.notify("order.creation_failed", {
-          errors: @order.errors.full_messages,
-          attempted_total: params[:order][:total]
-        })
-
-        render :new
-      end
+    if @order.save
+      track_order_created(@order)
+      redirect_to @order
+    else
+      track_order_failed(@order)
+      render :new
     end
+  end
+
+  private
+
+  def track_order_created(order)
+    Rails.event.notify("order.created", {
+      order_id: order.id,
+      total: order.total,
+      items_count: order.items.count,
+      customer_tier: current_user.tier
+    })
+  end
+
+  def track_order_failed(order)
+    Rails.event.notify("order.creation_failed", {
+      errors: order.errors.full_messages,
+      attempted_total: params[:order][:total]
+    })
   end
 end
 ```
 
-Now you have rich, structured data about your order flow that your analytics team can actually use to build meaningful dashboards and funnels.
+Now you have rich, structured data about your order flow that your analytics team can actually use to build meaningful dashboards and funnels, without cluttering your controller action.
 
 ### Background Job Tracking
 
@@ -339,11 +336,11 @@ Now for the reality check - this feature isn't available yet. The [pull request]
 - **Performance tuning**: What optimizations are needed for high-throughput applications?
 
 **When will this be available?**
-The PR is being actively developed by Adrianna Chang from Shopify with input from Rails core team members. Since it was only opened in July 2025 and represents a significant new feature, it will likely require extensive review and iteration before being merge-ready. Given the typical Rails development cycle, this could potentially land in Rails 8.1 or later, but no timeline has been announced.
+The PR is being actively developed by Adrianna Chang from Shopify with input from Rails core team members. Since it was only opened in July 2025 and represents a significant new feature, it will require extensive review and iteration before any merge decision is made. There's no guarantee this feature will be accepted into Rails core, and if it is, it could potentially land in Rails 8.1 or later, but no timeline has been announced.
 
 ## Getting Ready: What You Can Do Now
 
-Even though this feature isn't available yet, you can start thinking about how you'd use it in your applications:
+Even though this feature might not make it into Rails core, you can start thinking about how you'd structure events in your applications:
 
 **Look for logging opportunities in your current codebase:**
 
@@ -354,7 +351,7 @@ Rails.logger.info "User signed up: #{user.email}"
 
 Think about what structured event this could become:
 ```ruby
-# This will be possible soon
+# This might be possible if the PR is accepted
 Rails.event.notify("user.signed_up", {
   user_id: user.id,
   email: user.email,
@@ -403,12 +400,12 @@ end
 
 ## Why This Matters More Than You Think
 
-Honestly, I'm pretty excited about this feature. It might seem like "just another logging system," but having this built directly into Rails could fundamentally change how we approach observability.
+Honestly, I'm pretty excited about this proposed feature. It might seem like "just another logging system," but if accepted and built directly into Rails, it could fundamentally change how we approach observability.
 
 Right now, every Rails team reinvents event tracking. Some use gems, others build custom solutions, and many just stick with basic logging. There's no standard approach, which means switching between projects often means learning different event systems.
 
-A native Rails event system changes that equation entirely. Imagine if every Rails application had consistent, rich event emission built in from day one. Your error tracking would be better. Your analytics would be more reliable. Your debugging would be way easier. And most importantly, you wouldn't need to research, evaluate, and maintain yet another gem.
+A native Rails event system would change that equation entirely. If this feature is accepted, every Rails application could have consistent, rich event emission built in from day one. Your error tracking would be better. Your analytics would be more reliable. Your debugging would be way easier. And most importantly, you wouldn't need to research, evaluate, and maintain yet another gem.
 
 Plus, Rails can optimize this at the framework level. The fiber-based context handling is designed to work seamlessly with Rails' concurrency model. The subscriber system integrates naturally with Rails' initialization process. And because it's native, future Rails features can emit events automatically without requiring additional gems.
 
-I suspect once this lands, we'll see a new generation of Rails applications that are observable by design rather than as an afterthought. Having it native to the framework makes observability a default rather than an add-on decision.
+I suspect if this feature lands, we'll see a new generation of Rails applications that are observable by design rather than as an afterthought. Having it native to the framework would make observability a default rather than an add-on decision.
