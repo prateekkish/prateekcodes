@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Rails is Getting a Structured Event Reporting System (and It's Pretty Cool)"
+title: "Rails (might be) Getting a Structured Event Reporting System (and It's Pretty Cool)"
 author: prateek
 categories: [ Rails, Upcoming Features, Events ]
 tags: [ rails, events, observability, telemetry, logging, instrumentation ]
