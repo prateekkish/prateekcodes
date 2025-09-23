@@ -1,7 +1,7 @@
 <!-- begin post -->
 {% assign author = site.authors[post.author] %}
 
-<div class="col-lg-4 col-md-6 mb-30px card-group" data-post-date="{{ post.date | date: '%s' }}" data-post-future="{% if jekyll.environment == 'production' %}true{% else %}false{% endif %}">
+<article class="col-lg-4 col-md-6 mb-30px card-group" data-post-date="{{ post.date | date: '%s' }}" data-post-future="{% if jekyll.environment == 'production' %}true{% else %}false{% endif %}">
     <a href="{{ site.baseurl }}{{ post.url }}" class="card-link-wrapper">
         <div class="card h-100">
             <div class="maxthumb">
@@ -40,5 +40,5 @@
             </div>
         </div>
     </a>
-</div>
+</article>
 <!-- end post -->
