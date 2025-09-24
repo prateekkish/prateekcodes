@@ -26,11 +26,11 @@ pluralize(5, "person")  # => "5 people"
 
 ## The Performance Problem
 
-Rails' pluralization system was creating multiple regex objects and performing redundant operations for every pluralization check. Each uncountable word required its own regex compilation, and the `Uncountables` class inherited from Array, creating unnecessary overhead.
+Rails' pluralization system was performing redundant operations for every pluralization check. While the regex patterns were compiled once, the system still had to iterate through and check each pattern individually. The `Uncountables` class also inherited from Array, creating unnecessary overhead.
 
 Before the optimization, checking if a word was uncountable meant:
-- Creating individual regex patterns for each uncountable word
-- Performing multiple regex matches
+- Iterating through each uncountable word pattern
+- Performing multiple individual regex matches
 - Maintaining complex array inheritance structure
 
 ## Rails Optimization Approach
@@ -135,20 +135,20 @@ render json: {
 
 ## Technical Deep Dive
 
-The optimization works by eliminating regex recompilation. Previously, each `uncountable?` check would create new regex objects:
+The optimization works by combining multiple regex checks into one. Previously, each `uncountable?` check would iterate through all patterns:
 
 ```ruby
-# Before: Creates new regex each time
-words = ['equipment', 'information', 'software']
-words.each { |word| /#{Regexp.escape(word)}/i.match?('equipment') }
+# Before: Check each regex individually
+uncountable_patterns.any? { |pattern| pattern.match?('equipment') }
+# This means potentially checking many patterns one by one
 ```
 
-Now, a single cached regex handles all uncountable words:
+Now, a single unified regex handles all uncountable words:
 
 ```ruby
 # After: One regex for all uncountable words
-pattern = Regexp.union([/equipment/i, /information/i, /software/i])
-pattern.match?('equipment') # Fast single check
+pattern = Regexp.union(uncountable_patterns)
+pattern.match?('equipment') # Single check against combined pattern
 ```
 
 The `Regexp.union()` method creates an optimized alternation pattern that the Ruby regex engine can process efficiently.
@@ -156,9 +156,9 @@ The `Regexp.union()` method creates an optimized alternation pattern that the Ru
 ## Memory and CPU Benefits
 
 Beyond raw speed improvements, the changes reduce:
-- **Memory allocation**: Fewer regex objects created
-- **CPU overhead**: Single regex compilation vs. multiple
-- **GC pressure**: Less object churn from repeated regex creation
+- **CPU overhead**: Single regex match vs. multiple iterations
+- **Performance overhead**: No need to loop through patterns
+- **Structural complexity**: Removed unnecessary Array inheritance
 
 Rails applications with heavy text processing will see the most benefit from these efficiency gains.
 

@@ -10,8 +10,6 @@ keywords: "dhh, rails world 2025, rails 8.1, omachi linux, action push, lexie ed
 date: 2025-09-07
 ---
 
-# DHH's Rails World 2025 Keynote: We're All CRUD Monkeys, and That's OK
-
 DHH started his Rails World 2025 keynote with a rant, and honestly, it hit home. Back in 1999, he could deploy a web app change in five seconds using FTP. Five seconds! Today? Teams of 50 developers are waiting 30 minutes, an hour, sometimes three hours for their CI/CD pipelines to finish. Some folks at the conference mentioned eight-day deployment cycles.
 
 We have faster computers than ever. More open source tools. Better everything, supposedly. Yet somehow we've made the simple act of shipping code exponentially slower. DHH's theory? We've stopped solving whole problems. Instead, we slice everything into tiny pieces, optimize each piece in isolation, and when we put it all back together, we've actually gone backwards.
@@ -82,9 +80,9 @@ Now jobs can pick up where they left off after a deploy. Should have had this ye
 
 ### Push Notifications Without AWS
 
-37signals is nuking their AWS account (DHH mentioned this casually, like it's no big deal), so they needed to replace AWS Pinpoint. Rosa Gutiérrez from 37signals has been working on the push notification infrastructure. Action Push Native talks directly to Apple and Google, while she's planning a similar gem for web push:
+37signals is nuking their AWS account (DHH mentioned this casually, like it's no big deal), so they needed to replace AWS Pinpoint. Rosa Gutiérrez from 37signals has been working on the push notification infrastructure. Action Push Native talks directly to Apple and Google, and there's a similar gem planned for web push:
 
-For the offline capabilities, Rosa has been extracting lessons from HEY's implementation to build proper offline support for Turbo using service workers (PR #1427 on the Turbo repo). She's giving a whole talk about "Bringing Offline Mode to Hotwire with Service Workers" later at Rails World.
+For the offline capabilities, Rosa has been extracting lessons from HEY's implementation to build proper offline support for Turbo using service workers ([PR #1427](https://github.com/hotwired/turbo/pull/1427){:target="_blank" rel="noopener noreferrer" aria-label="Turbo PR 1427 offline support (opens in new tab)"} on the Turbo repo). She gave another talk at Rails World about "Bringing Offline Mode to Hotwire with Service Workers".
 
 ```ruby
 # config/push.yml
@@ -147,7 +145,7 @@ The math is interesting. Light takes 220 milliseconds to travel from New York to
 
 To make this work, multiple 37signals developers built specialized tools:
 - **Active Record Tenanting**: Mike is developing this to give one database per customer (not per app, per CUSTOMER)
-- **Beamer**: Kevin McConnell built this SQLite replication system that handles thousands of databases in real-time. He's giving a whole talk about it later at Rails World.
+- **Beamer**: Kevin McConnell built this SQLite replication system that handles thousands of databases in real-time. He gave another talk about it at Rails World.
 - **Kamal Geo Proxy**: Routes you to the nearest server (extension of Kevin's work on Kamal Proxy)
 
 The target is 200ms response times, which DHH notes is about the reaction time of an F1 driver when the lights go out. If Fizzy works, most users would be within 25ms of their data.
