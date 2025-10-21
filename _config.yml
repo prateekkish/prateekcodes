@@ -5,7 +5,7 @@ description: "Learn how to build scalable backend systems with Ruby on Rails, Po
 logo: 'assets/images/logo.avif'
 favicon: 'assets/images/logo.avif'
 baseurl: ""
-url: "https://prateekcodes.dev"
+url: "https://prateekcodes.com"
 google_analytics: G-W6J29Y0M3V
 mailchimp-list:
 include: ["_pages"]
@@ -29,7 +29,7 @@ authors:
     display_name: Prateek Choudhary
     avatar: 'assets/images/prateek-avatar.avif'
     email: prateekkish@gmail.com
-    web: prateekcodes.dev
+    web: prateekcodes.com
     twitter: https://x.com/prateekkish
     linkedin: https://www.linkedin.com/in/choudharyprateek/
     github: https://github.com/prateekkish

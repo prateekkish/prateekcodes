@@ -1,4 +1,4 @@
-# Robots.txt for prateekcodes.dev
+# Robots.txt for prateekcodes.com
 # Allow all crawlers
 
 User-agent: *
@@ -10,7 +10,7 @@ Allow: /assets/images/
 Crawl-delay: 1
 
 # Sitemap location
-Sitemap: https://prateekcodes.dev/sitemap.xml
+Sitemap: https://prateekcodes.com/sitemap.xml
 
 # Additional sitemaps
-Sitemap: https://prateekcodes.dev/feed.xml
+Sitemap: https://prateekcodes.com/feed.xml

@@ -1,6 +1,6 @@
 # Prateek Codes Blog
 
-[Live Demo](https://prateekcodes.dev/)
+[Live Demo](https://prateekcodes.com/)
 
 ### Setup
 ```
