@@ -3,13 +3,10 @@ frontend:
   phases:
     preBuild:
       commands:
-        - ruby -v
-        - gem install bundler
         - bundle install
-        - bundle exec ruby -e "require 'rouge'; puts Rouge.version"
     build:
       commands:
-        - JEKYLL_ENV=production bundle exec jekyll build --trace
+        - JEKYLL_ENV=production bundle exec jekyll b
   artifacts:
     baseDirectory: _site
     files:
