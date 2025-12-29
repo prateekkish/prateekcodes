@@ -3,13 +3,19 @@ frontend:
   phases:
     preBuild:
       commands:
+        - nvm use 18
+        - ruby -v
+        - gem install bundler
+        - bundle config set --local path 'vendor/bundle'
         - bundle install
+        - bundle exec ruby -e "require 'rouge'; puts 'Rouge version: ' + Rouge.version"
     build:
       commands:
-        - JEKYLL_ENV=production bundle exec jekyll b
+        - JEKYLL_ENV=production bundle exec jekyll build --trace
   artifacts:
     baseDirectory: _site
     files:
       - '**/*'
   cache:
-    paths: []
+    paths:
+      - vendor/bundle/**/*
