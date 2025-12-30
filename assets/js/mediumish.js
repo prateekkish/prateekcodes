@@ -156,45 +156,28 @@ jQuery(document).ready(function($){
     
     // Code copy functionality
     function addCodeCopyButtons() {
-        // Find all code blocks in article posts
-        $('.article-post .highlighter-rouge').each(function() {
-            var $codeBlock = $(this);
-            
-            // Skip inline code
-            if ($codeBlock.is('code')) {
-                return;
-            }
-            
+        // Find all code blocks in article posts (Prism.js structure)
+        $('.article-post pre[class*="language-"]').each(function() {
+            var $pre = $(this);
+
             // Create copy button with icon
             var copyIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
             var checkIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" stroke-width="2"/></svg>';
-            
+
             var $copyButton = $('<button>')
                 .addClass('code-copy-btn')
                 .html(copyIcon)
                 .attr('aria-label', 'Copy code to clipboard');
-            
+
             // Add click handler
             $copyButton.on('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                
-                // Get the code text
-                var codeText = '';
-                
-                // Check for Rouge table structure
-                var $rougeCode = $codeBlock.find('.rouge-code pre');
-                if ($rougeCode.length > 0) {
-                    // Rouge with line numbers - get text from rouge-code column
-                    codeText = $rougeCode.text();
-                } else {
-                    // Standard code block or fallback
-                    var $pre = $codeBlock.find('pre');
-                    if ($pre.length > 0) {
-                        codeText = $pre.text();
-                    }
-                }
-                
+
+                // Get the code text from the code element inside pre
+                var $code = $pre.find('code');
+                var codeText = $code.length > 0 ? $code.text() : $pre.text();
+
                 // Copy to clipboard
                 if (navigator.clipboard && window.isSecureContext) {
                     navigator.clipboard.writeText(codeText).then(function() {
@@ -206,12 +189,9 @@ jQuery(document).ready(function($){
                     fallbackCopyCode(codeText, $copyButton, checkIcon, copyIcon);
                 }
             });
-            
-            // Insert button into the highlight div
-            var $highlight = $codeBlock.find('.highlight').first();
-            if ($highlight.length > 0) {
-                $highlight.append($copyButton);
-            }
+
+            // Append button directly to the pre element
+            $pre.append($copyButton);
         });
     }
     

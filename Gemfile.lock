@@ -110,7 +110,6 @@ DEPENDENCIES
   jekyll-sitemap
   kramdown
   kramdown-parser-gfm
-  rouge
   webrick (~> 1.7)
 
 RUBY VERSION

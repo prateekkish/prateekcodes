@@ -1488,7 +1488,7 @@ h6 {
 }
 
 /* Code block copy button styles */
-.article-post .highlighter-rouge .highlight {
+.article-post pre[class*="language-"] {
     position: relative;
 }
 
@@ -1537,17 +1537,12 @@ h6 {
 }
 
 /* For inline code */
-.article-post code.highlighter-rouge {
+.article-post code:not([class*="language-"]) {
     position: relative;
-}
-
-/* Ensure proper spacing for code blocks with copy button */
-.article-post .rouge-table {
-    width: 100%;
-}
-
-.article-post .rouge-code {
-    position: relative;
+    background: var(--bg-secondary);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.875em;
 }
 
 .layout-page .article-post {

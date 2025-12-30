@@ -19,7 +19,6 @@ group :jekyll_plugins do
     gem 'jekyll-compose'
     gem 'kramdown'
     gem 'kramdown-parser-gfm'
-    gem 'rouge'
     gem 'jekyll-environment-variables'
 end
 
