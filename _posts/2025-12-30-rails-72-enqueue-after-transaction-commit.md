@@ -234,6 +234,12 @@ class TimeStampedJob < ApplicationJob
 end
 ```
 
+## Update: Rails 8.2 Makes This the Default
+
+Rails 8.2 makes `enqueue_after_transaction_commit` the default behavior. Jobs are now automatically deferred until after the transaction commits without requiring explicit configuration.
+
+See [Rails 8.2 makes enqueue_after_transaction_commit the default](/rails-82-enqueue-after-transaction-commit-default){:aria-label="Blog post about Rails 8.2 enqueue_after_transaction_commit default"} for details on the change, opting out, and the deprecation history.
+
 ## Conclusion
 
 `enqueue_after_transaction_commit` eliminates a common source of race conditions in Rails applications. Instead of remembering to use `after_commit` callbacks or building custom workarounds, jobs are automatically deferred until transactions complete.
@@ -241,5 +247,6 @@ end
 ## References
 
 - [Pull Request #51426](https://github.com/rails/rails/pull/51426){:target="_blank" rel="noopener noreferrer" aria-label="Rails PR introducing enqueue_after_transaction_commit (opens in new tab)"} introducing the feature
+- [Pull Request #55788](https://github.com/rails/rails/pull/55788){:target="_blank" rel="noopener noreferrer" aria-label="Rails PR making enqueue_after_transaction_commit the default in Rails 8.2 (opens in new tab)"} making this the default in Rails 8.2
 - [Original Issue #26045](https://github.com/rails/rails/issues/26045){:target="_blank" rel="noopener noreferrer" aria-label="DHH's original issue about job scheduling in transactions (opens in new tab)"} by DHH describing the problem
 - [Active Job Basics Guide](https://guides.rubyonrails.org/active_job_basics.html){:target="_blank" rel="noopener noreferrer" aria-label="Rails Active Job documentation (opens in new tab)"}
