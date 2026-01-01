@@ -580,6 +580,8 @@ section.recent-posts {
     font-size: 1.3rem;
     font-weight: 700;
     line-height: 1.25;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .listrecent h2.card-title,
@@ -595,6 +597,8 @@ section.recent-posts {
     font-size: 0.95rem;
     line-height: 1.6;
     font-weight: 400;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .featured-box-img-cover {
