@@ -28,7 +28,7 @@ Apply these instructions to the repository root.
 
 | Directory | Purpose |
 |---|---|
-| `_posts/` | Blog posts as `YYYY-MM-DD-slug.md`. One file per post. |
+| `_posts/` | Blog posts as `YYYY-MM-DD-slug.md`. One file per post. See `_posts/AGENTS.md` for writing style and workflow. |
 | `_layouts/` | Page shell templates. `default.html` (428 lines) is the base; `post.html`, `page.html`, `archive.html` extend it. |
 | `_includes/` | Reusable HTML fragments: SEO tags, comments (Giscus), newsletter, search, related posts, social sharing. |
 | `_sass/` | SCSS source. Main styles in `mediumish.scss`. |
