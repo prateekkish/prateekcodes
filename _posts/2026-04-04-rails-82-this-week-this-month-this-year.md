@@ -82,7 +82,7 @@ end
 
 The predicate methods on instances complement these scopes when working with already-loaded records.
 
-## Week Boundary
+## How to change the week boundary
 
 `this_week?` uses Monday as the start of the week by default, consistent with ActiveSupport's `beginning_of_week`. If your application configures a different week start, that is respected:
 
