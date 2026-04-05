@@ -73,14 +73,17 @@ end
 
 ### In scopes
 
+For database queries, ActiveSupport already provides `all_week`, `all_month`, and `all_year` on `Date` and `Time`, which return ranges suitable for use in `where` clauses:
+
 ```ruby
 class Order < ApplicationRecord
-  scope :placed_this_week, -> { where(placed_at: Time.current.beginning_of_week..Time.current.end_of_week) }
-  scope :placed_this_month, -> { where(placed_at: Time.current.beginning_of_month..Time.current.end_of_month) }
+  scope :placed_this_week,  -> { where(placed_at: Time.current.all_week) }
+  scope :placed_this_month, -> { where(placed_at: Time.current.all_month) }
+  scope :placed_this_year,  -> { where(placed_at: Time.current.all_year) }
 end
 ```
 
-The predicate methods on instances complement these scopes when working with already-loaded records.
+The new predicate methods (`this_week?`, `this_month?`, `this_year?`) complement these scopes when working with already-loaded records in memory rather than filtering at the database level.
 
 ## How to change the week boundary
 
