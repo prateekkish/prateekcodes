@@ -34,6 +34,12 @@ Match existing posts. Read 2-3 recent posts in `_posts/` before drafting.
 - Bullet lists for enumerating tradeoffs or consequences — not for padding.
 - Link to source commits, RFCs, or changelogs when citing a specific change (see existing posts for link format).
 
+**Internal backlinks:**
+- When writing about a topic that relates to previous posts, link to them naturally in context. For example, a new PostgreSQL optimization post should reference earlier posts in the optimization series if they are relevant.
+- To find candidates: scan `_posts/` by category/tag overlap before drafting. If the new post builds on or contrasts with an existing one, link to it in the body where it fits naturally - not as a "see also" dump at the end.
+- Use the post's permalink (`/:title/`) as the link target. The date is not part of the URL.
+- Only link when it genuinely adds context for the reader. Do not force links.
+
 **Code examples:**
 - Examples must be concrete and realistic, not toy snippets.
 - Every code example that is not explicitly vague or conceptual must be run and verified before the post is published.
