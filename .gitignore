@@ -5,9 +5,3 @@ _site
 .sass-cache
 *~
 CLAUDE.md
-.code-mint-source/
-.agents/reports/*
-!.agents/reports/.gitkeep
-!.agents/reports/completed/
-.agents/reports/completed/*
-!.agents/reports/completed/.gitkeep
