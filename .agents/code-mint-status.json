@@ -6,9 +6,9 @@
   "outcomes": {
     "validate_current_state": { "status": "Proven", "date": "2026-04-05" },
     "navigate": { "status": "Proven", "date": "2026-04-05" },
-    "self_test": { "status": "In Progress", "date": "2026-04-05" },
+    "self_test": { "status": "N/A", "date": "2026-04-05" },
     "smoke_path": { "status": "Proven", "date": "2026-04-05" },
     "bug_reproduction": { "status": "Not Started", "date": null },
-    "sre_investigation": { "status": "Not Started", "date": null }
+    "sre_investigation": { "status": "N/A", "date": "2026-04-05" }
   }
 }

@@ -28,10 +28,10 @@ This file is intended to be copied into the target repository and updated there 
 |---|---|---|
 | `Validate Current State` | Proven | 2026-04-05 |
 | `Navigate` | Proven | 2026-04-05 |
-| `Self-Test` | In Progress | 2026-04-05 |
+| `Self-Test` | N/A | 2026-04-05 |
 | `Smoke Path` | Proven | 2026-04-05 |
 | `Bug Reproduction` | Not Started | — |
-| `SRE Investigation` | Not Started | — |
+| `SRE Investigation` | N/A | 2026-04-05 |
 
 ## Outcome Details
 
@@ -65,13 +65,13 @@ The agent can explain where to work and why modules exist.
 
 The agent can run the smallest relevant automated checks and trust the result.
 
-- **Status:** In Progress
+- **Status:** N/A
 - **Date:** 2026-04-05
-- **Evidence:** Test-readiness audit at `.agents/reports/autonomy--test-readiness-auditor-audit.md` — Overall: Failing. No test framework. No test files. CI never runs tests.
-- **Exact Check:** Auditor discovered: no RSpec/Minitest/htmlproofer in Gemfile, no `spec/` or `test/` directories, Amplify CI has no test step, GitHub Actions workflow is manual-dispatch only.
-- **What Passed:** `_plugins/seo_enhancements.rb` identified as the only custom Ruby code — sole candidate for unit tests.
-- **What Is Still Missing:** Any test infrastructure. Minimum viable options: htmlproofer (build output validation) and/or RSpec for the plugin.
-- **Next Action:** Decision needed: should we add htmlproofer and/or RSpec? Mark N/A if no automated tests are desired for this personal blog. (Requires user decision.)
+- **Evidence:** No test infrastructure exists. Static blog with no application logic warranting automated tests.
+- **Exact Check:** N/A — personal blog; owner decided automated tests are out of scope.
+- **What Passed:** N/A
+- **What Is Still Missing:** N/A
+- **Next Action:** None — intentionally out of scope.
 
 ### Smoke Path
 
@@ -101,13 +101,13 @@ The agent can reproduce a reported issue before proposing a fix.
 
 The agent can inspect logs, metrics, traces, CI, or infra evidence.
 
-- **Status:** Not Started
-- **Date:** —
-- **Evidence:** investigation note, query output, linked dashboard/log command
-- **Exact Check:** Gather operational evidence, produce a ranked hypothesis, and record the next actions or `N/A` reason.
-- **What Passed:** —
-- **What Is Still Missing:** —
-- **Next Action:** Mark `N/A` only when no operational tooling exists.
+- **Status:** N/A
+- **Date:** 2026-04-05
+- **Evidence:** N/A — static site deployed to AWS Amplify. No application runtime, no logs, no metrics, no tracing.
+- **Exact Check:** N/A — owner decided Amplify build logs are out of scope for agent investigation.
+- **What Passed:** N/A
+- **What Is Still Missing:** N/A
+- **Next Action:** None — intentionally out of scope.
 
 ## Suggested Evidence Patterns
 
