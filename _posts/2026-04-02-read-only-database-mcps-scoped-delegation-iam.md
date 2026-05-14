@@ -72,7 +72,7 @@ Audit is where the design earns most of its keep, and it is the part most early 
 
 Two payoffs from getting this right.
 
-First, the audit log is the post-incident forensic record, the same role audit logs play in human-IAM systems. When something has gone wrong, the question "what did this principal do, when, and against what" needs a deterministic answer. Reconstructing agent behavior from prompts and model outputs is hopeless. Reconstructing it from a list of tool calls is mechanical.
+First, the audit log is the post-incident forensic record, the role audit logs have always played in human-IAM systems. When something has gone wrong, the question "what did this principal do, when, and against what" needs a deterministic answer. Reconstructing agent behavior from prompts and model outputs is hopeless. Reconstructing it from a list of tool calls is mechanical.
 
 Second, the audit log is the dataset on which agent behavior is tuned. Anomaly detection on agent activity becomes concrete once the data exists. A `customer_support_lookup` role that suddenly starts paginating through every customer in the database is a signal whose detection does not require understanding the model; it requires understanding the policy. The same techniques that flagged a service account exfiltrating data in 2015 flag an agent doing the same thing now.
 
